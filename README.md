@@ -112,3 +112,5 @@ docker exec -it ip2tor-shop-tor cat var/lib/tor/ip2tor-shop_hidden_service/hostn
 Delete the .tor folder in the root folder of our shop.  
 Next time the container is built, it will create the corresponding folder and add new files with a new address.
 
+__WARNING__: By doing this, you'll lose the address permanently, so be sure to make a backup of the ```tor``` folder if you want to reuse it at a later time.
+
