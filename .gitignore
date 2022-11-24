@@ -3,5 +3,6 @@ db-data
 media
 static
 ip2tor
+venv
 .env
 .tor

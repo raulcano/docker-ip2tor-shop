@@ -80,6 +80,20 @@ Additionally, once the ```tor``` service runs successfully for the first time, t
 volumes:
     - .tor/ip2tor-shop_hidden_service:/var/lib/tor/ip2tor-shop_hidden_service/
 ```
+# .docker/start.sh
+This script is used to automatize all tasks concerning the startup of these containers:
+- django
+- celery-beat
+- celery-worker
+
+Among other things, this script sets up the Python environment and copies the patched files to their respective locations.
+
+After all the preparation instructions are run, the script executes the service depending on which container called it (django/daphne, celery-beat or celery-worker).
+
+# .docker/start-tor.sh
+This script ensures two things in order to correctly run ```tor```.
+- That the ```tor``` service is run with the correct user.
+- That the mounted directory has the correct permissions (i.e. 750). If left with the default permissions, tor would complain that the folder is "too permissive".
 
 # Other tips & tricks
 
