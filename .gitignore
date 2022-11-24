@@ -4,3 +4,4 @@ media
 static
 ip2tor
 .env
+.tor
