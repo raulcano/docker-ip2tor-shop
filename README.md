@@ -68,6 +68,20 @@ The first time composer runs, it will download from Git the ip2tor app and put i
 
 If you want to start fresh, delete that directory, next time we run “docker compose up”, it will be downloaded.
 
+# Docker bind mounts
+The root folder of the project (where the ```docker-compose.yml``` lives) is mounted in some containers as ```/home/ip2tor```. You'll identify that by the following line in the ```docker-compose.yml``` file.
+```
+volumes:
+    - .:/home/ip2tor
+```
+
+Additionally, once the ```tor``` service runs successfully for the first time, the folder ```.tor``` will be created in the root directory. This ```.tor``` folder contains the relevant data for the hidden service and onion address.
+```
+volumes:
+    - .tor/ip2tor-shop_hidden_service:/var/lib/tor/ip2tor-shop_hidden_service/
+```
+
+# Other tips & tricks
 
 ## Updating settings without having to modify the repo
 Have a look at the .docker/patch folder.
@@ -75,12 +89,12 @@ There, you'll find the settings.py file, which will overwrite the one downloaded
 
 
 ## How to get the onion address to your shop
-Once the docker containers are up
+Once the docker containers are up, you can type the following in the terminal (root folder of the shop, outside the containers):
 ```
 docker exec -it ip2tor-shop-tor cat var/lib/tor/ip2tor-shop_hidden_service/hostname
 ```
 
 ## How to reset the onion address
 Delete the .tor folder in the root folder of our shop.  
-Next time the container is built, it will create the corresponding folder and add new files with a new address
+Next time the container is built, it will create the corresponding folder and add new files with a new address.
 
