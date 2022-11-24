@@ -1,0 +1,155 @@
+version: '3'
+services:
+  django:
+    build:
+      context: .
+      # dockerfile: .docker/no-venv/novenv.Dockerfile
+      dockerfile: .docker/Dockerfile
+    container_name: ip2tor-shop-django
+    hostname: django
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - .:/home/ip2tor
+    environment:
+      CONTAINER_ROLE: "django"
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8001"] # This won't work with the daphne server (no http app configured)
+    #   interval: 1m30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 40s
+    networks:
+      - shopnet
+  
+  nginx:
+    build:
+      context: .
+      dockerfile: .docker/nginx.Dockerfile
+    container_name: ip2tor-shop-nginx
+    hostname: nginx
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    depends_on:
+      django:
+        # condition: service_healthy
+        # condition: service_completed_successfully
+        condition: service_started
+    ports:
+      - 8000:88
+    environment:
+      CONTAINER_ROLE: "nginx"
+    networks:
+      - shopnet
+
+  # celery-beat:
+  #   build:
+  #     context: .
+  #     dockerfile: .docker/Dockerfile
+  #   container_name: ip2tor-shop-celery-beat
+  #   hostname: celery-beat
+  #   deploy:
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 5s
+  #       max_attempts: 3
+  #       window: 120s
+  #   depends_on:
+  #     django:
+  #       # condition: service_completed_successfully
+  #       # condition: service_healthy
+  #       condition: service_started
+  #   volumes:
+  #     - .:/home/ip2tor
+  #   environment:
+  #     CONTAINER_ROLE: "celery-beat"
+  #   networks:
+  #     - shopnet
+
+  # celery-worker:
+  #   build:
+  #     context: .
+  #     dockerfile: .docker/Dockerfile
+  #   container_name: ip2tor-shop-celery-worker
+  #   hostname: celery-worker
+  #   deploy:
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 5s
+  #       max_attempts: 3
+  #       window: 120s
+  #   depends_on:
+  #     django:
+  #       # condition: service_completed_successfully
+  #       # condition: service_healthy
+  #       condition: service_started
+  #   volumes:
+  #     - .:/home/ip2tor
+  #   environment:
+  #     CONTAINER_ROLE: "celery-worker"
+  #   networks:
+  #     - shopnet
+
+  redis:
+    image: redis:4-alpine
+    container_name: ip2tor-shop-redis
+    hostname: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - redis:/data
+    networks:
+      - shopnet
+  
+  postgres:
+    image: postgres:12
+    container_name: ip2tor-shop-postgres
+    hostname: postgres
+    env_file:
+      - .env 
+    ports:
+      - 5432:5432
+    volumes:
+      - ./db-data/:/var/lib/postgresql/data/
+    networks:
+      - shopnet
+  
+  # To get the Onion address
+  # docker exec -it ip2tor-shop-tor cat var/lib/tor/ip2tor-shop_hidden_service/hostname
+  tor:
+    build:
+      dockerfile: .docker/tor.Dockerfile
+    container_name: ip2tor-shop-tor
+    depends_on:
+      - nginx
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    volumes:
+          - .tor/ip2tor-shop_hidden_service:/var/lib/tor/ip2tor-shop_hidden_service/
+    ports:
+      - 80:80
+    networks:
+      - shopnet  
+
+networks:
+    shopnet:
+        driver: bridge
+
+volumes:
+  redis:
+    driver: "local"
