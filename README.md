@@ -86,7 +86,7 @@ This script is used to automatize all tasks concerning the startup of these cont
 - celery-beat
 - celery-worker
 
-Among other things, this script sets up the Python environment and copies the patched files to their respective locations.
+Among other things, this script sets up the Python environment, run migrations for the database, collects the static data from django and copies the patched files to their respective locations.
 
 After all the preparation instructions are run, the script executes the service depending on which container called it (django/daphne, celery-beat or celery-worker).
 

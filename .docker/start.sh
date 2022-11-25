@@ -71,8 +71,8 @@ if [ "$role" = "django" ]; then
 
   cd /home/ip2tor/ip2tor
   echo "Starting Django in port 8001... "
-  # /home/ip2tor/venv/bin/daphne -b 0.0.0.0 -p 8001 --proxy-headers django_ip2tor.asgi:application
-  python manage.py runserver 0.0.0.0:8001
+  /home/ip2tor/venv/bin/daphne -b 0.0.0.0 -p 8001 --proxy-headers django_ip2tor.asgi:application
+  # python manage.py runserver 0.0.0.0:8001
 
 
 elif [ "$role" = "celery-beat" ] || [ "$role" = "celery-worker" ]; then
