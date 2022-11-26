@@ -64,15 +64,15 @@ if [ "$role" = "django" ]; then
   # Limit access rights to base and media directory
   # chmod 700 /home/ip2tor/ip2tor  # !!! uncomment after debugging
   
-  # Leaving r-x in Other for both folders, since we need to copy this data in the nginx container
+  # Leaving r-x in Other for both folders
   chmod -R 755 /home/ip2tor/media 
   chmod -R 755 /home/ip2tor/static
 
 
   cd /home/ip2tor/ip2tor
-  echo "Starting Django in port 8001... "
-  # /home/ip2tor/venv/bin/daphne -b 0.0.0.0 -p 8001 --proxy-headers django_ip2tor.asgi:application
-  python manage.py runserver 0.0.0.0:8001
+  echo "Starting Django in port "$DJANGO_PORT"... "
+  /home/ip2tor/venv/bin/daphne -b 0.0.0.0 -p $DJANGO_PORT --proxy-headers django_ip2tor.asgi:application
+  # python manage.py runserver 0.0.0.0:$DJANGO_PORT
 
 
 elif [ "$role" = "celery-beat" ] || [ "$role" = "celery-worker" ]; then
