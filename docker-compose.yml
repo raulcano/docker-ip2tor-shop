@@ -48,6 +48,9 @@ services:
         condition: service_started
     ports:
       - 8000:88
+    volumes:
+      - ./static:/usr/share/nginx/static
+      - ./media:/usr/share/nginx/media
     environment:
       CONTAINER_ROLE: "nginx"
     networks:
