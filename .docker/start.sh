@@ -20,8 +20,8 @@ if [ "$role" = "django" ]; then
   cd /home/ip2tor/ip2tor
 
   # Add concrete version of Protobuf to requirements to avoid failure (we add the line if it does not exist)
-  grep -qxF 'protobuf==3.20.*' requirements.txt || echo 'protobuf==3.20.*' >> requirements.txt
-  grep -qxF 'daphne' requirements.txt || echo 'daphne' >> requirements.txt
+  # grep -qxF 'protobuf==3.20.*' requirements.txt || echo 'protobuf==3.20.*' >> requirements.txt
+  # grep -qxF 'daphne' requirements.txt || echo 'daphne' >> requirements.txt
   python -m pip install --upgrade -r requirements.txt
   python -m pip install --upgrade psycopg2-binary
 
@@ -46,14 +46,14 @@ if [ "$role" = "django" ]; then
   mkdir /home/ip2tor/static
 
   # patch the files with the changes I have introduced in the code downloaded from Github
-  cp /home/ip2tor/.docker/patch/settings.py /home/ip2tor/ip2tor/django_ip2tor/settings.py
-  cp /home/ip2tor/.docker/patch/lninvoice-signals.py /home/ip2tor/ip2tor/charged/lninvoice/signals.py
-  cp /home/ip2tor/.docker/patch/lnnode-signals.py /home/ip2tor/ip2tor/charged/lnnode/signals.py
-  cp /home/ip2tor/.docker/patch/views.py /home/ip2tor/ip2tor/shop/api/v1/views.py
-  cp /home/ip2tor/.docker/patch/routing.py /home/ip2tor/ip2tor/shop/routing.py
+  # cp /home/ip2tor/.docker/patch/settings.py /home/ip2tor/ip2tor/django_ip2tor/settings.py
+  # cp /home/ip2tor/.docker/patch/lninvoice-signals.py /home/ip2tor/ip2tor/charged/lninvoice/signals.py
+  # cp /home/ip2tor/.docker/patch/lnnode-signals.py /home/ip2tor/ip2tor/charged/lnnode/signals.py
+  # cp /home/ip2tor/.docker/patch/views.py /home/ip2tor/ip2tor/shop/api/v1/views.py
+  # cp /home/ip2tor/.docker/patch/routing.py /home/ip2tor/ip2tor/shop/routing.py
 
   # We enable a custom command in shop/management/commands because the default superuser creation could not be automatized
-  cp /home/ip2tor/.docker/createsuperuser_programatically.py /home/ip2tor/ip2tor/shop/management/commands/createsuperuser_programatically.py
+  # cp /home/ip2tor/.docker/createsuperuser_programatically.py /home/ip2tor/ip2tor/shop/management/commands/createsuperuser_programatically.py
 
   # Run django setup jobs
   python manage.py collectstatic <<<yes # confirm overwrite if the folder already contains files
@@ -71,8 +71,8 @@ if [ "$role" = "django" ]; then
 
   cd /home/ip2tor/ip2tor
   echo "Starting Django in port 8001... "
-  /home/ip2tor/venv/bin/daphne -b 0.0.0.0 -p 8001 --proxy-headers django_ip2tor.asgi:application
-  # python manage.py runserver 0.0.0.0:8001
+  # /home/ip2tor/venv/bin/daphne -b 0.0.0.0 -p 8001 --proxy-headers django_ip2tor.asgi:application
+  python manage.py runserver 0.0.0.0:8001
 
 
 elif [ "$role" = "celery-beat" ] || [ "$role" = "celery-worker" ]; then
