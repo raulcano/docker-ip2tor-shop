@@ -1,7 +1,7 @@
 # IP2TOR Shop - Docker files
 This repository includes the structure to deploy the ip2tor shop using Docker compose.
 
-The content deployed is based on this repository https://github.com/frennkie/django-ip2tor .  
+The content deployed is based on this repository https://github.com/frennkie/django-ip2tor . which I have forked and introduced some minor changes here: https://github.com/raulcano/ip2tor.
 
 # TL;DR
 
@@ -31,7 +31,7 @@ To take advantage of Docker's isolation principles, the following containers are
 # Getting started
 
 By default, the shop will accept connections via Tor on the port 80.
-Ensure no other app is using that one.
+Ensure no other app is using that one.  
 E.g.:  
 ```sudo service apache2 stop```
 
@@ -40,17 +40,15 @@ Open the .env file in the root folder and ensure you introduced the correct valu
 
 ```
 # This variables are setting up the postgres container
-POSTGRES_USER=...
-POSTGRES_PASSWORD=...
+POSTGRES_USER=<your_user>
+POSTGRES_PASSWORD=<your_password>
 POSTGRES_DB=ip2tor_shop #you can leave this or add any of your choice
 
 
 # This variables are for the django app
 # If using the postgres database, then we need to fill the URL with the same values as above
-DATABASE_URL="postgres://user:password@postgres:5432/ip2tor_shop"
+DATABASE_URL="postgres://<your_user>:<your_password>@postgres:5432/ip2tor_shop"
 EMAIL_URL="submission://sender@example.com:password@smtp.exmaple.com:587/"
-ADMIN_NAME="shop_admin"
-ADMIN_EMAIL="shop_admin@email.com"
 
 DJANGO_SUPERUSER_NAME="shop_admin"
 DJANGO_SUPERUSER_PASSWORD="..."
@@ -107,6 +105,11 @@ Once the docker containers are up, you can type the following in the terminal (r
 ```
 docker exec -it ip2tor-shop-tor cat var/lib/tor/ip2tor-shop_hidden_service/hostname
 ```
+You can also create an alias in your local terminal, to make that call easier:
+```
+alias onion='docker exec -it ip2tor-shop-tor cat var/lib/tor/ip2tor-shop_hidden_service/hostname'
+```
+After running that last command, you'll get your onion address simply by typing ```onion```.
 
 ## How to reset the onion address
 Delete the .tor folder in the root folder of our shop.  
