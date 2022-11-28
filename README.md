@@ -132,7 +132,14 @@ This value is necessary for the configuration of the host, and __needs to be pas
 
 
 ## Host Token (IP2TOR_HOST_TOKEN)
-After you have added a host successfully to the Hosts table
+After you have added a host successfully to the Hosts table, visit the admin tokens page: ```http://localhost:8000/admin/authtoken/tokenproxy/```
+
+In the column "User", will find a row with the same Host ID of the host we just generated. There, the token is the value under the "Key" column. 
+
+The format is something like this: ```4oik58db29fba90761da646e06asd82d00ef0000```
+
+This value is necessary for the configuration of the host, and __needs to be pasted in the host's .env file__:
+```IP2TOR_HOST_TOKEN=whatever_token_you_get_for_your_host_id```  
 
 # Other tips & tricks
 
