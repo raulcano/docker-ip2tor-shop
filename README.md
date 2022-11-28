@@ -118,12 +118,23 @@ Once in:
 - go to User, create a user with the name 'operator' and add it to "operators" group
 - go to Hosts and create your first host
 
+## Host ID (IP2TOR_HOST_ID)
+
+Every time you add a host in the Hosts table in the Shop admin interface, its host ID will be generated automatically.  
+
+- Go to the host admin page and add a host with the relevant data: ```http://localhost:8000/admin/shop/host/add/```
+- List all hosts in the admin page and get the ID from the ID column on the table, for the host you just added: ```http://localhost:8000/admin/shop/host/```
+
+The format is something like this: ```58b61c0b-0a00-0b00-0c00-0d0000000000```.  
+
+This value is necessary for the configuration of the host, and __needs to be pasted in the host's .env file__:
+```IP2TOR_HOST_ID=whatever_value_you_get_as_host_id_after_adding_a_host```  
+
+
+## Host Token (IP2TOR_HOST_TOKEN)
+After you have added a host successfully to the Hosts table
+
 # Other tips & tricks
-
-## Updating settings without having to modify the repo
-Have a look at the .docker/patch folder.
-There, you'll find the settings.py file, which will overwrite the one downloaded from the repo, so you can update some stuff there if necessary.
-
 
 ## How to get the onion address to your shop
 Once the docker containers are up, you can type the following in the terminal (root folder of the shop, outside the containers):
@@ -142,3 +153,11 @@ Next time the container is built, it will create the corresponding folder and ad
 
 __WARNING__: By doing this, you'll lose the address permanently, so be sure to make a backup of the ```tor``` folder if you want to reuse it at a later time.
 
+## Updating settings without having to modify the repo (DEPRECATED)
+At the moment, just go to the ip2tor/django_ip2tor/settings.py file and update as necessary.
+
+Originally I designed this structure to patch the settings file with an editable copy at the .docker/patch folder.
+There, you'll find the settings.py file, which will overwrite the one downloaded the repo, so you can update some stuff there if necessary without modifying the original settings file in the django folder.
+
+You could still use this way if you prefer, but you'll have to add a line in the start.sh script:
+```cp /home/ip2tor/.docker/patch/settings.py /home/ip2tor/ip2tor/django_ip2tor/settings.py```
