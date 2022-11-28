@@ -1,8 +1,8 @@
 _gsdata_
 db-data
-media
-static
-ip2tor
+# media
+# static
+# ip2tor
 venv
 .env
 .tor

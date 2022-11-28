@@ -98,17 +98,14 @@ This script ensures two things in order to correctly run ```tor```.
 - That the ```tor``` service is run with the correct user.
 - That the mounted directory has the correct permissions (i.e. 750). If left with the default permissions, tor would complain that the folder is "too permissive".
 
-# .docker/patch/settings.py
+# ip2tor/django_ip2tor/settings.py
 
-This variable lives in the ip2tor repository needs to be updated accordingly. E.g.:  
+This variable needs to be updated accordingly. E.g.:  
 ```CSRF_TRUSTED_ORIGINS=['http://localhost:8000']```
 
 For development, you don't need to do anything if you log into your Django admin pages from ```localhost:8000```, but once you deploy to production or use a different port, then you'll have to add the proper values.
 
 I haven't tested it yet, but I suppose you need to add there also the ONION address if you are using one for your shop.
-
-The start.sh script copies the patched ```settings.py``` into the django installation in this line:  
-```cp /home/ip2tor/.docker/patch/settings.py /home/ip2tor/ip2tor/django_ip2tor/settings.py```
 
 # Shop admin pages
 Once the containers are up, visit your site admin pages. E.g.:  

@@ -12,9 +12,9 @@ if [ "$role" = "django-http" ]; then
   python -m pip install --upgrade pip setuptools
 
   # Get the codefrom Github
-  cd /home/ip2tor
-  mkdir ip2tor
-  git clone https://github.com/raulcano/ip2tor ip2tor
+  # cd /home/ip2tor
+  # mkdir ip2tor
+  # git clone https://github.com/raulcano/ip2tor ip2tor
 
   # Install python dependencies
   cd /home/ip2tor/ip2tor
@@ -46,7 +46,7 @@ if [ "$role" = "django-http" ]; then
   mkdir /home/ip2tor/static
 
   # patch the files with the changes I have introduced in the code downloaded from Github
-  cp /home/ip2tor/.docker/patch/settings.py /home/ip2tor/ip2tor/django_ip2tor/settings.py
+  # cp /home/ip2tor/.docker/patch/settings.py /home/ip2tor/ip2tor/django_ip2tor/settings.py
   # cp /home/ip2tor/.docker/patch/lninvoice-signals.py /home/ip2tor/ip2tor/charged/lninvoice/signals.py
   # cp /home/ip2tor/.docker/patch/lnnode-signals.py /home/ip2tor/ip2tor/charged/lnnode/signals.py
   # cp /home/ip2tor/.docker/patch/views.py /home/ip2tor/ip2tor/shop/api/v1/views.py
