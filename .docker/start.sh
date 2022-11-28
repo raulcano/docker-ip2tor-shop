@@ -35,8 +35,8 @@ if [ "$role" = "django-http" ]; then
     # add the database URL, email URL and admin data from the root .env file
     echo -e 'DATABASE_URL="'$DATABASE_URL'"' | tee --append .env
     echo -e 'EMAIL_URL="'$EMAIL_URL'"' | tee --append .env
-    echo -e 'ADMIN_NAME="'$ADMIN_NAME'"' | tee --append .env
-    echo -e 'ADMIN_EMAIL="'$ADMIN_EMAIL'"' | tee --append .env
+    # echo -e 'ADMIN_NAME="'$ADMIN_NAME'"' | tee --append .env
+    # echo -e 'ADMIN_EMAIL="'$ADMIN_EMAIL'"' | tee --append .env
     
     # add the secret key
     /home/ip2tor/venv/bin/python /home/ip2tor/.docker/get-secret-key.py | tee --append .env
@@ -46,7 +46,7 @@ if [ "$role" = "django-http" ]; then
   mkdir /home/ip2tor/static
 
   # patch the files with the changes I have introduced in the code downloaded from Github
-  # cp /home/ip2tor/.docker/patch/settings.py /home/ip2tor/ip2tor/django_ip2tor/settings.py
+  cp /home/ip2tor/.docker/patch/settings.py /home/ip2tor/ip2tor/django_ip2tor/settings.py
   # cp /home/ip2tor/.docker/patch/lninvoice-signals.py /home/ip2tor/ip2tor/charged/lninvoice/signals.py
   # cp /home/ip2tor/.docker/patch/lnnode-signals.py /home/ip2tor/ip2tor/charged/lnnode/signals.py
   # cp /home/ip2tor/.docker/patch/views.py /home/ip2tor/ip2tor/shop/api/v1/views.py

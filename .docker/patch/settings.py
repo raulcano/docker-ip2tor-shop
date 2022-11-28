@@ -46,6 +46,7 @@ SECRET_KEY = env.str("SECRET_KEY")
 DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS=['http://localhost:8000']
 
 # Django logging setup
 LOGGING = {
@@ -279,6 +280,10 @@ CHARGED_INFO_CURRENCIES_FIAT = env.list('CHARGED_INFO_CURRENCIES_FIAT', default=
 CHARGED_LNINVOICE_TIMEOUT = env.int('CHARGED_LNINVOICE_TIMEOUT', default=900)
 
 SHOP_BRIDGE_DURATION_GRACE_TIME = env.int('SHOP_BRIDGE_DURATION_GRACE_TIME', default=600)
+
+
+
+
 
 # allow for a local file ("django_ip2tor/local_settings.py") to be used to add or override settings
 if os.path.isfile(os.path.join(BASE_DIR, 'django_ip2tor', 'local_settings.py')):

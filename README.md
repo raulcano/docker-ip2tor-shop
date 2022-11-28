@@ -12,7 +12,8 @@ Assuming you have Docker installed in your system, go to your directory of choic
 git clone https://github.com/raulcano/docker-ip2tor-shop.git
 cd docker-ip2tor-shop
 ```
-_Adjust the .env variables (see below)_  
+- _Adjust the environment variables in .env (see below)_  
+- _Adjust the CSRF_TRUSTED_ORIGINS variable in .docker/patch/settings.py (see below)_
 
 ```
 docker compose build
@@ -21,7 +22,8 @@ docker compose up
 
 To take advantage of Docker's isolation principles, the following containers are created:
 - nginx
-- django (here is where the main app stuff happens)
+- django-http (here is where the main app stuff happens, plus a http server is started)
+- django-daphne
 - redis
 - postgres
 - celery-beat
@@ -80,18 +82,29 @@ volumes:
 ```
 # .docker/start.sh
 This script is used to automatize all tasks concerning the startup of these containers:
-- django
+- django-http
+- django-daphne
 - celery-beat
 - celery-worker
 
 Among other things, this script sets up the Python environment, run migrations for the database, collects the static data from django and copies the patched files to their respective locations.
 
-After all the preparation instructions are run, the script executes the service depending on which container called it (django/daphne, celery-beat or celery-worker).
+After all the preparation instructions are run, the script executes the service depending on which container called it (django-http, django-daphne, celery-beat or celery-worker).
 
 # .docker/start-tor.sh
 This script ensures two things in order to correctly run ```tor```.
 - That the ```tor``` service is run with the correct user.
 - That the mounted directory has the correct permissions (i.e. 750). If left with the default permissions, tor would complain that the folder is "too permissive".
+
+# .docker/patch/settings.py
+
+This variable lives in the ip2tor repository needs to be updated accordingly. E.g.:  
+```CSRF_TRUSTED_ORIGINS=['http://localhost:8000']```
+
+For development, you don't need to do anything if you log into your Django admin pages from ```localhost:8000```, but once you deploy to production or use a different port, then you'll have to add the proper values.
+
+The start.sh script copies the patched ```settings.py``` into the django installation in this line:  
+```cp /home/ip2tor/.docker/patch/settings.py /home/ip2tor/ip2tor/django_ip2tor/settings.py```
 
 # Other tips & tricks
 
