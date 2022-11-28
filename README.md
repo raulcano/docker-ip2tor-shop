@@ -22,13 +22,15 @@ docker compose up
 
 To take advantage of Docker's isolation principles, the following containers are created:
 - nginx
-- django-http (here is where the main app stuff happens, plus a http server is started)
+- django-http  
+    - _Here is where the main app stuff happens, plus a http server is started)_
 - django-daphne
 - redis
 - postgres
 - celery-beat
 - celery-worker
-- tor (this one is not mandatory, but useful to generate a hidden service to access your shop)
+- tor
+    - _This container is not mandatory, but useful to generate a hidden service to access your shop)_
 
 # Getting started
 
