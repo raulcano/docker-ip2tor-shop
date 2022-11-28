@@ -89,7 +89,7 @@ This script is used to automatize all tasks concerning the startup of these cont
 - celery-beat
 - celery-worker
 
-Among other things, this script sets up the Python environment, run migrations for the database, collects the static data from django and copies the patched files to their respective locations.
+Among other things, this script sets up the Python environment, run migrations for the database and collects the static data from django.
 
 After all the preparation instructions are run, the script executes the service depending on which container called it (django-http, django-daphne, celery-beat or celery-worker).
 
@@ -107,15 +107,15 @@ For development, you don't need to do anything if you log into your Django admin
 
 I haven't tested it yet, but I suppose you need to add there also the ONION address if you are using one for your shop.
 
-# Shop admin pages
+# Shop - admin pages
 Once the containers are up, visit your site admin pages. E.g.:  
 ```localhost:8000/admin```
 
 There, you log in with the ```DJANGO_SUPERUSER_NAME``` and ```DJANGO_SUPERUSER_PASSWORD``` you configured in the ```.env``` file.  
 
 Once in:
-- go to Sites and change the initial domain name (and display name)
-- go to User and create operator (and add to "operators" group)
+- go to Sites, change the initial domain name and display name
+- go to User, create a user with the name 'operator' and add it to "operators" group
 - go to Hosts and create your first host
 
 # Other tips & tricks
