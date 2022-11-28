@@ -4,10 +4,10 @@
 sudo su - ip2tor
 /usr/bin/python3 -m venv --system-site-packages /home/ip2tor/venv
 source /home/ip2tor/venv/bin/activate
-role=${CONTAINER_ROLE:-django}
+role=${CONTAINER_ROLE:-django-daphne}
 
-if [ "$role" = "django" ]; then
-  echo "App role (Django) ..."
+if [ "$role" = "django-http" ]; then
+  echo "App role (Django HTTP server) ..."
   
   python -m pip install --upgrade pip setuptools
 
@@ -70,10 +70,15 @@ if [ "$role" = "django" ]; then
 
 
   cd /home/ip2tor/ip2tor
-  echo "Starting Django in port "$DJANGO_PORT"... "
-  /home/ip2tor/venv/bin/daphne -b 0.0.0.0 -p $DJANGO_PORT --proxy-headers django_ip2tor.asgi:application
-  # python manage.py runserver 0.0.0.0:$DJANGO_PORT
-
+  echo "Starting Django HTTP server in port "$DJANGO_HTTP_PORT"... "
+  python manage.py runserver 0.0.0.0:$DJANGO_HTTP_PORT
+  
+elif [ "$role" = "django-daphne" ]; then
+  source /home/ip2tor/.env
+  echo "App role (Django Daphne server) ..."
+  echo "Starting Django with Daphne in port "$DJANGO_DAPHNE_PORT"... "
+  cd /home/ip2tor/ip2tor
+  /home/ip2tor/venv/bin/daphne -b 0.0.0.0 -p $DJANGO_DAPHNE_PORT --proxy-headers django_ip2tor.asgi:application
 
 elif [ "$role" = "celery-beat" ] || [ "$role" = "celery-worker" ]; then
 cd /home/ip2tor/ip2tor

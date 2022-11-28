@@ -1,12 +1,12 @@
 version: '3'
 services:
-  django:
+  django-http:
     build:
       context: .
       # dockerfile: .docker/no-venv/novenv.Dockerfile
       dockerfile: .docker/Dockerfile
-    container_name: ip2tor-shop-django
-    hostname: django
+    container_name: ip2tor-shop-django-http
+    hostname: django-http
     deploy:
       restart_policy:
         condition: on-failure
@@ -19,15 +19,46 @@ services:
     volumes:
       - .:/home/ip2tor
     environment:
-      CONTAINER_ROLE: "django"
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:8001"] # This won't work with the daphne server (no http app configured)
-    #   interval: 1m30s
-    #   timeout: 10s
-    #   retries: 3
-    #   start_period: 40s
+      CONTAINER_ROLE: "django-http"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${DJANGO_HTTP_PORT}"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     networks:
       - shopnet
+
+  django-daphne:
+    build:
+      context: .
+      # dockerfile: .docker/no-venv/novenv.Dockerfile
+      dockerfile: .docker/Dockerfile
+    container_name: ip2tor-shop-django-daphne
+    hostname: django-daphne
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    depends_on:
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+      django-http:
+        condition: service_healthy
+        # condition: service_completed_successfully
+        # condition: service_started
+    volumes:
+      - .:/home/ip2tor
+    environment:
+      CONTAINER_ROLE: "django-daphne"
+    networks:
+      - shopnet
+
+  
   
   nginx:
     build:
@@ -42,8 +73,9 @@ services:
         max_attempts: 3
         window: 120s
     depends_on:
-      django:
-        # condition: service_healthy
+      django-http:
+        condition: service_healthy
+      django-daphne:
         # condition: service_completed_successfully
         condition: service_started
     ports:
@@ -69,7 +101,7 @@ services:
   #       max_attempts: 3
   #       window: 120s
   #   depends_on:
-  #     django:
+  #     django-daphne:
   #       # condition: service_completed_successfully
   #       # condition: service_healthy
   #       condition: service_started
@@ -93,7 +125,7 @@ services:
   #       max_attempts: 3
   #       window: 120s
   #   depends_on:
-  #     django:
+  #     django-daphne:
   #       # condition: service_completed_successfully
   #       # condition: service_healthy
   #       condition: service_started
