@@ -13,7 +13,7 @@ git clone https://github.com/raulcano/docker-ip2tor-shop.git
 cd docker-ip2tor-shop
 ```
 - _Adjust the environment variables in .env (see below)_  
-- _Adjust the CSRF_TRUSTED_ORIGINS variable in .docker/patch/settings.py (see below)_
+- _Adjust the CSRF_TRUSTED_ORIGINS variable in ip2tor/django_ip2tor/settings.py (see below)_
 
 ```
 docker compose build
@@ -134,12 +134,21 @@ This value is necessary for the configuration of the host, and __needs to be pas
 ## Host Token (IP2TOR_HOST_TOKEN)
 After you have added a host successfully to the Hosts table, visit the admin tokens page: ```http://localhost:8000/admin/authtoken/tokenproxy/```
 
-In the column "User", will find a row with the same Host ID of the host we just generated. There, the token is the value under the "Key" column. 
+In the column "User", YOU will find a row with the same Host ID of the host we just generated. There, the token is the value under the "Key" column. 
 
 The format is something like this: ```4oik58db29fba90761da646e06asd82d00ef0000```
 
 This value is necessary for the configuration of the host, and __needs to be pasted in the host's .env file__:
 ```IP2TOR_HOST_TOKEN=whatever_token_you_get_for_your_host_id```  
+
+# Firewall
+_To Be Confirmed_  
+These firewall commands should be run from the 
+```
+sudo firewall-cmd --add-service http --permanent  
+sudo firewall-cmd --add-service https --permanent
+sudo firewall-cmd --reload
+```
 
 # Other tips & tricks
 
@@ -159,6 +168,32 @@ Delete the .tor folder in the root folder of our shop.
 Next time the container is built, it will create the corresponding folder and add new files with a new address.
 
 __WARNING__: By doing this, you'll lose the address permanently, so be sure to make a backup of the ```tor``` folder if you want to reuse it at a later time.
+
+## What is the workflow to create a subscription to a Host bridge?
+Check the discussion in this thread. While things might have changed since then, the steps can be of help:
+https://github.com/rootzoll/raspiblitz/issues/1194#issuecomment-632075264
+
+To place the order and issue the first payment:
+
+- Retrieve Host list: GET https://shop.ip2t.org/api/v1/public/hosts/
+- Place Purchase Order: POST https://shop.ip2t.org/api/v1/public/order/ (store the resulting ID/URL)
+- wait a few ms
+- Retrieve Purchase Order: GET https://shop.ip2t.org/api/v1/public/pos/22a942b3-89de-48e4-841c-f15d4d21e69f/ (store both item_details[0] (e.g. in order to extend life time of bridge later) and ln_invoices[0] <- if empty repeat until a value shows up)
+- wait a few seconds (this is a looping script running every 5-30 seconds)
+- Retrieve LN Invoice : GET https://shop.ip2t.org/api/v1/public/po_invoices/1b7fe1ce-0ba6-4c74-81de-bbd304261fb4/
+- Pay to payment_request
+- Status of LN Invoice should change to 2.
+- Check implementation status (PO: item_details[0].object_id (ToDo: flatten this ..!): GET https://shop.ip2t.org/api/v1/public/tor_bridges/0f25a0b7-e261-44eb-a01b-0b2b25981c68/ status should change to "A".
+
+
+To extend an existing subscription:
+
+- empty POST to https://shop.ip2t.org/api/v1/public/tor_bridges/0f25a0b7-e261-44eb-a01b-0b2b25981c68/extend/ (store po)
+- Retrieve Purchase Order: GET https://shop.ip2t.org/api/v1/public/pos/a22843b6-a2dd-4742-a97e-15fcb395847a/
+- wait a few seconds (this is a looping script running every 5-30 seconds)
+- Retrieve LN Invoice : GET https://shop.ip2t.org/api/v1/public/pos/a22843b6-a2dd-4742-a97e-15fcb395847a/
+- Pay to payment_request
+- status of LN Invoice should change to 2.
 
 ## Updating settings without having to modify the repo (DEPRECATED)
 At the moment, just go to the ip2tor/django_ip2tor/settings.py file and update as necessary.
