@@ -105,8 +105,21 @@ This variable lives in the ip2tor repository needs to be updated accordingly. E.
 
 For development, you don't need to do anything if you log into your Django admin pages from ```localhost:8000```, but once you deploy to production or use a different port, then you'll have to add the proper values.
 
+I haven't tested it yet, but I suppose you need to add there also the ONION address if you are using one for your shop.
+
 The start.sh script copies the patched ```settings.py``` into the django installation in this line:  
 ```cp /home/ip2tor/.docker/patch/settings.py /home/ip2tor/ip2tor/django_ip2tor/settings.py```
+
+# Shop admin pages
+Once the containers are up, visit your site admin pages. E.g.:  
+```localhost:8000/admin```
+
+There, you log in with the ```DJANGO_SUPERUSER_NAME``` and ```DJANGO_SUPERUSER_PASSWORD``` you configured in the ```.env``` file.  
+
+Once in:
+- go to Sites and change the initial domain name (and display name)
+- go to User and create operator (and add to "operators" group)
+- go to Hosts and create your first host
 
 # Other tips & tricks
 
