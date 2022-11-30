@@ -169,8 +169,8 @@ Next time the container is built, it will create the corresponding folder and ad
 
 __WARNING__: By doing this, you'll lose the address permanently, so be sure to make a backup of the ```tor``` folder if you want to reuse it at a later time.
 
-## What is the workflow to create a subscription to a Host bridge?
-Check the discussion in this thread. While things might have changed since then, the steps can be of help:
+## What is the workflow to create a (Raspiblitz) subscription to a Host bridge?
+Check the discussion in this thread. While things might have changed since then, the steps can be of help to understand the API functions:
 https://github.com/rootzoll/raspiblitz/issues/1194#issuecomment-632075264
 
 To place the order and issue the first payment:
@@ -194,6 +194,27 @@ To extend an existing subscription:
 - Retrieve LN Invoice : GET https://shop.ip2t.org/api/v1/public/pos/a22843b6-a2dd-4742-a97e-15fcb395847a/
 - Pay to payment_request
 - status of LN Invoice should change to 2.
+
+## Update nginx configuration and restart nginx container
+
+This may come in handy while developing and trying different nginx configurations. 
+
+Assuming the nginx container is running with a particular configuration, we can:
+- Modify the file ```shop.localhost.conf``` in the ```.docker``` folder with a new configuration to test.
+- Rebuild the container
+- Restart the container
+
+This is the way to achieve that with a simple command (after the config file has been updated, of course):
+
+```
+docker compose up -d --no-deps --build nginx
+```
+Also, we can create an alias for ease of use:
+```
+alias nconf='docker compose up -d --no-deps --build nginx'
+```
+After wich, just run ```nconf``` to rebuild your docker nginx container with the new configuration.
+
 
 ## Updating settings without having to modify the repo (DEPRECATED)
 At the moment, just go to the ip2tor/django_ip2tor/settings.py file and update as necessary.
