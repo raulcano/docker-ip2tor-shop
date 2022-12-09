@@ -224,3 +224,54 @@ There, you'll find the settings.py file, which will overwrite the one downloaded
 
 You could still use this way if you prefer, but you'll have to add a line in the start.sh script:
 ```cp /home/ip2tor/.docker/patch/settings.py /home/ip2tor/ip2tor/django_ip2tor/settings.py```
+
+# Shop APPS and API endpoints
+## APP: ```shop```
+
+
+
+```/shop/demo```
+
+views.DemoView.as_view()
+
+name='demo'
+
+ 
+
+```/shop/hosts/```
+
+views.HostListView.as_view()
+
+name='host-list'
+
+This view lists all ACTIVE hosts stored in the shop (in the model Host)
+  
+  
+```/shop/hosts/<uuid:pk>/```
+
+views.PurchaseTorBridgeOnHostView.as_view()
+
+name='host-purchase'
+
+Logic to present a purchase form.
+
+If the data is valid:
+
+- A Purchase Order order is created in the ShopPurchaseOrder model.
+
+- The user is redirected to the detail view of the Purchase Order in the app 'lnpurchase' (the link is named 'lnpurchase:po-detail'
+
+    /charged/lnpurchase/po/<uuid:pk>/
+
+ 
+
+ 
+
+## APP: ```charged/lnpurchase```
+
+
+```/charged/lnpurchase/po/<uuid:pk>/```
+
+views.PurchaseOrderDetailView.as_view()
+name='po-detail'
+Shows the detail view of a Purchase Order
