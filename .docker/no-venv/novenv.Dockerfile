@@ -11,13 +11,8 @@ RUN apt-get install -y curl
 RUN useradd ip2tor --comment "IP2Tor Service Account" --create-home --home /home/ip2tor --shell /bin/bash
 RUN chmod 750 /home/ip2tor
 
-# From start.sh script
-# RUN sudo su - ip2tor
-# RUN /usr/bin/python3 -m venv --system-site-packages /home/ip2tor/venv
-
 # Install python dependencies
 COPY .docker/no-venv/requirements.txt /usr/share/requirements.txt
-
 RUN python3 -m pip install --upgrade pip setuptools
 RUN python3 -m pip install --upgrade -r /usr/share/requirements.txt
 RUN python3 -m pip install --upgrade psycopg2-binary
@@ -29,8 +24,6 @@ RUN python3 -m pip install pytest-django
 # RUN runuser -l ip2tor -c 'python3 -m pip install --upgrade psycopg2-binary'
 # RUN runuser -l ip2tor -c 'python3 -m pip install pytest'
 # RUN runuser -l ip2tor -c 'python3 -m pip install pytest-django'
-
-
 
 COPY .docker/no-venv/start-no-venv.sh /usr/local/bin/start
 RUN chmod u+x /usr/local/bin/start
