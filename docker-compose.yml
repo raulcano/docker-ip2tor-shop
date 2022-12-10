@@ -3,8 +3,8 @@ services:
   django-http:
     build:
       context: .
-      # dockerfile: .docker/no-venv/novenv.Dockerfile
-      dockerfile: .docker/Dockerfile
+      dockerfile: .docker/no-venv/novenv.Dockerfile
+      # dockerfile: .docker/Dockerfile
     container_name: ip2tor-shop-django-http
     hostname: django-http
     deploy:
@@ -32,8 +32,8 @@ services:
   django-daphne:
     build:
       context: .
-      # dockerfile: .docker/no-venv/novenv.Dockerfile
-      dockerfile: .docker/Dockerfile
+      dockerfile: .docker/no-venv/novenv.Dockerfile
+      # dockerfile: .docker/Dockerfile
     container_name: ip2tor-shop-django-daphne
     hostname: django-daphne
     deploy:
@@ -162,24 +162,24 @@ services:
   
   # To get the Onion address
   # docker exec -it ip2tor-shop-tor cat var/lib/tor/ip2tor-shop_hidden_service/hostname
-  tor:
-    build:
-      dockerfile: .docker/tor.Dockerfile
-    container_name: ip2tor-shop-tor
-    depends_on:
-      - nginx
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 120s
-    volumes:
-          - .tor/ip2tor-shop_hidden_service:/var/lib/tor/ip2tor-shop_hidden_service/
-    ports:
-      - 80:80
-    networks:
-      - shopnet  
+  # tor:
+  #   build:
+  #     dockerfile: .docker/tor.Dockerfile
+  #   container_name: ip2tor-shop-tor
+  #   depends_on:
+  #     - nginx
+  #   deploy:
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 5s
+  #       max_attempts: 3
+  #       window: 120s
+  #   volumes:
+  #         - .tor/ip2tor-shop_hidden_service:/var/lib/tor/ip2tor-shop_hidden_service/
+  #   ports:
+  #     - 80:80
+  #   networks:
+  #     - shopnet  
 
 networks:
     shopnet:

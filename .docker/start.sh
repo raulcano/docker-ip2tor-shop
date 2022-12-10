@@ -25,6 +25,9 @@ if [ "$role" = "django-http" ]; then
   python -m pip install --upgrade -r requirements.txt
   python -m pip install --upgrade psycopg2-binary
 
+  python -m pip install pytest
+  python -m pip install pytest-django
+
   # Load the env variables from the root folder into the django .env file
   source /home/ip2tor/.env
 

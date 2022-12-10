@@ -1,44 +1,30 @@
 #!/usr/bin/env bash
 
-role=${CONTAINER_ROLE:-django}
-
+#Change to service user and install + update virtual python environment
 sudo su - ip2tor
+cd /home/ip2tor/ip2tor
+role=${CONTAINER_ROLE:-django-daphne}
 
-if [ "$role" = "django" ]; then
+# This is where the global python packages are installed
+# python3 -m site
 
-  mkdir /home/ip2tor/ip2tor
-  git clone https://github.com/raulcano/ip2tor ip2tor
-  cd /home/ip2tor/ip2tor
+if [ "$role" = "django-http" ]; then
+  echo "App role (Django HTTP server) ..."
 
-  echo "App role (Django) ..."
-  
- 
+  # Load the env variables from the root folder into the django .env file
   source /home/ip2tor/.env
-
   if [ ! -f "/home/ip2tor/ip2tor/.env" ]; then
     touch .env
     echo -e 'DEBUG=false' | tee --append .env
-    
     # add the database URL, email URL and admin data from the root .env file
     echo -e 'DATABASE_URL="'$DATABASE_URL'"' | tee --append .env
     echo -e 'EMAIL_URL="'$EMAIL_URL'"' | tee --append .env
-    echo -e 'ADMIN_NAME="'$ADMIN_NAME'"' | tee --append .env
-    echo -e 'ADMIN_EMAIL="'$ADMIN_EMAIL'"' | tee --append .env
-    
     # add the secret key
     python3 /home/ip2tor/.docker/get-secret-key.py | tee --append .env
   fi
 
   mkdir /home/ip2tor/media
   mkdir /home/ip2tor/static
-
-  # patch the files with the changes I have introduced in the code downloaded from Github
-  cp /home/ip2tor/.docker/patch/settings.py /home/ip2tor/ip2tor/django_ip2tor/settings.py
-  cp /home/ip2tor/.docker/patch/lninvoice-signals.py /home/ip2tor/ip2tor/charged/lninvoice/signals.py
-  cp /home/ip2tor/.docker/patch/lnnode-signals.py /home/ip2tor/ip2tor/charged/lnnode/signals.py
-  cp /home/ip2tor/.docker/patch/views.py /home/ip2tor/ip2tor/shop/api/v1/views.py
-  # We enable a custom command in shop/management/commands because the default superuser creation could not be automatized
-  cp /home/ip2tor/.docker/createsuperuser_programatically.py /home/ip2tor/ip2tor/shop/management/commands/createsuperuser_programatically.py
 
   # Run django setup jobs
   python3 manage.py collectstatic <<<yes # confirm overwrite if the folder already contains files
@@ -49,19 +35,22 @@ if [ "$role" = "django" ]; then
   # Limit access rights to base and media directory
   # chmod 700 /home/ip2tor/ip2tor  # !!! uncomment after debugging
   
-  # Leaving r-x in Other for both folders, since we need to copy this data in the nginx container
+  # Leaving r-x in Other for both folders
   chmod -R 755 /home/ip2tor/media 
   chmod -R 755 /home/ip2tor/static
 
-
-  cd /home/ip2tor/ip2tor
-  echo "Starting Django in port 8001... "
-  /home/ip2tor/venv/bin/daphne -b 0.0.0.0 -p 8001 --proxy-headers django_ip2tor.asgi:application
-  # python manage.py runserver 0.0.0.0:8001
-
+  echo "Starting Django HTTP server in port "$DJANGO_HTTP_PORT"... "
+  python3 manage.py runserver 0.0.0.0:$DJANGO_HTTP_PORT
+  
+elif [ "$role" = "django-daphne" ]; then
+  source /home/ip2tor/.env
+  echo "App role (Django Daphne server) ..."
+  echo "Starting Django with Daphne in port "$DJANGO_DAPHNE_PORT"... "
+  
+  # /home/ip2tor/venv/bin/daphne -b 0.0.0.0 -p $DJANGO_DAPHNE_PORT --proxy-headers django_ip2tor.asgi:application
+  daphne -b 0.0.0.0 -p $DJANGO_DAPHNE_PORT --proxy-headers django_ip2tor.asgi:application
 
 elif [ "$role" = "celery-beat" ] || [ "$role" = "celery-worker" ]; then
-cd /home/ip2tor/ip2tor
 echo "Celery role ..."
 cat <<EOF | sudo tee "/etc/tmpfiles.d/ip2tor.conf" >/dev/null
 d /run/ip2tor 0755 ip2tor ip2tor -
