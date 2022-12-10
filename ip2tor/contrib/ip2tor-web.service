@@ -1,0 +1,19 @@
+[Unit]
+Description=IP2Tor Django Web Server
+After=network.target
+
+[Service]
+User=ip2tor
+Group=ip2tor
+
+WorkingDirectory=/home/ip2tor/django-ip2tor
+#ExecStart='/home/ip2tor/venv/bin/daphne -p 8001 --proxy-headers django_ip2tor.asgi:application
+ExecStart=/bin/sh -c '/home/ip2tor/venv/bin/daphne -p 8001 --proxy-headers django_ip2tor.asgi:application'
+
+Restart=on-failure
+RestartSec=15s
+
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target

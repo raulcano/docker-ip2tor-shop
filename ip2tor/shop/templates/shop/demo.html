@@ -1,0 +1,125 @@
+{% extends 'charged/base.html' %}
+{% load static %}
+{% block content %}
+    <p>
+        <button id="create_invoice" class="btn">create invoice</button>
+    </p>
+    <div id="output"></div>
+
+{% endblock content %}
+{% block js %}
+
+    <script type="text/javascript" src="{% static 'shop/js/jquery.min.js' %}"></script>
+
+    <script>
+
+        const ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+        {#const ws = new WebSocket(ws_scheme + '://' + window.location.host + '/shop/ws');#}
+        authToken = 'c21c37795313808ed092f9232ddfd777f8b896f1';
+
+        document.cookie = 'x-auth-token=' + authToken + '; path=/';
+        const ws = new WebSocket(ws_scheme + '://' + window.location.host + '/shop/ws');
+
+        {#const ws_echo = new WebSocket(ws_scheme + '://' + window.location.host + '/shop/echo');#}
+        const ws_host = new WebSocket(ws_scheme + '://' + window.location.host + '/shop/host');
+
+        const csrf_token = '{{csrf_token}}';
+
+        let inv_req;
+
+        $(function () {
+            console.log("ready!");
+
+            ws.onmessage = function (message) {
+                console.log(message.data);
+
+                const mdata = JSON.parse(message.data);
+
+                if (mdata['message'] === "paid") {
+                    alert('invoice paid!');
+                }
+            };
+            
+            ws.onopen = function () {
+                console.log("sending \"connected\"");
+                ws.send(JSON.stringify({type: 'channel_message', message: 'connected'}));
+            };
+
+            // Host
+            ws_host.onopen = function (event) {
+                console.log("ws_host: onopen");
+                console.log(event);
+                console.log("sending \"connected2\"");
+                ws_host.send(JSON.stringify({type: 'channel.message', message: 'Foobar'}));
+                ws_host.send(JSON.stringify({type: 'channel.message', message: '/name Honk Hase'}));
+                ws_host.send(JSON.stringify({type: 'channel_message', message: 'Earth is flat!'}));
+                {#ws_host.send('Hello World!');#}
+                {#ws_host.send('/name Honk Hase');#}
+                {#ws_host.send('Earth is flat!');#}
+            };
+
+            ws_host.onmessage = function (event) {
+                console.log("ws_host: onmessage");
+                console.log(event);
+                console.log(event.data);
+            };
+
+            /*
+                // ECHO
+                ws_echo.onopen = function (event) {
+                    console.log("ws_echo: onopen");
+                    console.log(event);
+                    console.log("sending \"connected2\"");
+                    ws.send(JSON.stringify({type: 'channel_message', message: 'connected2'}));
+                };
+
+                ws_echo.onmessage = function (event) {
+                    console.log("ws_echo: onmessage");
+                    console.log(event);
+                    console.log(event.data);
+                };
+
+                ws_echo.onclose = function (close_event) {
+                    console.log("ws_echo: onclosed");
+                    console.log(close_event);
+                };
+
+                ws_echo.onerror = function (event) {
+                    console.log("ws_echo: onerror");
+                    console.log(event);
+                }
+            */
+
+        });
+
+        $('#create_invoice').click(function () {
+            inv_req = {
+                csrfmiddlewaretoken: csrf_token,
+                host_id: "8d9fedff-802e-4ebb-b98c-939efcec6ff2",
+                target: "ws.onion:12345",
+                comment: "this is a ws comment"
+            };
+            addData(inv_req);
+        });
+
+        function addData(data) {
+            console.log(data);
+
+            $.post("/api/public/tor-bridges/", inv_req)
+                .done(function (data) {
+
+                    $('#output').text(data['bolt11']);
+
+                    console.log(data['payment_hash']);
+
+                    const ph = data['payment_hash'];
+                    const a = {message_type: "wait_invoice", payment_hash: ph};
+
+                    ws.send(JSON.stringify(a));
+
+                });
+        }
+
+    </script>
+
+{% endblock %}
