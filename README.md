@@ -225,6 +225,17 @@ There, you'll find the settings.py file, which will overwrite the one downloaded
 You could still use this way if you prefer, but you'll have to add a line in the start.sh script:
 ```cp /home/ip2tor/.docker/patch/settings.py /home/ip2tor/ip2tor/django_ip2tor/settings.py```
 
+## Testing
+For testing, we are using the pytest framework.
+In order to run the tests across all apps, one needs to run the ```pytest``` command in a container where django is built.
+
+The simplest way to run the tests is to create an alias to send the pytest command to the corresponding container. 
+In your host machine, run this:  
+```alias test='docker exec ip2tor-shop-django-http pytest /home/ip2tor/ip2tor/'```
+
+After that, run the tests with:  
+```test```
+
 # Shop APPS and API endpoints
 ## APP: ```shop```
 
