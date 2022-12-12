@@ -18,6 +18,7 @@ RUN python3 -m pip install --upgrade -r /usr/share/requirements.txt
 RUN python3 -m pip install --upgrade psycopg2-binary
 RUN python3 -m pip install pytest
 RUN python3 -m pip install pytest-django
+RUN python3 -m pip install model_bakery
 
 # RUN runuser -l ip2tor -c 'python3 -m pip install --upgrade pip setuptools'
 # RUN runuser -l ip2tor -c 'python3 -m pip install --upgrade -r /usr/share/requirements.txt'
