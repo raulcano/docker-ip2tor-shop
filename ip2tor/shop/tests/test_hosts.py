@@ -5,7 +5,7 @@ import pytest
 
 
 @pytest.mark.django_db
-class TestRetrieveHost():
+class TestRetrieveHosts ():
     def test_if_user_is_anonymous_returns_200(self, api_client):
         response = api_client.get('/api/v1/public/hosts/')
         assert response.status_code == status.HTTP_200_OK
