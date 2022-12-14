@@ -7,3 +7,4 @@ venv
 .env
 .tor
 .vscode
+logs

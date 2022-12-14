@@ -24,7 +24,7 @@ To take advantage of Docker's isolation principles, the following containers are
 - nginx
     - _A reverse proxy, directing requests to the main services to the right URLs and ports_ 
 - django-http  
-    - _Here is where the main app stuff happens, plus a http server is started)_
+    - _Here is where the main app stuff happens, plus a http server is started_
 - django-daphne
     - _A server for the asgi elements of the app_
 - redis
@@ -250,6 +250,12 @@ In your host machine, run this:
 
 After that, run the tests with:  
 ```test```
+
+## Celery inside a docker container
+Docker containers need a foreground task to be running, or the container will exit. Since Celery workers are in the background, the container exits. Therefore, we needed to run the Celery container(s) with a task that remains permanently in the foreground, while the worker is in the background. 
+
+See more details in this post:  
+https://stackoverflow.com/questions/48646745/celery-multi-inside-docker-container
 
 # Shop APPS and API endpoints
 ## APP: ```shop```
