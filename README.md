@@ -150,6 +150,13 @@ sudo firewall-cmd --add-service https --permanent
 sudo firewall-cmd --reload
 ```
 
+# Flower
+One of the containers include the dashboard Flower (as in 'flow-er'). This app offers a visualization of the celery tasks and workers and is useful for its monitoring.
+
+Once the docker compose is up and running, you need to access ```localhost:5555``` to open Flower.
+
+![Flower screenshot](images/flower.png)
+
 # Other tips & tricks
 
 ## How to get the onion address to your shop
