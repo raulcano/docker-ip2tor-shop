@@ -65,14 +65,57 @@ elif [ "$role" = "celery-beat" ] || [ "$role" = "celery-worker" ] || [ "$role" =
 
   if [ "$role" = "celery-worker" ]; then
     echo "Starting Celery worker ..."
-    ${CELERY_BIN} multi start ${CELERYD_NODES}  \
-    -A ${CELERY_APP} \
-    --loglevel=${CELERYD_LOG_LEVEL} \
-    ${CELERYD_OPTS}
 
+    
+
+    # safety switch, exit script if there's error. Full command of shortcut `set -e`
+    set -o errexit
+    # safety switch, uninitialized variables will stop script. Full command of shortcut `set -u`
+    set -o nounset
+
+    # tear down function
+    teardown()
+    {
+        echo " Signal caught..."
+        echo "Stopping celery multi gracefully..."
+
+        # send shutdown signal to celery workser via `celery multi`
+        # command must mirror some of `celery multi start` arguments
+        ${CELERY_BIN} multi stop ${CELERYD_NODES}  \
+          -A ${CELERY_APP} \
+          --logfile=${CELERYD_LOG_FILE} \
+          --loglevel=${CELERYD_LOG_LEVEL} \
+          ${CELERYD_OPTS}
+
+        echo "Stopped celery multi..."
+        echo "Stopping last waited process"
+        kill -s TERM "$child" 2> /dev/null
+        echo "Stopped last waited process. Exiting..."
+        exit 1
+    }
+
+    # start celery worker via `celery multi` with declared logfile for `tail -f`
+    ${CELERY_BIN} multi start ${CELERYD_NODES}  \
+      -A ${CELERY_APP} \
+      --logfile=${CELERYD_LOG_FILE} \
+      --loglevel=${CELERYD_LOG_LEVEL} \
+      ${CELERYD_OPTS}
     # Pid  and Log files are created by default in the folder where we run celery
-    # --logfile=${CELERYBEAT_LOG_FILE} \
     # --pidfile=${CELERYD_PID_FILE} \
+
+    # start trapping signals (docker sends `SIGTERM` for shudown)
+    trap teardown SIGINT SIGTERM
+
+    # tail all the logs continuously to console for `docker logs` to see
+    tail -f ${CELERYD_LOG_FILE} &
+
+    # capture process id of `tail` for tear down
+    child=$!
+
+    # waits for `tail -f` indefinitely and allows external signals,
+    # including docker stop signals, to be captured by `trap`
+    wait "$child"
+
   elif [ "$role" = "celery-flower" ]; then
     echo "Starting Celery flower ..."
     ${CELERY_BIN} -A ${CELERY_APP} flower
