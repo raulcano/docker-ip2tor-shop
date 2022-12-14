@@ -65,9 +65,6 @@ elif [ "$role" = "celery-beat" ] || [ "$role" = "celery-worker" ] || [ "$role" =
 
   if [ "$role" = "celery-worker" ]; then
     echo "Starting Celery worker ..."
-
-    
-
     # safety switch, exit script if there's error. Full command of shortcut `set -e`
     set -o errexit
     # safety switch, uninitialized variables will stop script. Full command of shortcut `set -u`
@@ -119,16 +116,16 @@ elif [ "$role" = "celery-beat" ] || [ "$role" = "celery-worker" ] || [ "$role" =
   elif [ "$role" = "celery-flower" ]; then
     echo "Starting Celery flower ..."
     ${CELERY_BIN} -A ${CELERY_APP} flower
+  
+
+  elif [ "$role" = "celery-beat" ]; then
+    echo "Starting Celery beat ..."
+    ${CELERY_BIN} -A ${CELERY_APP} beat  \
+    --logfile=${CELERYBEAT_LOG_FILE} --loglevel=${CELERYD_LOG_LEVEL} \
+    --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    # -s ${CELERYBEAT_SCHEDULE_FILE} \
+    # --pidfile=${CELERYBEAT_PID_FILE} \
   fi
-
-#   if [ "$role" = "celery-beat" ]; then
-#     echo "Starting Celery beat ..."
-#     ${CELERY_BIN} -A ${CELERY_APP} beat  \
-#     --pidfile=${CELERYBEAT_PID_FILE} \
-#     -s ${CELERYBEAT_SCHEDULE_FILE} \
-#     --logfile=${CELERYBEAT_LOG_FILE} --loglevel=${CELERYD_LOG_LEVEL} \
-#     --scheduler django_celery_beat.schedulers:DatabaseScheduler
-
 
 
 else

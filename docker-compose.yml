@@ -20,12 +20,12 @@ services:
       - .:/home/ip2tor
     environment:
       CONTAINER_ROLE: "django-http"
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:${DJANGO_HTTP_PORT}"]
-    #   interval: 1m30s
-    #   timeout: 10s
-    #   retries: 3
-    #   start_period: 40s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${DJANGO_HTTP_PORT}"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     networks:
       - shopnet
 
@@ -89,29 +89,30 @@ services:
     networks:
       - shopnet
 
-  # celery-beat:
-  #   build:
-  #     context: .
-  #     dockerfile: .docker/Dockerfile
-  #   container_name: ip2tor-shop-celery-beat
-  #   hostname: celery-beat
-  #   deploy:
-  #     restart_policy:
-  #       condition: on-failure
-  #       delay: 5s
-  #       max_attempts: 3
-  #       window: 120s
-  #   depends_on:
-  #     django-daphne:
-  #       # condition: service_completed_successfully
-  #       # condition: service_healthy
-  #       condition: service_started
-  #   volumes:
-  #     - .:/home/ip2tor
-  #   environment:
-  #     CONTAINER_ROLE: "celery-beat"
-  #   networks:
-  #     - shopnet
+  celery-beat:
+    build:
+      context: .
+      #dockerfile: .docker/Dockerfile
+      dockerfile: .docker/no-venv/novenv.Dockerfile
+    container_name: ip2tor-shop-celery-beat
+    hostname: celery-beat
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    depends_on:
+      django-http:
+        # condition: service_completed_successfully
+        # condition: service_healthy
+        condition: service_started
+    volumes:
+      - .:/home/ip2tor
+    environment:
+      CONTAINER_ROLE: "celery-beat"
+    networks:
+      - shopnet
 
   celery-worker:
     build:
