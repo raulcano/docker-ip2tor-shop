@@ -1,7 +1,7 @@
 # IP2TOR Shop - Docker files
 This repository includes the structure to deploy the ip2tor shop using Docker compose.
 
-The content deployed is based on this repository https://github.com/frennkie/django-ip2tor . which I have forked and introduced some minor changes here: https://github.com/raulcano/ip2tor.
+The content deployed is based on this repository https://github.com/frennkie/django-ip2tor. 
 
 # TL;DR
 
@@ -22,13 +22,21 @@ docker compose up
 
 To take advantage of Docker's isolation principles, the following containers are created:
 - nginx
+    - _A reverse proxy, directing requests to the main services to the right URLs and ports_ 
 - django-http  
     - _Here is where the main app stuff happens, plus a http server is started)_
 - django-daphne
+    - _A server for the asgi elements of the app_
 - redis
+    - _A message broker and cache service_
 - postgres
+    - _The database_
 - celery-beat
+    - _A task scheduler_
 - celery-worker
+    - _A worker for background tasks_
+- celery-flower
+    - _A dashboard for monitoring tasks and workers_
 - tor
     - _This container is not mandatory, but useful to generate a hidden service to access your shop)_
 
