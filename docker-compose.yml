@@ -20,12 +20,12 @@ services:
       - .:/home/ip2tor
     environment:
       CONTAINER_ROLE: "django-http"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${DJANGO_HTTP_PORT}"]
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:${DJANGO_HTTP_PORT}"]
+    #   interval: 1m30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 40s
     networks:
       - shopnet
 
@@ -48,9 +48,9 @@ services:
       redis:
         condition: service_started
       django-http:
-        condition: service_healthy
+        # condition: service_healthy
         # condition: service_completed_successfully
-        # condition: service_started
+        condition: service_started
     volumes:
       - .:/home/ip2tor
     environment:
@@ -74,7 +74,8 @@ services:
         window: 120s
     depends_on:
       django-http:
-        condition: service_healthy
+        # condition: service_healthy
+        condition: service_started
       django-daphne:
         # condition: service_completed_successfully
         condition: service_started

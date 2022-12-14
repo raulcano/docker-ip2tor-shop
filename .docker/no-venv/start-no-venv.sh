@@ -40,7 +40,8 @@ if [ "$role" = "django-http" ]; then
   chmod -R 755 /home/ip2tor/static
 
   echo "Starting Django HTTP server in port "$DJANGO_HTTP_PORT"... "
-  python3 manage.py runserver 0.0.0.0:$DJANGO_HTTP_PORT
+  # python3 manage.py runserver 0.0.0.0:$DJANGO_HTTP_PORT
+  gunicorn --bind=0.0.0.0:$DJANGO_HTTP_PORT django_ip2tor.wsgi
   
 elif [ "$role" = "django-daphne" ]; then
   source /home/ip2tor/.env
