@@ -51,30 +51,42 @@ elif [ "$role" = "django-daphne" ]; then
   # /home/ip2tor/venv/bin/daphne -b 0.0.0.0 -p $DJANGO_DAPHNE_PORT --proxy-headers django_ip2tor.asgi:application
   daphne -b 0.0.0.0 -p $DJANGO_DAPHNE_PORT --proxy-headers django_ip2tor.asgi:application
 
-elif [ "$role" = "celery-beat" ] || [ "$role" = "celery-worker" ]; then
-echo "Celery role ..."
-cat <<EOF | sudo tee "/etc/tmpfiles.d/ip2tor.conf" >/dev/null
-d /run/ip2tor 0755 ip2tor ip2tor -
-d /var/log/ip2tor 0755 ip2tor ip2tor -
-EOF
-sudo systemd-tmpfiles --create --remove
-sudo install -m 0644 -o root -g root -t /etc/ /home/ip2tor/ip2tor/contrib/ip2tor-celery.conf
-source /etc/ip2tor-celery.conf
+elif [ "$role" = "celery-beat" ] || [ "$role" = "celery-worker" ] || [ "$role" = "celery-flower" ]; then
+  echo "Celery roles ..."
 
-  if [ "$role" = "celery-beat" ]; then
-    echo "Starting Celery beat ..."
-    ${CELERY_BIN} -A ${CELERY_APP} beat  \
-    --pidfile=${CELERYBEAT_PID_FILE} \
-    -s ${CELERYBEAT_SCHEDULE_FILE} \
-    --logfile=${CELERYBEAT_LOG_FILE} --loglevel=${CELERYD_LOG_LEVEL} \
-    --scheduler django_celery_beat.schedulers:DatabaseScheduler
+# cat <<EOF | sudo tee "/etc/tmpfiles.d/ip2tor.conf" >/dev/null
+# d /run/ip2tor 0755 ip2tor ip2tor -
+# d /var/log/ip2tor 0755 ip2tor ip2tor -
+# EOF
+# sudo systemd-tmpfiles --create --remove
 
-  elif [ "$role" = "celery-worker" ]; then
+  sudo install -m 0644 -o root -g root -t /etc/ /home/ip2tor/ip2tor/contrib/ip2tor-celery.conf
+  source /etc/ip2tor-celery.conf
+
+  if [ "$role" = "celery-worker" ]; then
     echo "Starting Celery worker ..."
-    ${CELERY_BIN} multi start ${CELERYD_NODES} \
-    -A ${CELERY_APP} --pidfile=${CELERYD_PID_FILE} \
-    --logfile=${CELERYD_LOG_FILE} --loglevel=${CELERYD_LOG_LEVEL} ${CELERYD_OPTS}
+    ${CELERY_BIN} multi start ${CELERYD_NODES}  \
+    -A ${CELERY_APP} \
+    --loglevel=${CELERYD_LOG_LEVEL} \
+    ${CELERYD_OPTS}
+
+    # Pid  and Log files are created by default in the folder where we run celery
+    # --logfile=${CELERYBEAT_LOG_FILE} \
+    # --pidfile=${CELERYD_PID_FILE} \
+  elif [ "$role" = "celery-flower" ]; then
+    echo "Starting Celery flower ..."
+    ${CELERY_BIN} -A ${CELERY_APP} flower
   fi
+
+#   if [ "$role" = "celery-beat" ]; then
+#     echo "Starting Celery beat ..."
+#     ${CELERY_BIN} -A ${CELERY_APP} beat  \
+#     --pidfile=${CELERYBEAT_PID_FILE} \
+#     -s ${CELERYBEAT_SCHEDULE_FILE} \
+#     --logfile=${CELERYBEAT_LOG_FILE} --loglevel=${CELERYD_LOG_LEVEL} \
+#     --scheduler django_celery_beat.schedulers:DatabaseScheduler
+
+
 
 else
     echo "Could not match the container role \"$role\""

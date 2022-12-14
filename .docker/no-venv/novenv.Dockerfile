@@ -17,6 +17,7 @@ RUN python3 -m pip install --upgrade pip setuptools
 RUN python3 -m pip install --upgrade -r /usr/share/requirements.txt
 RUN python3 -m pip install --upgrade psycopg2-binary
 RUN python3 -m pip install gunicorn
+RUN python3 -m pip install flower
 
 # These are for testing
 RUN python3 -m pip install pytest

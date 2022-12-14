@@ -113,29 +113,57 @@ services:
   #   networks:
   #     - shopnet
 
-  # celery-worker:
-  #   build:
-  #     context: .
-  #     dockerfile: .docker/Dockerfile
-  #   container_name: ip2tor-shop-celery-worker
-  #   hostname: celery-worker
-  #   deploy:
-  #     restart_policy:
-  #       condition: on-failure
-  #       delay: 5s
-  #       max_attempts: 3
-  #       window: 120s
-  #   depends_on:
-  #     django-daphne:
-  #       # condition: service_completed_successfully
-  #       # condition: service_healthy
-  #       condition: service_started
-  #   volumes:
-  #     - .:/home/ip2tor
-  #   environment:
-  #     CONTAINER_ROLE: "celery-worker"
-  #   networks:
-  #     - shopnet
+  celery-worker:
+    build:
+      context: .
+      # dockerfile: .docker/Dockerfile
+      dockerfile: .docker/no-venv/novenv.Dockerfile
+    container_name: ip2tor-shop-celery-worker
+    hostname: celery-worker
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    depends_on:
+      django-http:
+        # condition: service_completed_successfully
+        # condition: service_healthy
+        condition: service_started
+    volumes:
+      - .:/home/ip2tor
+    environment:
+      CONTAINER_ROLE: "celery-worker"
+    networks:
+      - shopnet
+  
+  celery-flower:
+    build:
+      context: .
+      # dockerfile: .docker/Dockerfile
+      dockerfile: .docker/no-venv/novenv.Dockerfile
+    container_name: ip2tor-shop-celery-flower
+    hostname: celery-flower
+    ports:
+      - 5555:5555
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    depends_on:
+      celery-worker:
+        # condition: service_completed_successfully
+        # condition: service_healthy
+        condition: service_started
+    volumes:
+      - .:/home/ip2tor
+    environment:
+      CONTAINER_ROLE: "celery-flower"
+    networks:
+      - shopnet
 
   redis:
     image: redis:4-alpine
