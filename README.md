@@ -257,6 +257,28 @@ Docker containers need a foreground task to be running, or the container will ex
 See more details in this post:  
 https://stackoverflow.com/questions/48646745/celery-multi-inside-docker-container
 
+## When running docker, I get 'Error while fetching server API version'
+
+_This section is extracted from the comments in this StackOverflow post:
+https://stackoverflow.com/questions/64952238/docker-errors-dockerexception-error-while-fetching-server-api-version_
+
+
+```docker.errors.DockerException: Error while fetching server API version```
+
+By default, the docker command can only be run the root user or by a user in the docker group,
+which is automatically created during Docker’s installation process. If you want to avoid typing sudo whenever you run the docker command, add your username to the docker group:
+
+```sudo usermod -aG docker ${USER}```
+
+To apply the new group membership, log out of the server and back in, or type the following:
+```su - ${USER}```
+
+If nothing of the above works, try setting the permissions for this file like this:
+```sudo chmod 666 /var/run/docker.sock```
+
+
+
+
 # Shop APPS and API endpoints
 ## APP: ```shop```
 

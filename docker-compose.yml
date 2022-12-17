@@ -57,9 +57,6 @@ services:
       CONTAINER_ROLE: "django-daphne"
     networks:
       - shopnet
-
-  
-  
   nginx:
     build:
       context: .
