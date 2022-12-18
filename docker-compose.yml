@@ -3,8 +3,7 @@ services:
   django-http:
     build:
       context: .
-      dockerfile: .docker/no-venv/novenv.Dockerfile
-      # dockerfile: .docker/Dockerfile
+      dockerfile: .docker/Dockerfile
     container_name: ip2tor-shop-django-http
     hostname: django-http
     deploy:
@@ -32,8 +31,7 @@ services:
   django-daphne:
     build:
       context: .
-      dockerfile: .docker/no-venv/novenv.Dockerfile
-      # dockerfile: .docker/Dockerfile
+      dockerfile: .docker/Dockerfile
     container_name: ip2tor-shop-django-daphne
     hostname: django-daphne
     deploy:
@@ -89,8 +87,7 @@ services:
   celery-beat:
     build:
       context: .
-      #dockerfile: .docker/Dockerfile
-      dockerfile: .docker/no-venv/novenv.Dockerfile
+      dockerfile: .docker/Dockerfile
     container_name: ip2tor-shop-celery-beat
     hostname: celery-beat
     deploy:
@@ -114,8 +111,7 @@ services:
   celery-worker:
     build:
       context: .
-      # dockerfile: .docker/Dockerfile
-      dockerfile: .docker/no-venv/novenv.Dockerfile
+      dockerfile: .docker/Dockerfile
     container_name: ip2tor-shop-celery-worker
     hostname: celery-worker
     deploy:
@@ -139,8 +135,7 @@ services:
   celery-flower:
     build:
       context: .
-      # dockerfile: .docker/Dockerfile
-      dockerfile: .docker/no-venv/novenv.Dockerfile
+      dockerfile: .docker/Dockerfile
     container_name: ip2tor-shop-celery-flower
     hostname: celery-flower
     ports:

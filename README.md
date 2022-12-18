@@ -231,15 +231,6 @@ alias nconf='docker compose up -d --no-deps --build nginx'
 After wich, just run ```nconf``` to rebuild your docker nginx container with the new configuration.
 
 
-## Updating settings without having to modify the repo (DEPRECATED)
-At the moment, just go to the ip2tor/django_ip2tor/settings.py file and update as necessary.
-
-Originally I designed this structure to patch the settings file with an editable copy at the .docker/patch folder.
-There, you'll find the settings.py file, which will overwrite the one downloaded the repo, so you can update some stuff there if necessary without modifying the original settings file in the django folder.
-
-You could still use this way if you prefer, but you'll have to add a line in the start.sh script:
-```cp /home/ip2tor/.docker/patch/settings.py /home/ip2tor/ip2tor/django_ip2tor/settings.py```
-
 ## Testing
 For testing, we are using the pytest framework.
 In order to run the tests across all apps, one needs to run the ```pytest``` command in a container where django is built.
@@ -276,7 +267,14 @@ To apply the new group membership, log out of the server and back in, or type th
 If nothing of the above works, try setting the permissions for this file like this:
 ```sudo chmod 666 /var/run/docker.sock```
 
+## Updating settings without having to modify the repo (DEPRECATED)
+At the moment, just go to the ip2tor/django_ip2tor/settings.py file and update as necessary.
 
+Originally I designed this structure to patch the settings file with an editable copy at the .docker/patch folder.
+There, you'll find the settings.py file, which will overwrite the one downloaded the repo, so you can update some stuff there if necessary without modifying the original settings file in the django folder.
+
+You could still use this way if you prefer, but you'll have to add a line in the start.sh script:
+```cp /home/ip2tor/.docker/patch/settings.py /home/ip2tor/ip2tor/django_ip2tor/settings.py```
 
 
 # Shop APPS and API endpoints

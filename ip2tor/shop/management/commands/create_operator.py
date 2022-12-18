@@ -32,7 +32,7 @@ class Command(BaseCommand):
         
         
         if not User.objects.filter(username=username).exists():
-            User.objects.create(username=username, password=password, email=email, is_staff=True, is_active=True)
+            User.objects.create_user(username=username, password=password, email=email, is_staff=True, is_active=True)
             self.stdout.write(f'User "{username}" was created.')
         else:
             self.stdout.write(f'User "{username}" exists already. No user was created')

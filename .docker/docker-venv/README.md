@@ -1,0 +1,2 @@
+In this folder, I'll store the Dockerfile and scripts that were developed originally using a virtual environment in Python.
+Later on the development, I removed all venvs, since we are anyway using Docker containers.
