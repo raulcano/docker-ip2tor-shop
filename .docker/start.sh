@@ -32,6 +32,7 @@ if [ "$role" = "django-http" ]; then
   python3 manage.py migrate
   python3 manage.py createsuperuser_programatically --user=$DJANGO_SUPERUSER_NAME --password=$DJANGO_SUPERUSER_PASSWORD --email=$DJANGO_SUPERUSER_EMAIL
   python3 manage.py create_operator --user=$DJANGO_OPERATOR_NAME --password=$DJANGO_OPERATOR_PASSWORD --email=$DJANGO_OPERATOR_EMAIL
+  python3 manage.py create_site --name="$SHOP_SITE_NAME" --domain=$SHOP_SITE_DOMAIN
   python3 manage.py create_gRPCnode --name=$CHARGED_LND_NAME --priority=$CHARGED_LND_PRIORITY --owner=$CHARGED_LND_OWNER --macaroon_admin=$CHARGED_LND_MACAROON_ADMIN --macaroon_invoice=$CHARGED_LND_MACAROON_INVOICE --macaroon_readonly=$CHARGED_LND_MACAROON_READONLY --tls_certificate="$CHARGED_LND_TLS_CERTIFICATE" --tls_verification=$CHARGED_LND_TLS_VERIFICATION --host=$CHARGED_LND_HOST --port=$CHARGED_LND_PORT
 
   # Limit access rights to base and media directory
