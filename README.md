@@ -267,6 +267,17 @@ To apply the new group membership, log out of the server and back in, or type th
 If nothing of the above works, try setting the permissions for this file like this:
 ```sudo chmod 666 /var/run/docker.sock```
 
+## .docker/init-for-host.sh
+
+This is a file for convenience, where you can add some commands and load them on your host machine at startup.
+
+This is not necessary for the system to work, but may be of help if you repeat certain commands, and I have written a few aliases that I ended up using quite frequently.
+
+There are several ways to make this script run on startup, so you just pick your favorite. 
+Find some instructions here:
+
+https://raspberrytips.com/run-script-at-startup-on-linux/
+
 ## Updating settings without having to modify the repo (DEPRECATED)
 At the moment, just go to the ip2tor/django_ip2tor/settings.py file and update as necessary.
 
