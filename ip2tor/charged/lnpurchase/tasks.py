@@ -1,7 +1,7 @@
 from decimal import Decimal
-from io import BytesIO
 
-import pycurl
+
+
 from celery import shared_task
 from celery.utils.log import get_task_logger
 from django.conf import settings
@@ -11,7 +11,7 @@ from charged.lninvoice.models import PurchaseOrderInvoice
 from charged.lnnode.models import get_all_nodes
 from charged.lnpurchase.models import PurchaseOrder
 from charged.lnrates.models import FiatRate
-from charged.utils import add_change_log_entry
+from charged.utils import add_change_log_entry, ensure_https
 from shop.models import TorDenyList
 
 logger = get_task_logger(__name__)
@@ -20,33 +20,6 @@ logger = get_task_logger(__name__)
 class NoInvoiceCreatedError(Exception):
     """No invoice was created"""
     pass
-
-
-# ToDo(frennkie) not the best place for this
-def ensure_https(url):
-    if not url.startswith('https://'):
-        return False
-
-    buffer = BytesIO()
-    c = pycurl.Curl()
-    c.setopt(c.URL, url)
-    c.setopt(c.PROXY, 'socks5h://localhost:9050')
-    c.setopt(c.WRITEDATA, buffer)
-    c.setopt(c.SSL_VERIFYHOST, False)
-    c.setopt(c.SSL_VERIFYPEER, False)
-
-    try:
-        c.perform()
-        # HTTP response code, e.g. 200.
-        # print('Status: %d' % c.getinfo(c.RESPONSE_CODE))
-        return True
-
-    except pycurl.error as err:
-        print(f"Exception: {err}")
-        return False
-
-    finally:
-        c.close()
 
 
 @shared_task()

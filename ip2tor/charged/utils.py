@@ -2,6 +2,8 @@ from django.conf import settings
 from django.contrib.admin.models import LogEntry, CHANGE
 from django.contrib.admin.options import get_content_type_for_model
 from django.core.mail import EmailMessage
+from io import BytesIO
+import pycurl
 
 
 class MailNotificationToOwnerError(Exception):
@@ -63,3 +65,28 @@ def add_change_log_entry(obj, message: str, user_id=1):
         action_flag=CHANGE,
         change_message=message,
     )
+
+def ensure_https(url):
+    if not url.startswith('https://'):
+        return False
+
+    buffer = BytesIO()
+    c = pycurl.Curl()
+    c.setopt(c.URL, url)
+    c.setopt(c.PROXY, 'socks5h://localhost:9050')
+    c.setopt(c.WRITEDATA, buffer)
+    c.setopt(c.SSL_VERIFYHOST, False)
+    c.setopt(c.SSL_VERIFYPEER, False)
+
+    try:
+        c.perform()
+        # HTTP response code, e.g. 200.
+        # print('Status: %d' % c.getinfo(c.RESPONSE_CODE))
+        return True
+
+    except pycurl.error as err:
+        print(f"Exception: {err}")
+        return False
+
+    finally:
+        c.close()
