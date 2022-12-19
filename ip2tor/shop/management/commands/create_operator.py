@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.conf import settings
+from rest_framework.authtoken.models import Token
 
 class Command(BaseCommand):
     """
@@ -44,6 +45,14 @@ class Command(BaseCommand):
             self.stdout.write(f'User "{username}" was assigned to the group "{operators_group_name}".')
         else:
             self.stdout.write(f'User "{username}" was already assigned to the group "{operators_group_name}". No changes were made')
+                
+        if not Token.objects.filter(user=operator).exists():
+            # Add a token to the operator
+            token = Token.objects.create(user=operator)
+            self.stdout.write(f'The token "{token.key}" for user "{username}" was created.')
+        else:
+            self.stdout.write(f'A token for user "{username}" already exists in the system. No new token was created.')
+        
         return
 
         
