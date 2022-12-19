@@ -26,6 +26,7 @@ urlpatterns = [
 
     path('charged/lninvoice/', include('charged.lninvoice.urls')),
     path('charged/lnpurchase/', include('charged.lnpurchase.urls')),
+    path('charged/lnnode/', include('charged.lnnode.urls')),
 
     path('shop/', include('shop.urls')),
 

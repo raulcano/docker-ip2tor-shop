@@ -79,7 +79,7 @@ elif [ "$role" = "celery-beat" ] || [ "$role" = "celery-worker" ] || [ "$role" =
     # tear down function
     teardown()
     {
-        echo " Signal caught..."
+        echo "Signal caught..."
         echo "Stopping celery multi gracefully..."
 
         # send shutdown signal to celery workser via `celery multi`
