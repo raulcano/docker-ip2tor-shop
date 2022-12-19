@@ -33,6 +33,9 @@ if [ "$role" = "django-http" ]; then
   python3 manage.py createsuperuser_programatically --user=$DJANGO_SUPERUSER_NAME --password=$DJANGO_SUPERUSER_PASSWORD --email=$DJANGO_SUPERUSER_EMAIL
   python3 manage.py create_operator --user=$DJANGO_OPERATOR_NAME --password=$DJANGO_OPERATOR_PASSWORD --email=$DJANGO_OPERATOR_EMAIL
   python3 manage.py create_site --name="$SHOP_SITE_NAME" --domain=$SHOP_SITE_DOMAIN
+  if [ "True" = $SHOP_FIRST_HOST_REGISTER ]; then
+    python3 manage.py create_host --owner=$DJANGO_OPERATOR_NAME --sitedomain="$SHOP_SITE_DOMAIN" --name="$SHOP_FIRST_HOST_NAME" --ip=$SHOP_FIRST_HOST_IP --portstart=$SHOP_FIRST_HOST_PORT_START --portend=$SHOP_FIRST_HOST_PORT_END --rangetype=$SHOP_FIRST_HOST_PORT_RANGE_TYPE --isenabled=$SHOP_FIRST_HOST_IS_ENABLED --isalive=$SHOP_FIRST_HOST_IS_ALIVE --istestnet=$SHOP_FIRST_HOST_IS_TESTNET --offerstorbridges=$SHOP_FIRST_HOST_OFFERS_TOR_BRIDGES --torbridgeduration=$SHOP_FIRST_HOST_TOR_BRIDGE_DURATION --torbridgepriceinitial=$SHOP_FIRST_HOST_TOR_BRIDGE_PRICE_INITIAL --torbridgepriceextension=$SHOP_FIRST_HOST_TOR_BRIDGE_PRICE_EXTENSION --offersrsshtunnels=$SHOP_FIRST_HOST_OFFERS_RSSH_TUNNELS --rsshtunnelprice=$SHOP_FIRST_HOST_RSSH_TUNNEL_PRICE --tos="$SHOP_FIRST_HOST_TERMS_OF_SERVICE" --tosurl="$SHOP_FIRST_HOST_TERMS_OF_SERVICE_URL" --cistatus=$SHOP_FIRST_HOST_CI_STATUS --cidate="$SHOP_FIRST_HOST_CI_DATE" --cimessage="$SHOP_FIRST_HOST_CI_MESSAGE"
+  fi
   python3 manage.py create_gRPCnode --name=$CHARGED_LND_NAME --priority=$CHARGED_LND_PRIORITY --owner=$CHARGED_LND_OWNER --macaroon_admin=$CHARGED_LND_MACAROON_ADMIN --macaroon_invoice=$CHARGED_LND_MACAROON_INVOICE --macaroon_readonly=$CHARGED_LND_MACAROON_READONLY --tls_certificate="$CHARGED_LND_TLS_CERTIFICATE" --tls_verification=$CHARGED_LND_TLS_VERIFICATION --host=$CHARGED_LND_HOST --port=$CHARGED_LND_PORT
 
   # Limit access rights to base and media directory
