@@ -7,12 +7,15 @@ RUN apt-get install -y python3
 RUN apt-get install -y pip
 RUN apt-get install -y python3-pycurl
 RUN apt-get install -y curl
+RUN apt-get install -y procps
 
 RUN useradd ip2tor --comment "IP2Tor Service Account" --create-home --home /home/ip2tor --shell /bin/bash
 RUN chmod 750 /home/ip2tor
 
 # Install python dependencies
 COPY .docker/requirements.txt /usr/share/requirements.txt
+COPY .docker/restart-gunicorn.sh /usr/share/restart-gunicorn.sh
+RUN chmod u+x /usr/share/restart-gunicorn.sh
 RUN python3 -m pip install --upgrade pip setuptools
 RUN python3 -m pip install --upgrade -r /usr/share/requirements.txt
 RUN python3 -m pip install --upgrade psycopg2-binary
