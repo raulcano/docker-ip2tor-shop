@@ -4,12 +4,16 @@ from django.contrib.admin.options import get_content_type_for_model
 from django.core.mail import EmailMessage
 from io import BytesIO
 import pycurl
+import importlib
 
 
 class MailNotificationToOwnerError(Exception):
     """E-Mail notification to owner raise an error"""
     pass
 
+def dynamic_import_class(module_name, class_name):
+    module = importlib.import_module(module_name)
+    return getattr(module, class_name)
 
 def create_email_message(subject: str, body: str, recipients: list,
                          from_email: str = None,
@@ -90,3 +94,5 @@ def ensure_https(url):
 
     finally:
         c.close()
+
+

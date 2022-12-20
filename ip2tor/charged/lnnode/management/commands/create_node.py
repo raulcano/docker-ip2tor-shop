@@ -1,25 +1,28 @@
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
-from charged.lnnode.models.lnd import LndGRpcNode
+from charged.utils import dynamic_import_class
 
 class Command(BaseCommand):
     """
     Create a node programatically
     Example:
-        manage.py create_node --name=MyNode --priority=0 --owner=operator --macaroon_admin=xxxx --macaroon_invoice=yyyy --macaroon_readonly=zzzz --tls_certificate=XXXX --host=localhost --port=8080
+        manage.py create_node --nodeclass=LndGRpcNode --name=MyNode --priority=0 --owner=operator --macaroon_admin=xxxx --macaroon_invoice=yyyy --macaroon_readonly=zzzz --tls_certificate=XXXX --host=localhost --port=8080
     """
 
     def add_arguments(self, parser):
+        parser.add_argument("--nodeclass", required=False, default='LndGRpcNode')
         parser.add_argument("--name", required=True)
         parser.add_argument("--priority", required=False, default=0)
         parser.add_argument("--owner", required=False, default="operator")
-        parser.add_argument("--macaroon_admin", required=True)
+        parser.add_argument("--macaroon_admin", required=False)
         parser.add_argument("--macaroon_invoice", required=True)
         parser.add_argument("--macaroon_readonly", required=True)
         parser.add_argument("--tls_certificate", required=True)
         parser.add_argument("--tls_verification", required=False, default=True)
         parser.add_argument("--host", required=True)
-        parser.add_argument("--port", required=False, default=10009)
+        parser.add_argument("--port", required=False, default=8080)
+        
 
     def handle(self, *args, **options):
 
@@ -30,11 +33,16 @@ class Command(BaseCommand):
         if not User.objects.filter(username=options["owner"]).exists():
             return f'The user "{options["owner"]}" does not exist'
         
-        if LndGRpcNode.objects.filter(name=options["name"]).exists():
-            return f'A node with the name "{options["name"]}" exists already. Make sure to use a unique name.'
-
-        if LndGRpcNode.objects.filter(hostname=options["host"], port=options["port"]).exists():
-            return f'A node with the hostname "{options["host"]}" and port "{options["port"]}" exists already. Make sure to use a unique combination of hostname and port.'
+        # We check that no node exists in any class that implements LndNode
+        for lndnode_class in getattr(settings, 'CHARGED_LNDNODE_IMPLEMENTING_CLASSES'):
+            TempNode = dynamic_import_class('charged.lnnode.models', lndnode_class)
+            if TempNode.objects.filter(name=options["name"]).exists():
+                return f'A {lndnode_class} node with the name "{options["name"]}" exists already. Make sure to use a unique name.'
+            if TempNode.objects.filter(hostname=options["host"], port=options["port"]).exists():
+                return f'A {lndnode_class} node with the hostname "{options["host"]}" and port "{options["port"]}" exists already. Make sure to use a unique combination of hostname and port.'
+        
+        class_name = options["nodeclass"]
+        Node = dynamic_import_class('charged.lnnode.models', class_name)
 
         owner = User.objects.filter(username=options["owner"]).first()
         priority = options["priority"]
@@ -50,7 +58,7 @@ class Command(BaseCommand):
 
         # Check that name nor host exist
 
-        LndGRpcNode.objects.create(
+        Node.objects.create(
             priority=priority,
             name=name,
             owner=owner,
