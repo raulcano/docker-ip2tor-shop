@@ -174,7 +174,7 @@ class HostAdmin(admin.ModelAdmin):
 # admin.site.unregister(Backend)
 
 # ToDo(frennkie) for now hide unimplemented models
-admin.site.unregister(LndRestNode)
+# admin.site.unregister(LndRestNode) # still not implemented, but wanted to have some visibility in the admin menu
 admin.site.unregister(CLightningNode)
 admin.site.unregister(FakeNode)
 
