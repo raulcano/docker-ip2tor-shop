@@ -1,13 +1,18 @@
 <html>
   <body>
     <h1>Checking status of a node manually</h1>
-    <p>
-      Check the status of the node in this api endpoint: <br>
-      <a href="http://localhost:8000/api/v1/public/lnnodes/lndgrpc/{{pk}}" target="_blank">Check node details (opens new page)</a>
-    </p>
+    This page just triggered the node.check_alive_status() function and got this result: <br>
+    <b>Status:</b> <br> {{ status }} <br>
+    <b>Info:</b> <br> {{ info}}
+    <hr>
+    
     <p>
       Try again an alive check here: <br>
       <a href="http://localhost:8000/charged/lnnode/{{pk}}/alive">Alive check (reloads this page)</a>
+    </p>
+    <p>
+      Node API endpoint: <br>
+      <a href="http://localhost:8000/api/v1/public/lnnodes/lndgrpc/{{pk}}" target="_blank">Check node details (opens new page)</a>
     </p>
     <p>
       FLOWer task dashboard (opens new page)
