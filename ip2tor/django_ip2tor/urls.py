@@ -40,6 +40,6 @@ if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
-admin.site.site_header = 'IP2Tor administration'                    # default: "Django Administration"
-admin.site.index_title = 'Main dashboard'                 # default: "Site administration"
-admin.site.site_title = 'IP2Tor site admin' # default: "Django site admin"
+admin.site.site_header = 'IP2Tor administration'    # default: "Django Administration"
+admin.site.index_title = 'Main dashboard'           # default: "Site administration"
+admin.site.site_title = 'IP2Tor site admin'         # default: "Django site admin"
