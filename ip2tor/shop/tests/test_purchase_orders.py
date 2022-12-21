@@ -28,18 +28,20 @@ def create_purchase_order_via_api(api_client):
     yield do_create_purchase_order_via_api
     print('tearing down')
 
-# @pytest.mark.django_db
-# class TestCreatePurchaseOrder():
-#     def test_create_empty_po_returns_400(self, create_purchase_order_via_api):
-#         response = create_purchase_order_via_api({})
-#         assert response.status_code == status.HTTP_400_BAD_REQUEST
+@pytest.mark.skip
+@pytest.mark.django_db
+class TestCreatePurchaseOrder():
+    def test_create_empty_po_returns_400(self, create_purchase_order_via_api):
+        response = create_purchase_order_via_api({})
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
         
-#     def test_create_purchase_order_for_TorBridge(self, create_purchase_order_via_api):
-#         response = create_purchase_order_via_api()
-#         # po = ShopPurchaseOrder.objects.get(pk=response.data['id'])
-#         po = PurchaseOrder.objects.get(pk=response.data['id'])
-#         assert response.data['id'] == po.id
+    def test_create_purchase_order_for_TorBridge(self, create_purchase_order_via_api):
+        response = create_purchase_order_via_api()
+        # po = ShopPurchaseOrder.objects.get(pk=response.data['id'])
+        po = PurchaseOrder.objects.get(pk=response.data['id'])
+        assert response.data['id'] == po.id
 
+@pytest.mark.skip
 @pytest.mark.django_db
 class TestRetrievePurchaseOrder():
     def test_retrieve_purchase_order_includes_item_details_and_ln_invoices(self, create_purchase_order_via_api, api_client):
