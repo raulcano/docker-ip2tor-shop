@@ -19,7 +19,7 @@ class Command(BaseCommand):
         parser.add_argument("--macaroon_invoice", required=True)
         parser.add_argument("--macaroon_readonly", required=True)
         parser.add_argument("--tls_certificate", required=True)
-        parser.add_argument("--tls_verification", required=False, default=True)
+        parser.add_argument("--tls_verification", required=True)
         parser.add_argument("--host", required=True)
         parser.add_argument("--port", required=False, default=8080)
         

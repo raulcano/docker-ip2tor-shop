@@ -278,6 +278,18 @@ Find some instructions here:
 
 https://raspberrytips.com/run-script-at-startup-on-linux/
 
+## Certificates for the Lightning Node(s)
+We can generate a self-signed certificate for the node for our tests with this command.  
+Change the ip ```192.168.0.160``` with the IP from your node.
+
+```
+openssl req -x509 -out self-signed.crt -keyout self-signed.key \
+  -newkey rsa:2048 -nodes -sha256 \
+  -subj '/CN=192.168.0.160' -extensions EXT -config <( \
+   printf "[dn]\nCN=192.168.0.160\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:192.168.0.160\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+```
+
+
 ## Updating settings without having to modify the repo (DEPRECATED)
 At the moment, just go to the ip2tor/django_ip2tor/settings.py file and update as necessary.
 

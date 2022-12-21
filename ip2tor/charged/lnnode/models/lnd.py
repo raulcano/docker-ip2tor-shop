@@ -226,14 +226,16 @@ class LndGRpcNode(LndNode):
         return self.Stub(self.hostname,
                          str(self.port),
                          self.tls_cert.encode(),
-                         self._get_macaroon_readonly().encode())
+                         self._get_macaroon_readonly().encode(),
+                         self.tls_cert_verification)
 
     @cached_property
     def stub_invoice(self):
         return self.Stub(self.hostname,
                          str(self.port),
                          self.tls_cert.encode(),
-                         self._get_macaroon_invoice().encode())
+                         self._get_macaroon_invoice().encode(),
+                         self.tls_cert_verification)
 
     def check_alive_status(self):
         if not self.is_enabled:
@@ -313,11 +315,12 @@ class LndGRpcNode(LndNode):
                             "{}".format(err))
 
     class Stub(lnrpc.LightningStub):
-        def __init__(self, host: str, port: str, tls_cert: bytes, macaroon_hex: bytes):
+        def __init__(self, host: str, port: str, tls_cert: bytes, macaroon_hex: bytes, tls_cert_verification: bool):
             self.host = host
             self.port = port
             self.tls_cert = tls_cert
             self.macaroon_hex = macaroon_hex
+            self.tls_cert_verification = tls_cert_verification
 
             self.channel = self._get_rpc_channel()
             super().__init__(self.channel)
@@ -332,7 +335,7 @@ class LndGRpcNode(LndNode):
             def metadata_callback(context, callback):
                 # for more info see grpc docs
                 callback([('macaroon', self.macaroon_hex)], None)
-
+            
             # Due to updated ECDSA generated tls.cert we need to let gprc know that
             # we need to use that cipher suite otherwise there will be a handshake
             # error when we communicate with the lnd rpc server.
@@ -341,15 +344,23 @@ class LndGRpcNode(LndNode):
             # build ssl credentials using the cert the same as before
             cert_creds = grpc.ssl_channel_credentials(self.tls_cert)
 
-            # now build meta data credentials
+            # build meta data credentials
             auth_creds = grpc.metadata_call_credentials(metadata_callback)
-
+            
             # combine the cert credentials and the macaroon auth credentials
             # such that every call is properly encrypted and authenticated
             combined_creds = grpc.composite_channel_credentials(cert_creds, auth_creds)
+            
+            if self.tls_cert_verification:
+                
+                # finally pass in the combined credentials when creating a channel
+                print(f'Attempting to open a SECURE gRPC channel on the host "{self.host}:{self.port}".')
+                return grpc.secure_channel('{}:{}'.format(self.host, self.port), combined_creds)
+            else:
+                # options = (('macaroon', self.macaroon_hex),)
+                print(f'Attempting to open an INSECURE gRPC channel on the host "{self.host}:{self.port}".')
+                return grpc.insecure_channel('{}:{}'.format(self.host, self.port), [('macaroon', self.macaroon_hex)])
 
-            # finally pass in the combined credentials when creating a channel
-            return grpc.secure_channel('{}:{}'.format(self.host, self.port), combined_creds)
 
 
 class LndRestNode(LndNode):
