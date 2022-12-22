@@ -6,6 +6,8 @@ import os
 from os.path import dirname, abspath
 import pytest
 
+# In this test module, we assume that the cert loaded from the .env file is a correct one
+# if it isn't, the corresponding tests will fail
 
 @pytest.fixture(scope = 'module')
 def global_data():
@@ -64,6 +66,7 @@ class TestCheckAliveNodes():
         node.save()
         status, info = node.check_alive_status()
         assert status == True
+        assert node.is_alive == True
 
     def test_grpc_node_alive_without_tls_verification_cert_NOK(self, create_node, global_data):
         node = create_node('LndGRpcNode')
@@ -72,6 +75,7 @@ class TestCheckAliveNodes():
         node.save()
         status, info = node.check_alive_status()
         assert status == True
+        assert node.is_alive == True
 
     def test_grpc_node_alive_with_tls_verification_cert_OK(self, create_node, global_data):
         node = create_node('LndGRpcNode')
@@ -79,6 +83,7 @@ class TestCheckAliveNodes():
         node.save()
         status, info = node.check_alive_status()
         assert status == True
+        assert node.is_alive == True
 
     def test_grpc_node_alive_with_tls_verification_cert_NOK(self, create_node, global_data):
         node = create_node('LndGRpcNode')
@@ -87,6 +92,7 @@ class TestCheckAliveNodes():
         node.save()
         status, info = node.check_alive_status()
         assert status == False
+        assert node.is_alive == False
 
     def test_rest_node_alive_without_tls_verification_cert_OK(self, create_node, global_data):
         node = create_node('LndRestNode')
@@ -94,6 +100,7 @@ class TestCheckAliveNodes():
         node.save()
         status, info = node.check_alive_status()
         assert status == True
+        assert node.is_alive == True
 
     def test_rest_node_alive_without_tls_verification_cert_NOK(self, create_node, global_data):
         node = create_node('LndRestNode')
@@ -102,6 +109,7 @@ class TestCheckAliveNodes():
         node.save()
         status, info = node.check_alive_status()
         assert status == True
+        assert node.is_alive == True
 
     def test_rest_node_alive_with_tls_verification_cert_OK(self, create_node, global_data):
         node = create_node('LndRestNode')
@@ -109,6 +117,7 @@ class TestCheckAliveNodes():
         node.save()
         status, info = node.check_alive_status()
         assert status == True
+        assert node.is_alive == True
 
     def test_rest_node_alive_with_tls_verification_cert_NOK(self, create_node, global_data):
         node = create_node('LndRestNode')
@@ -117,3 +126,4 @@ class TestCheckAliveNodes():
         node.save()
         status, info = node.check_alive_status()
         assert status == False
+        assert node.is_alive == False

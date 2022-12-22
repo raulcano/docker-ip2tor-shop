@@ -1,6 +1,6 @@
 import os
 import ssl
-
+import codecs
 import grpc
 import lnrpc
 import requests
@@ -357,10 +357,11 @@ class LndGRpcNode(LndNode):
                 print(f'Attempting to open a SECURE gRPC channel on the host "{self.host}:{self.port}".')
                 return grpc.secure_channel('{}:{}'.format(self.host, self.port), combined_creds)
             else:
-                # options = (('macaroon', self.macaroon_hex),)
                 print(f'Attempting to open an INSECURE gRPC channel on the host "{self.host}:{self.port}".')
-                return grpc.insecure_channel('{}:{}'.format(self.host, self.port), [('macaroon', self.macaroon_hex)])
-
+                # From https://github.com/grpc/grpc/issues/22119#issuecomment-590837441
+                cert_cn = 'localhost' # or parse it out of the cert data
+                options = (('grpc.ssl_target_name_override', cert_cn,),)
+                return grpc.secure_channel('{}:{}'.format(self.host, self.port), combined_creds, options)
 
 
 class LndRestNode(LndNode):
@@ -379,10 +380,9 @@ class LndRestNode(LndNode):
         verbose_name = _("LND REST Node")
         verbose_name_plural = _("LND REST Nodes")
 
-    def create_invoice(self, **kwargs):
-        pass
+    
 
-    def _send_request(self, path='/v1/getinfo') -> dict:
+    def _send_request(self, path='/v1/getinfo', type='get') -> dict:
         url = f'https://{self.hostname}:{self.port}{path}'
 
         session = requests.Session()
@@ -391,13 +391,24 @@ class LndRestNode(LndNode):
             if self.tls_cert_verification:
                 adapter = CaDataVerifyingHTTPAdapter(tls_cert=self.tls_cert)
                 session.mount(url, adapter)
-                res = session.get(url,
+                if('get' == type):
+                    res = session.get(url,
+                                  headers={'Grpc-Metadata-macaroon': self.macaroon_readonly},
+                                  timeout=3.0)
+                elif('post' == type):
+                    res = session.post(url,
                                   headers={'Grpc-Metadata-macaroon': self.macaroon_readonly},
                                   timeout=3.0)
 
             else:
                 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-                res = session.get(url,
+                if('get' == type):
+                    res = session.get(url,
+                                  headers={'Grpc-Metadata-macaroon': self.macaroon_readonly},
+                                  verify=False,
+                                  timeout=3.0)
+                elif('post' == type):
+                    res = session.post(url,
                                   headers={'Grpc-Metadata-macaroon': self.macaroon_readonly},
                                   verify=False,
                                   timeout=3.0)
@@ -446,6 +457,10 @@ class LndRestNode(LndNode):
     @cached_property
     def get_info(self) -> dict:
         return self._send_request().get('data')
+
+    def create_invoice(self, **kwargs):
+        path = '/v1/invoices'
+        pass
 
     def get_invoice(self, **kwargs):
         pass
