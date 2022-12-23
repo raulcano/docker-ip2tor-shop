@@ -1,6 +1,7 @@
 from rest_framework import status
 from model_bakery import baker
 from shop.models import Host
+from shop.utils import remove_utc_offset_string_from_time_isoformat
 import pytest
 
 @pytest.mark.skip
@@ -25,10 +26,10 @@ class TestRetrieveHosts ():
         response = api_client.get(f'/api/v1/public/hosts/{host.id}/')
         print(response.data)
         assert response.status_code == status.HTTP_200_OK
-        # assert response.data['id'] == host.id
+        assert response.data['id'] == str(host.id)
         assert response.data['site'] == host.site.domain
-        # assert response.data['created_at'] == host.created_at
-        # assert response.data['modified_at'] == host.modified_at
+        assert response.data['created_at'] == remove_utc_offset_string_from_time_isoformat(host.created_at.isoformat("T", "seconds")) + 'Z'
+        assert response.data['modified_at'] == remove_utc_offset_string_from_time_isoformat(host.modified_at.isoformat("T", "seconds")) + 'Z'
         assert response.data['ip'] == host.ip
         assert response.data['is_enabled'] == host.is_enabled
         assert response.data['is_alive'] == host.is_alive
