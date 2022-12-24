@@ -11,7 +11,6 @@ role=${CONTAINER_ROLE:-django-http}
 if [ "$role" = "django-http" ]; then
   echo "App role (Django HTTP server) ..."
 
-  # Load the env variables from the root folder into the django .env file
   source /home/ip2tor/ip2tor/.env
   
   if [ -z "$SECRET_KEY" ] || [ ! -v SECRET_KEY ]; then
@@ -20,16 +19,6 @@ if [ "$role" = "django-http" ]; then
   else
     echo 'Secret key was defined already. No new secret key was generated.'
   fi
-
-  # if [ ! -f "/home/ip2tor/ip2tor/.env" ]; then
-  #   touch .env
-  #   echo -e 'DEBUG=false' | tee --append .env
-  #   # add the database URL, email URL and admin data from the root .env file
-  #   echo -e 'DATABASE_URL="'$DATABASE_URL'"' | tee --append .env
-  #   echo -e 'EMAIL_URL="'$EMAIL_URL'"' | tee --append .env
-  #   # add the secret key
-    
-  # fi
 
   mkdir /home/ip2tor/media
   mkdir /home/ip2tor/static
