@@ -11,7 +11,7 @@ from django.db.models import signals
 from rest_framework import status
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 @pytest.mark.django_db
 class TestCreatePurchaseOrder():
     def test_create_empty_po_returns_400(self, create_purchase_order_via_api):
@@ -29,10 +29,12 @@ class TestCreatePurchaseOrder():
 @pytest.mark.django_db
 class TestRetrievePurchaseOrder():
     
-    @pytest.mark.skip
-    def test_retrieve_purchase_order_includes_item_details_and_ln_invoices(self, create_purchase_order_via_api, api_client):
+    # @pytest.mark.skip
+    def test_retrieve_purchase_order_includes_item_details_and_ln_invoices(self, create_purchase_order_via_api, api_client, create_node_host_and_owner):
         
-        response_po = create_purchase_order_via_api()
+        _, host, owner = create_node_host_and_owner()
+
+        response_po = create_purchase_order_via_api(owner=owner, host=host)
         response = api_client.get(f'/api/v1/public/pos/{response_po.data["id"]}/')
         
         print(response_po.data)
@@ -44,11 +46,6 @@ class TestRetrievePurchaseOrder():
     def test_retrieve_purchase_order_includes_one_invoice(self, create_purchase_order_via_api, api_client, create_node_host_and_owner):
         
         node, host, owner = create_node_host_and_owner(node_is_alive=True)
-        
-        print(node.is_alive)
-        node.is_alive = True
-        # node.save()
-        print(node.is_alive)
 
         invoice_received = False
         iterations = 3
@@ -64,6 +61,6 @@ class TestRetrievePurchaseOrder():
             time.sleep(delay)
             i = i + 1
         
-        # print(response.data)
+        print(response.data)
         assert invoice_received
         

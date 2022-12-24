@@ -3,6 +3,8 @@
 import pytest
 from charged.tests.conftest import create_node, global_data
 from django.contrib.auth.models import User
+from django.db import connection
+
 from model_bakery import baker
 from rest_framework.test import APIClient
 from shop.models import Host
@@ -19,7 +21,17 @@ def create_node_host_and_owner(create_node, global_data):
         node = create_node(nodeclass=nodeclass, tls_cert_verification=tls_cert_verification, tls_cert=tls_cert, owner=owner, is_alive=node_is_alive)
         host = baker.make(Host, is_enabled=True, is_alive=True, owner=owner)
         return node, host, owner
+    
+
+    # When the fixture is torn down, there is an error because the django_admin_log has a pending trigger event
+    # This is a dirty solution for the time being. We are testing anyway and I am not checking the logs
+    cursor = connection.cursor()
+    cursor.execute("ALTER TABLE django_admin_log DISABLE TRIGGER ALL")
+    
     yield do_create_node_host_and_owner
+
+    # cursor.execute("TRUNCATE TABLE django_admin_log")
+    # cursor.execute("ALTER TABLE django_admin_log ENABLE TRIGGER ALL")
 
 @pytest.fixture
 def create_purchase_order_via_api(api_client):

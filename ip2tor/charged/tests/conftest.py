@@ -4,6 +4,7 @@ from os.path import abspath, dirname
 import pytest
 from charged.lnpurchase.models import PurchaseOrder
 from charged.utils import dynamic_import_class
+from django.contrib.auth.models import User
 from dotenv import load_dotenv
 from model_bakery import baker
 # In this test module, we assume that the cert loaded from the .env file is a correct one (if it isn't, the corresponding tests will fail)
@@ -13,23 +14,7 @@ from model_bakery import baker
 def global_data():
     return {
         'invalid_cert': '''-----BEGIN CERTIFICATE-----
-MIIDKTCCAhGgAwIBAgIUHqZn0ZKwEWfOI+1W/SBNfyxfW34wDQYJKoZIhvcNAQEL
-BQAwJzElMCMGA1UEAwwcdGhpcy1pcy1hLW1hZGUtdXAtZG9tYWluLmNvbTAeFw0y
-MjEyMjExNjE3MDlaFw0yMzAxMjAxNjE3MDlaMCcxJTAjBgNVBAMMHHRoaXMtaXMt
-YS1tYWRlLXVwLWRvbWFpbi5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
-AoIBAQDREaXSVUd4YPzp1znjjG64dh10coZHDFSZn133kZbDputCI1nqs914jxdz
-zTIluGFYfzUnLTDz4eaeeMDf8LzlGJG18sWq4wqQEME8RJSyRiDJreVX1irEd3/0
-lQCgpUGoXeG+DuydVZE/N+VpzQ3yQjPK+OSnYdeIFHTH+IrZJTdo4KIgWJuLRTm8
-ZtRze49Zq4QmxgKjSbCatkvq6d3GlqfVZPGfC7e8TXrwSvFZk2+UAX+u6J9q/qIg
-BRZ++8szRuxihP9SFjv22LjYO2dBj0Vo7TW6jljKXbIntOgBVErRnyEjtEFKJwjE
-RxnP3Mm7Qrsxzb+HcBVUX1qovW7LAgMBAAGjTTBLMCcGA1UdEQQgMB6CHHRoaXMt
-aXMtYS1tYWRlLXVwLWRvbWFpbi5jb20wCwYDVR0PBAQDAgeAMBMGA1UdJQQMMAoG
-CCsGAQUFBwMBMA0GCSqGSIb3DQEBCwUAA4IBAQBpG7XGoFb76KAWUSU/BpkWaTUI
-lP8aShvySZ9bFGQwxJN7RSpg3PH3XDgMVTAYh06Scfq+U9MxJYtpCc8cToFQWEzK
-hGR4wDQ0sAzDsx2EJu91p5RFMO7wU1RY0uXdc3TxK8uMZgu5gTNXgzMfhQ7b1aEl
-LfcoTcHPM66xGe7oX5n4T1sfzusoOCArG+X/uAPByjbSlJKN/wqXUDXTxgykJFul
-tkDbmcW31ImITf8vVNaywDjhmLBOEquS6NK0LZdxuoZqCukx/pxScBGjFdWDn4ge
-d5812LflhkGeSpvDPk+0QtPKTv/rHmXY99oSf2ZiXhtVB1vegU4Lh8QHJuOE
+MIICMjCCAdmgAwIBAgIQVNGjQ2zwqC+5A/PUefa87jAKBggqhkjOPQQDAjA/MR8wHQYDVQQKExZsbmQgYXV0b2dlbmVyYXRlZCBjZXJ0MRwwGgYDVQQDExNsZXhpbmVtLmR1Y2tkbnMub3JnMB4XDTIyMTIxMjEyMzYyNVoXDTI0MDIwNjEyMzYyNVowPzEfMB0GA1UEChMWbG5kIGF1dG9nZW5lcmF0ZWQgY2VydDEcMBoGA1UEAxMTbGV4aW5lbS5kdWNrZG5zLm9yZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABAxYaLPTfhM14GLmmMddALB/ACwfzPqJNwmBUHOPNuqDeZv1M/VxiHErehcgZadukQXaPP8/Bl+A8i9i3o4zyIqjgbYwgbMwDgYDVR0PAQH/BAQDAgKkMBMGA1UdJQQMMAoGCCsGAQUFBwMBMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFPKLtcFAb6SAacBj5U783/LvA2knMFwGA1UdEQRVMFOCCWxvY2FsaG9zdIITbGV4aW5lbS5kdWNrZG5zLm9yZ4IEdW5peIIKdW5peHBhY2tldIIHYnVmY29ubocEfwAAAYcQAAAAAAAAAAAAAAAAAAAAATAKBggqhkjOPQQDAgNHADBEAiBEbi4HZv77cLyexF4UnZkMVCiu0BBLPXF7qjjxWVMK0wIgbNxD0WyqAEdivNEZu5S7HOzEG7ziESM4xIWMxmO0EMo=
 -----END CERTIFICATE-----'''
     }
 
@@ -38,7 +23,8 @@ def create_node():
     def do_create_node(nodeclass='LndGRpcNode', tls_cert_verification=True, tls_cert=None, owner=None, is_alive=False):
         path = dirname(abspath(__file__)) + '/../../../.env'
         load_dotenv(path)
-
+        
+        owner = baker.make(User) if None == owner else owner
         host = os.getenv('CHARGED_LND_HOST')
         port = ""
         if ('LndGRpcNode' == nodeclass):
@@ -54,14 +40,9 @@ def create_node():
         name = 'test_' + os.getenv('CHARGED_LND_NAME')
 
         Node = dynamic_import_class('charged.lnnode.models', nodeclass)
-        if None == owner:
-            return baker.make(Node, name=name, port=port, hostname=host, tls_cert=tls_cert, 
-                macaroon_invoice=macaroon_invoice, macaroon_readonly=macaroon_readonly,
-                is_enabled=True, priority=0, tls_cert_verification=tls_cert_verification, is_alive=is_alive)
-        else:
-            return baker.make(Node, name=name, port=port, hostname=host, tls_cert=tls_cert, 
-                macaroon_invoice=macaroon_invoice, macaroon_readonly=macaroon_readonly,
-                is_enabled=True, priority=0, tls_cert_verification=tls_cert_verification, is_alive=is_alive, owner=owner)
+        return baker.make(Node, name=name, port=port, hostname=host, tls_cert=tls_cert, 
+            macaroon_invoice=macaroon_invoice, macaroon_readonly=macaroon_readonly,
+            is_enabled=True, priority=0, tls_cert_verification=tls_cert_verification, is_alive=is_alive, owner=owner)
 
     yield do_create_node
 
