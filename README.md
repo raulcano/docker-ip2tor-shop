@@ -167,6 +167,9 @@ Once the docker compose is up and running, you need to access ```localhost:5555`
 
 # Other tips & tricks
 
+## Always leave a new empty line at the end of the .env file
+The reason is that the secret key is generated programatically and appended at the end of the file. If there is no new line, it will be pasted just in the same line of the last env variable, which will mess things up.
+
 ## How to get the onion address to your shop
 Once the docker containers are up, you can type the following in the terminal (root folder of the shop, outside the containers):
 ```
