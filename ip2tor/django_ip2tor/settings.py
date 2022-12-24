@@ -285,7 +285,7 @@ SHOP_BRIDGE_DURATION_GRACE_TIME = env.int('SHOP_BRIDGE_DURATION_GRACE_TIME', def
 
 SHOP_OPERATOR_GROUP_NAME='operators'
 
-
+WHITELISTED_SERVICE_PORTS =  env.list('WHITELISTED_SERVICE_PORTS', default=[ '8333', '9735' ])
 
 
 # allow for a local file ("django_ip2tor/local_settings.py") to be used to add or override settings

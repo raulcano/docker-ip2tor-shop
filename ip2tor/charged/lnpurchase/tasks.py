@@ -80,8 +80,7 @@ def process_initial_purchase_order(obj_id):
     obj.save()
     add_change_log_entry(obj, 'set to: NEEDS_REMOTE_CHECKS')
 
-    # ToDo(frennkie) move to settings (env)
-    whitelisted_service_ports = ['8333', '9735']
+    whitelisted_service_ports = getattr(settings, 'WHITELISTED_SERVICE_PORTS')
     if target_port in whitelisted_service_ports:
         logger.info('REMOTE CHECKS: target port is whitelisted: %s' % target_port)
 
