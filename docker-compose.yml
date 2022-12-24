@@ -174,7 +174,7 @@ services:
     container_name: ip2tor-shop-postgres
     hostname: postgres
     env_file:
-      - .env 
+      - ./ip2tor/.env 
     ports:
       - 5432:5432
     volumes:

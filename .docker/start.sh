@@ -3,7 +3,7 @@
 #Change to service user and install + update virtual python environment
 sudo su - ip2tor
 cd /home/ip2tor/ip2tor
-role=${CONTAINER_ROLE:-django-daphne}
+role=${CONTAINER_ROLE:-django-http}
 
 # This is where the global python packages are installed
 # python3 -m site
@@ -12,16 +12,24 @@ if [ "$role" = "django-http" ]; then
   echo "App role (Django HTTP server) ..."
 
   # Load the env variables from the root folder into the django .env file
-  source /home/ip2tor/.env
-  if [ ! -f "/home/ip2tor/ip2tor/.env" ]; then
-    touch .env
-    echo -e 'DEBUG=false' | tee --append .env
-    # add the database URL, email URL and admin data from the root .env file
-    echo -e 'DATABASE_URL="'$DATABASE_URL'"' | tee --append .env
-    echo -e 'EMAIL_URL="'$EMAIL_URL'"' | tee --append .env
-    # add the secret key
+  source /home/ip2tor/ip2tor/.env
+  
+  if [ -z "$SECRET_KEY" ] || [ ! -v SECRET_KEY ]; then
+    echo 'Generating new secret key...'
     python3 /home/ip2tor/.docker/get-secret-key.py | tee --append .env
+  else
+    echo 'Secret key was defined already. No new secret key was generated.'
   fi
+
+  # if [ ! -f "/home/ip2tor/ip2tor/.env" ]; then
+  #   touch .env
+  #   echo -e 'DEBUG=false' | tee --append .env
+  #   # add the database URL, email URL and admin data from the root .env file
+  #   echo -e 'DATABASE_URL="'$DATABASE_URL'"' | tee --append .env
+  #   echo -e 'EMAIL_URL="'$EMAIL_URL'"' | tee --append .env
+  #   # add the secret key
+    
+  # fi
 
   mkdir /home/ip2tor/media
   mkdir /home/ip2tor/static
@@ -58,7 +66,7 @@ if [ "$role" = "django-http" ]; then
   gunicorn --bind=0.0.0.0:$DJANGO_HTTP_PORT django_ip2tor.wsgi
   
 elif [ "$role" = "django-daphne" ]; then
-  source /home/ip2tor/.env
+  source /home/ip2tor/ip2tor/.env
   echo "App role (Django Daphne server) ..."
   echo "Starting Django with Daphne in port "$DJANGO_DAPHNE_PORT"... "
   
