@@ -27,7 +27,11 @@ alias regu="docker exec -it ip2tor-shop-django-http /usr/share/restart-gunicorn.
 
 alias onion='docker exec -it ip2tor-shop-tor cat var/lib/tor/ip2tor-shop_hidden_service/hostname'
 
+alias d='sudo docker-compose down'
+alias b='sudo docker-compose build'
+alias u='sudo docker-compose up'
 alias dbu='sudo docker-compose down && sudo docker-compose build && sudo docker-compose up'
 
 alias off='sudo shutdown now'
+alias doff='sudo docker-compose down && sudo shutdown now'
 alias restart='sudo reboot now'
