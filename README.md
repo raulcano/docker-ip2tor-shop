@@ -291,7 +291,10 @@ openssl req -x509 -out self-signed.crt -keyout self-signed.key \
   -subj '/CN=192.168.0.160' -extensions EXT -config <( \
    printf "[dn]\nCN=192.168.0.160\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:192.168.0.160\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
 ```
-
+alternatively:
+```
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 1000 -nodes -subj '/CN=192.168.0.60'
+```
 
 ## Updating settings without having to modify the repo (DEPRECATED)
 At the moment, just go to the ip2tor/django_ip2tor/settings.py file and update as necessary.
