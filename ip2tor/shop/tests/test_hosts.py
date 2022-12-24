@@ -4,7 +4,7 @@ from shop.models import Host
 from shop.utils import remove_utc_offset_string_from_time_isoformat
 import pytest
 
-@pytest.mark.skip
+# @pytest.mark.skip
 @pytest.mark.django_db
 class TestRetrieveHosts ():
     def test_if_user_is_anonymous_returns_200(self, api_client):

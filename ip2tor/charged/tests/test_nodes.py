@@ -1,53 +1,21 @@
 import pytest
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 @pytest.mark.django_db
 class TestCheckAliveNodes():
-    def test_grpc_node_alive_without_tls_verification_cert_OK(self, create_node, global_data):
-        node = create_node('LndGRpcNode', tls_cert_verification=False)
-        status, info = node.check_alive_status()
-        assert status == True
-        assert node.is_alive == True
 
-    def test_grpc_node_alive_without_tls_verification_cert_NOK(self, create_node, global_data):
-        node = create_node('LndGRpcNode', tls_cert_verification=False, tls_cert=global_data['invalid_cert'])
-        status, info = node.check_alive_status()
-        assert status == True
-        assert node.is_alive == True
+    @pytest.mark.parametrize('nodeclass', ['LndGRpcNode', 'LndRestNode'])
+    @pytest.mark.parametrize('tls_cert_verification', [True, False])
+    @pytest.mark.parametrize('tls_cert', [None, 'global_data']) # if None, we'll load the 'correct' cert as per the .env variable; otherwise, we load an invalid cert
+    def test_node_alive(self, create_node, global_data, nodeclass, tls_cert_verification, tls_cert, request):
+        
+        # see this on how to use fixtures as arguments in 'parametrize': https://miguendes.me/how-to-use-fixtures-as-arguments-in-pytestmarkparametrize
+        tls_cert = request.getfixturevalue(tls_cert)['invalid_cert'] if not None == tls_cert else None
+        node = create_node(nodeclass=nodeclass, tls_cert_verification=tls_cert_verification, tls_cert=tls_cert)
+        status, _ = node.check_alive_status()
+        
+        expected_status = True if (not tls_cert_verification) or (tls_cert_verification and None == tls_cert) else False
 
-    def test_grpc_node_alive_with_tls_verification_cert_OK(self, create_node, global_data):
-        node = create_node('LndGRpcNode', tls_cert_verification=True)
-        status, info = node.check_alive_status()
-        assert status == True
-        assert node.is_alive == True
-
-    def test_grpc_node_alive_with_tls_verification_cert_NOK(self, create_node, global_data):
-        node = create_node('LndGRpcNode', tls_cert_verification=True, tls_cert=global_data['invalid_cert'])
-        status, info = node.check_alive_status()
-        assert status == False
-        assert node.is_alive == False
-
-    def test_rest_node_alive_without_tls_verification_cert_OK(self, create_node, global_data):
-        node = create_node('LndRestNode', tls_cert_verification=False)
-        status, info = node.check_alive_status()
-        assert status == True
-        assert node.is_alive == True
-
-    def test_rest_node_alive_without_tls_verification_cert_NOK(self, create_node, global_data):
-        node = create_node('LndRestNode', tls_cert_verification=False, tls_cert=global_data['invalid_cert'])
-        status, info = node.check_alive_status()
-        assert status == True
-        assert node.is_alive == True
-
-    def test_rest_node_alive_with_tls_verification_cert_OK(self, create_node, global_data):
-        node = create_node('LndRestNode', tls_cert_verification=True)
-        status, info = node.check_alive_status()
-        assert status == True
-        assert node.is_alive == True
-
-    def test_rest_node_alive_with_tls_verification_cert_NOK(self, create_node, global_data):
-        node = create_node('LndRestNode', tls_cert_verification=True, tls_cert=global_data['invalid_cert'])
-        status, info = node.check_alive_status()
-        assert status == False
-        assert node.is_alive == False
+        assert status == expected_status
+        assert node.is_alive == expected_status

@@ -24,7 +24,7 @@ def create_node_host_and_owner(create_node, global_data):
     
 
     # When the fixture is torn down, there is an error because the django_admin_log has a pending trigger event
-    # This is a dirty solution for the time being. We are testing anyway and I am not checking the logs
+    # This is a dirty solution for the time being. We are testing anyway and I am not checking the admin logs
     cursor = connection.cursor()
     cursor.execute("ALTER TABLE django_admin_log DISABLE TRIGGER ALL")
     
