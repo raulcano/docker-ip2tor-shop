@@ -18,8 +18,9 @@ class TestCreatePurchaseOrder():
         response = create_purchase_order_via_api({})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         
-    def test_create_purchase_order_for_TorBridge_returns_id_and_url(self, create_purchase_order_via_api):
-        response = create_purchase_order_via_api()
+    def test_create_purchase_order_for_TorBridge_returns_id_and_url(self, create_purchase_order_via_api, create_node_host_and_owner):
+        _, host, owner = create_node_host_and_owner()
+        response = create_purchase_order_via_api(host=host, owner=owner)
         # po = ShopPurchaseOrder.objects.get(pk=response.data['id'])
         po = PurchaseOrder.objects.get(pk=response.data['id'])
         assert response.data['id'] == po.id
