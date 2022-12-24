@@ -1,12 +1,13 @@
+import os
+from os.path import abspath, dirname
+
+import pytest
+from charged.lnpurchase.models import PurchaseOrder
 from charged.utils import dynamic_import_class
 from dotenv import load_dotenv
 from model_bakery import baker
-import os
-from os.path import dirname, abspath
-import pytest
-
-# In this test module, we assume that the cert loaded from the .env file is a correct one
-# if it isn't, the corresponding tests will fail
+# In this test module, we assume that the cert loaded from the .env file is a correct one (if it isn't, the corresponding tests will fail)
+# Also, we add a fixture with a syntactically correct certificate, but which is invalid for our node
 
 @pytest.fixture
 def global_data():
@@ -34,7 +35,7 @@ d5812LflhkGeSpvDPk+0QtPKTv/rHmXY99oSf2ZiXhtVB1vegU4Lh8QHJuOE
 
 @pytest.fixture
 def create_node():
-    def do_create_node(nodeclass, tls_cert_verification=True, tls_cert=None):
+    def do_create_node(nodeclass='LndGRpcNode', tls_cert_verification=True, tls_cert=None, owner=None, is_alive=False):
         path = dirname(abspath(__file__)) + '/../../../.env'
         load_dotenv(path)
 
@@ -53,8 +54,22 @@ def create_node():
         name = 'test_' + os.getenv('CHARGED_LND_NAME')
 
         Node = dynamic_import_class('charged.lnnode.models', nodeclass)
-        return baker.make(Node, name=name, port=port, hostname=host, tls_cert=tls_cert, 
-            macaroon_invoice=macaroon_invoice, macaroon_readonly=macaroon_readonly,
-            is_enabled=True, priority=0, tls_cert_verification=tls_cert_verification)
+        if None == owner:
+            return baker.make(Node, name=name, port=port, hostname=host, tls_cert=tls_cert, 
+                macaroon_invoice=macaroon_invoice, macaroon_readonly=macaroon_readonly,
+                is_enabled=True, priority=0, tls_cert_verification=tls_cert_verification, is_alive=is_alive)
+        else:
+            return baker.make(Node, name=name, port=port, hostname=host, tls_cert=tls_cert, 
+                macaroon_invoice=macaroon_invoice, macaroon_readonly=macaroon_readonly,
+                is_enabled=True, priority=0, tls_cert_verification=tls_cert_verification, is_alive=is_alive, owner=owner)
 
     yield do_create_node
+
+
+
+
+@pytest.fixture
+def create_po():
+    def do_create_po():
+        return baker.make(PurchaseOrder)
+    yield do_create_po

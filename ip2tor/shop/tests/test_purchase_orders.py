@@ -1,32 +1,15 @@
-from model_bakery import baker
-from rest_framework import status
-# from django.contrib.auth.models import User
-from shop.models import Host, ShopPurchaseOrder
-from charged.lnpurchase.models import PurchaseOrder
+
+
+
+
+import time
+
 import pytest
+from charged.lnpurchase.models import PurchaseOrder
+from charged.lnpurchase.tasks import process_initial_purchase_order
+from django.db.models import signals
+from rest_framework import status
 
-@pytest.fixture
-def create_purchase_order_via_api(api_client):
-    def do_create_purchase_order_via_api(po=None):
-        if po == None:
-            host = baker.make(Host, is_enabled=True, is_alive=True, name="bridge")
-            product = 'tor_bridge'
-            target = 'myonionaddresherewithaport.onion:80'
-            comment = 'This is my Tor bridge in a new host'
-            po = {
-                'host_id': host.id,
-                'product': product,
-                'target': target,
-                'public_key': '',
-                'comment': comment,
-                'tos_accepted': True,
-            }
-
-        return api_client.post('/api/v1/public/order/', po)
-    
-    print('setting up')
-    yield do_create_purchase_order_via_api
-    print('tearing down')
 
 @pytest.mark.skip
 @pytest.mark.django_db
@@ -35,22 +18,52 @@ class TestCreatePurchaseOrder():
         response = create_purchase_order_via_api({})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         
-    def test_create_purchase_order_for_TorBridge(self, create_purchase_order_via_api):
+    def test_create_purchase_order_for_TorBridge_returns_id_and_url(self, create_purchase_order_via_api):
         response = create_purchase_order_via_api()
         # po = ShopPurchaseOrder.objects.get(pk=response.data['id'])
         po = PurchaseOrder.objects.get(pk=response.data['id'])
         assert response.data['id'] == po.id
+        assert response.data['url'].endswith('/api/v1/public/pos/' + str(po.id) + '/')
 
-@pytest.mark.skip
+# @pytest.mark.skip
 @pytest.mark.django_db
 class TestRetrievePurchaseOrder():
+    
+    @pytest.mark.skip
     def test_retrieve_purchase_order_includes_item_details_and_ln_invoices(self, create_purchase_order_via_api, api_client):
+        
         response_po = create_purchase_order_via_api()
         response = api_client.get(f'/api/v1/public/pos/{response_po.data["id"]}/')
         
-        print(response.data)
+        print(response_po.data)
         assert response.status_code == status.HTTP_200_OK
         assert 'item_details' in response.data
         assert 'ln_invoices' in response.data
-        assert False
+
+    # @pytest.mark.skip
+    def test_retrieve_purchase_order_includes_one_invoice(self, create_purchase_order_via_api, api_client, create_node_host_and_owner):
+        
+        node, host, owner = create_node_host_and_owner(node_is_alive=True)
+        
+        print(node.is_alive)
+        node.is_alive = True
+        # node.save()
+        print(node.is_alive)
+
+        invoice_received = False
+        iterations = 3
+        delay = 2 # seconds
+                
+        response_po = create_purchase_order_via_api(owner=owner, host=host)
+        po = PurchaseOrder.objects.get(pk=response_po.data['id'])
+        process_initial_purchase_order(po.id)
+        i = 0
+        while (i < iterations) & (not invoice_received): 
+            response = api_client.get(f'/api/v1/public/pos/{po.id}/')
+            invoice_received = True if len(response.data['ln_invoices']) > 0 else False
+            time.sleep(delay)
+            i = i + 1
+        
+        # print(response.data)
+        assert invoice_received
         

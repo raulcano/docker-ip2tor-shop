@@ -47,7 +47,7 @@ Ensure no other app is using that one.
 E.g.:  
 ```sudo service apache2 stop```
 
-Open the .env file in the root folder and ensure you introduced the correct values for the database
+Open the .env file in the ip2tor folder and ensure you introduced the correct values for the database
 
 
 ```

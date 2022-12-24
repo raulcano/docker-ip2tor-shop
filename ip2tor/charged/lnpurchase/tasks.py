@@ -153,7 +153,7 @@ def process_initial_purchase_order(obj_id):
         break
 
     else:
-        raise RuntimeError("no owned nodes found")
+        raise RuntimeError("No owned nodes found that were enabled and alive")
 
     if invoice:
         return invoice.id
