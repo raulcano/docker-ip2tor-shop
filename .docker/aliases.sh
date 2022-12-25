@@ -23,6 +23,8 @@ alias snginx='sudo docker-compose up -d --no-deps --build nginx'
 alias dhttp='docker-compose up -d --no-deps --build django-http'
 alias sdhttp='sudo docker-compose up -d --no-deps --build django-http'
 
+
+#restarting containers and services
 alias regu="docker exec -it ip2tor-shop-django-http /usr/share/restart-gunicorn.sh"
 
 alias onion='docker exec -it ip2tor-shop-tor cat var/lib/tor/ip2tor-shop_hidden_service/hostname'
