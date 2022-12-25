@@ -14,6 +14,7 @@ import os
 from pprint import pprint
 
 from environs import Env
+from celery.schedules import crontab
 
 env = Env()
 env.read_env()
@@ -32,6 +33,13 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
 
 # CELERY_CACHE_BACKEND = 'django-cache'
 # CELERY_TASK_ALWAYS_EAGER = True
+
+CELERY_BEAT_SCHEDULE = {
+    'node_alive_check': {
+        'task': 'charged.lnnode.tasks.node_alive_check',
+        'schedule': crontab(minute='*/30')
+    }
+}
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -286,6 +294,7 @@ SHOP_BRIDGE_DURATION_GRACE_TIME = env.int('SHOP_BRIDGE_DURATION_GRACE_TIME', def
 SHOP_OPERATOR_GROUP_NAME='operators'
 
 WHITELISTED_SERVICE_PORTS =  env.list('WHITELISTED_SERVICE_PORTS', default=[ '8333', '9735' ])
+
 
 
 # allow for a local file ("django_ip2tor/local_settings.py") to be used to add or override settings

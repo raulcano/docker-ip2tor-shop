@@ -134,7 +134,7 @@ elif [ "$role" = "celery-beat" ] || [ "$role" = "celery-worker" ] || [ "$role" =
     ${CELERY_BIN} -A ${CELERY_APP} beat  \
     --logfile=${CELERYBEAT_LOG_FILE} --loglevel=${CELERYD_LOG_LEVEL} \
     --scheduler django_celery_beat.schedulers:DatabaseScheduler
-    # -s ${CELERYBEAT_SCHEDULE_FILE} \
+    # -s ${CELERYBEAT_SCHEDULE_FILE} \ # I don't think this is an argument for celery beat - see here https://docs.celeryq.dev/en/stable/userguide/daemonizing.html#generic-initd-celerybeat-options
     # --pidfile=${CELERYBEAT_PID_FILE} \
   fi
 
