@@ -66,7 +66,7 @@ class TestRetrievePurchaseOrder():
             time.sleep(delay)
             i = i + 1
         
-        print(response.data)
+        # print(response.data)
         
         assert invoice_received_from_node
         assert result_process_initial_lni
@@ -75,3 +75,19 @@ class TestRetrievePurchaseOrder():
         assert response.data['ln_invoices'][0]['msatoshi'] == poi.msatoshi
         # assert response.data['ln_invoices'][0]['payment_hash'] == poi.payment_hash # ToDo: payment_hash is stored as binary, how to compare with the string?
         
+
+    def test_retrieve_ln_invoice(self, create_purchase_order_via_api, api_client, create_node_host_and_owner):
+        _, host, owner = create_node_host_and_owner(node_is_alive=True)
+        response_po = create_purchase_order_via_api(owner=owner, host=host)
+        po = PurchaseOrder.objects.get(pk=response_po.data['id'])
+        invoice_id = process_initial_purchase_order(po.id)
+        result_process_initial_lni = process_initial_lni(invoice_id)
+        poi = PurchaseOrderInvoice.objects.get(pk=invoice_id)
+
+        response = api_client.get(f'/api/v1/public/po_invoices/{invoice_id}/')
+
+        print(response.data)
+        assert result_process_initial_lni
+        assert response.data['payment_request'] != None
+        assert response.data['payment_request'] == poi.payment_request
+        assert response.data['status'] == 1
