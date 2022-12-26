@@ -38,7 +38,11 @@ CELERY_BEAT_SCHEDULE = {
     'node_alive_check': {
         'task': 'charged.lnnode.tasks.node_alive_check',
         'schedule': crontab(minute='*/30')
-    }
+    },
+    'host_alive_check': {
+        'task': 'shop.tasks.host_alive_check',
+        'schedule': crontab(minute='*/2')
+    },
 }
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)

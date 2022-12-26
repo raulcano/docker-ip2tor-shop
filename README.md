@@ -296,6 +296,22 @@ alternatively:
 openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 1000 -nodes -subj '/CN=192.168.0.60'
 ```
 
+## If you reset the Lightning Node, you need to add the new cert to the node in the shop
+At least with Raspiblitz, if the node is restarted, you need to retrieve the new cert and update the node stored in the shop with it. This command will print it in the screen:
+
+```cat /home/bitcoin/.lnd/tls.cert```
+
+Once displayed, you can replace that directly from the admin menu in the django shop or add it to the .env variables, remove the node from django and restart the container.
+
+## Checking if hosts are alive
+There is a task that runs periodically to check the status of the enabled hosts.
+This task will check for each host
+
+For more info, see the task ```host_alive_check``` and the Host method ```check_alive_status```.
+In short, for the host to be considered alive, the check-in message in the Host instance must be HELLO and the time must not be more than 5 minutes ago from the current time.
+It is important to notice that the alive check on hosts looks in the local database when was the last time they did a checkin: if it was more than 5 minutes ago, the host is considered NOT ALIVE.
+
+
 ## Updating settings without having to modify the repo (DEPRECATED)
 At the moment, just go to the ip2tor/django_ip2tor/settings.py file and update as necessary.
 
