@@ -13,7 +13,7 @@ from django.db.models import signals
 from rest_framework import status
 
 
-# @pytest.mark.skip
+@pytest.mark.skip
 @pytest.mark.django_db
 class TestCreatePurchaseOrder():
     def test_create_empty_po_returns_400(self, create_purchase_order_via_api):
@@ -28,7 +28,7 @@ class TestCreatePurchaseOrder():
         assert response.data['id'] == po.id
         assert response.data['url'].endswith('/api/v1/public/pos/' + str(po.id) + '/')
 
-# @pytest.mark.skip
+@pytest.mark.skip
 @pytest.mark.django_db
 class TestRetrievePurchaseOrder():
     

@@ -1,8 +1,11 @@
-from rest_framework import status
-from model_bakery import baker
-from shop.models import Host
-from shop.utils import remove_utc_offset_string_from_time_isoformat
 import pytest
+from model_bakery import baker
+from rest_framework import status
+from rest_framework.authtoken.models import Token
+from shop.models import Host
+from shop.tasks import host_alive_check
+from shop.utils import remove_utc_offset_string_from_time_isoformat
+
 
 # @pytest.mark.skip
 @pytest.mark.django_db
@@ -59,3 +62,46 @@ class TestRetrieveHosts ():
         assert response1.status_code == status.HTTP_404_NOT_FOUND
         assert response2.status_code == status.HTTP_404_NOT_FOUND
         assert response3.status_code == status.HTTP_404_NOT_FOUND
+
+    
+    @pytest.mark.parametrize('is_alive', [False, True])
+    @pytest.mark.parametrize('checkin_status', [Host.HELLO, Host.GOODBYE, Host.FAREWELL])
+    def test_retrieve_host_data_after_status_checkin(self, api_client, checkin_status, is_alive):
+        host = baker.make(Host, is_enabled=True, is_alive=is_alive)
+        token = Token.objects.filter(user=host.token_user).first()
+        
+        response = api_client.get(f'/api/v1/public/hosts/{host.id}/')
+
+        expected_status_code = status.HTTP_404_NOT_FOUND if not is_alive else status.HTTP_200_OK
+        assert response.status_code == expected_status_code
+        assert host.ci_status == 0
+        assert host.ci_date == None
+        assert host.ci_message == None
+
+
+        payload = {
+            'ci_message': 'This is a message of a test checkin with status ' + str(checkin_status),
+            'ci_status': checkin_status
+        }
+
+        api_client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+        response = api_client.post(f'/api/v1/hosts/{host.id}/check_in/', payload)
+
+        # The previous changes the host ci_date, ci_message and ci_status, but not the is_alive field.
+        # For that, there is a periodic task that is checking on nodes.
+        # We call that task manually to check on this node and update the alive status
+        host_alive_check(host.id)
+
+        response = api_client.get(f'/api/v1/public/hosts/{host.id}/')
+        expected_status_code = status.HTTP_200_OK if Host.HELLO == checkin_status else status.HTTP_404_NOT_FOUND
+
+        assert response.status_code == expected_status_code
+    
+        if Host.HELLO == checkin_status:
+            assert response.data['id'] == str(host.id)
+            assert response.data['ci_message'] == payload['ci_message']
+            assert response.data['ci_status'] == payload['ci_status']
+        else: 
+            assert 'id' not in response.data
+            assert 'ci_message' not in response.data
+            assert 'ci_status' not in response.data
