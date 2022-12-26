@@ -305,7 +305,6 @@ Once displayed, you can replace that directly from the admin menu in the django 
 
 ## Checking if hosts are alive
 There is a task that runs periodically to check the status of the enabled hosts.
-This task will check for each host
 
 For more info, see the task ```host_alive_check``` and the Host method ```check_alive_status```.
 In short, for the host to be considered alive, the check-in message in the Host instance must be HELLO and the time must not be more than 5 minutes ago from the current time.

@@ -9,6 +9,7 @@ RUN apt-get install -y python3-pycurl
 RUN apt-get install -y curl
 RUN apt-get install -y procps
 RUN apt-get install -y iputils-ping
+RUN apt-get install -y nano
 
 RUN useradd ip2tor --comment "IP2Tor Service Account" --create-home --home /home/ip2tor --shell /bin/bash
 RUN chmod 750 /home/ip2tor

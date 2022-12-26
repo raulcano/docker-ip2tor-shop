@@ -41,7 +41,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     'host_alive_check': {
         'task': 'shop.tasks.host_alive_check',
-        'schedule': crontab(minute='*/2')
+        'schedule': crontab(minute='*/4')
     },
 }
 
