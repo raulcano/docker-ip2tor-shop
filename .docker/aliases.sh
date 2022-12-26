@@ -37,3 +37,9 @@ alias dbu='sudo docker-compose down && sudo docker-compose build && sudo docker-
 alias off='sudo shutdown now'
 alias doff='sudo docker-compose down && sudo shutdown now'
 alias restart='sudo reboot now'
+
+# Aliases for the Host(s)
+alias hello='docker exec -it ip2tor-host ip2tor_host.sh hello'
+alias activate='docker exec -it ip2tor-host ip2tor_host.sh activate'
+alias checkin='docker exec -it ip2tor-host ip2tor_host.sh checkin 0 "Manual HELLO message"'
+alias suspend='docker exec -it ip2tor-host ip2tor_host.sh suspend'
