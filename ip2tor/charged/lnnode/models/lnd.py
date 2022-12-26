@@ -1,13 +1,18 @@
+import codecs
 import os
 import ssl
-import codecs
+
 import grpc
 import lnrpc
 import requests
+from charged.lnnode.models.base import BaseLnNode
+from charged.lnnode.signals import lnnode_invoice_created
+from charged.utils import is_onion
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
+from django.conf import settings
 from django.core.cache import cache
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.datetime_safe import datetime
 from django.utils.functional import cached_property
@@ -15,9 +20,6 @@ from django.utils.translation import gettext_lazy as _
 from google.protobuf.json_format import MessageToDict
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
-
-from charged.lnnode.models.base import BaseLnNode
-from charged.lnnode.signals import lnnode_invoice_created
 
 
 class LndNode(BaseLnNode):
@@ -351,17 +353,27 @@ class LndGRpcNode(LndNode):
             # such that every call is properly encrypted and authenticated
             combined_creds = grpc.composite_channel_credentials(cert_creds, auth_creds)
             
-            if self.tls_cert_verification:
-                
-                # finally pass in the combined credentials when creating a channel
-                print(f'Attempting to open a SECURE gRPC channel on the host "{self.host}:{self.port}".')
-                return grpc.secure_channel('{}:{}'.format(self.host, self.port), combined_creds)
-            else:
-                print(f'Attempting to open an INSECURE gRPC channel on the host "{self.host}:{self.port}".')
-                # From https://github.com/grpc/grpc/issues/22119#issuecomment-590837441
+            if is_onion(self.host):
+                # ToDo: This won't resolve the onion address, so it does not work like this.
+
+                print(f'Attempting to open a gRPC channel with the ONION address "{self.host}:{self.port}".')
                 cert_cn = 'localhost' # or parse it out of the cert data
-                options = (('grpc.ssl_target_name_override', cert_cn,),)
+                proxy_address = getattr(settings, 'CHARGED_LND_HTTP_PROXY')
+                options = (('grpc.ssl_target_name_override', cert_cn,),('grpc.http_proxy', proxy_address),)
                 return grpc.secure_channel('{}:{}'.format(self.host, self.port), combined_creds, options)
+
+            else:
+                if self.tls_cert_verification:
+                    
+                    # finally pass in the combined credentials when creating a channel
+                    print(f'Attempting to open a SECURE gRPC channel on the host "{self.host}:{self.port}".')
+                    return grpc.secure_channel('{}:{}'.format(self.host, self.port), combined_creds)
+                else:
+                    print(f'Attempting to open an INSECURE gRPC channel on the host "{self.host}:{self.port}".')
+                    # From https://github.com/grpc/grpc/issues/22119#issuecomment-590837441
+                    cert_cn = 'localhost' # or parse it out of the cert data
+                    options = (('grpc.ssl_target_name_override', cert_cn,),)
+                    return grpc.secure_channel('{}:{}'.format(self.host, self.port), combined_creds, options)
 
 
 class LndRestNode(LndNode):

@@ -96,3 +96,5 @@ def ensure_https(url):
         c.close()
 
 
+def is_onion(url):
+    return url.endswith('.onion')
