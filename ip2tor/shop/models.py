@@ -419,7 +419,14 @@ class PortRange(models.Model):
         if self.start >= self.end:
             raise ValidationError(_('Start Port must be lower than End Port.'))
 
-        # ToDo(frennkie) how to make sure port ranges don't overlap!
+        # Make sure port ranges don't overlap!
+        for range in self.host.port_ranges.all():
+            if ( range.id != self.id) \
+            and((self.start >= range.start and self.start <= range.end) \
+                or (self.end >= range.start and self.end <= range.end) \
+                or (self.start <= range.start and self.end >= range.end)):
+                raise ValidationError(_('There exists at least one port range in this host (' + str(range.start) + ':' + str(range.end)+ ') that overlaps with the one just entered. Please choose a non-overlapping range.'))
+
 
 
 class InitialTorBridgeManager(models.Manager):
