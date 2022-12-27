@@ -282,19 +282,51 @@ Find some instructions here:
 https://raspberrytips.com/run-script-at-startup-on-linux/
 
 ## Certificates for the Lightning Node(s)
-We can generate a self-signed certificate for the node for our tests with this command.  
-Change the ip ```192.168.0.160``` with the IP from your node.
+Every time the LND node is restarted, LND will generate self-signed certificates valid to establish secure channels via REST or gRPC.
 
+The only thing we need to ensure is that the IP with which we are accessing our node is within the IPs of the self-signed certificate. (i.e. env variable CHARGED_LND_HOST)
+
+
+
+In short, connect to the node and edit the file ```lnd.conf```. In the Raspiblitz, it can be found within the directory ```/home/bitcoin/.lnd```
+
+Add as many of these lines as needed. In my case, I added the following, since the shop and the LND node are in the same local network, so I configured CHARGED_LND_HOST with a LAN IP address.
 ```
-openssl req -x509 -out self-signed.crt -keyout self-signed.key \
-  -newkey rsa:2048 -nodes -sha256 \
-  -subj '/CN=192.168.0.160' -extensions EXT -config <( \
-   printf "[dn]\nCN=192.168.0.160\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:192.168.0.160\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+...
+tlsextraip=192.168.0.60
+tlsextraip=127.0.0.1
+tlsextradomain=localhost
+...
 ```
-alternatively:
+
+More details can be found here: https://docs.zaphq.io/docs-desktop-lnd-configure
+
+After the previous is done, two more steps.
+Remove the existing certs:
 ```
-openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 1000 -nodes -subj '/CN=192.168.0.60'
+sudo rm ~/.lnd/tls.cert ~/.lnd/tls.key
 ```
+
+And restart the node
+```
+sudo reboot now
+```
+
+After the LND reboot is successful and the node is working fine, you can access the TLS cert. In the case of the Raspiblitz, just do this:
+```
+cat /home/bitcoin/.lnd/tls.cert
+```
+
+ Copy the result into the variable ```CHARGED_LND_TLS_CERTIFICATE``` within the .env file.
+ ```
+ # PEM Formatted, add text here. For some reason, if you add it in one line, there is an error, so you need to keep the BEGIN and END lines separate
+
+CHARGED_LND_TLS_CERTIFICATE="-----BEGIN CERTIFICATE-----
+...
+ALL/CERT/STRINGS/GO/HERE
+...
+-----END CERTIFICATE-----"
+ ```
 
 ## If you reset the Lightning Node, you need to add the new cert to the node in the shop
 At least with Raspiblitz, if the node is restarted, you need to retrieve the new cert and update the node stored in the shop with it. This command will print it in the screen:
