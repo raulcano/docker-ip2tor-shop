@@ -2,10 +2,10 @@ import pytest
 from model_bakery import baker
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from shop.models import Host
+from shop.models import Host, PortRange
 from shop.tasks import host_alive_check
 from shop.utils import remove_utc_offset_string_from_time_isoformat
-
+from django.core.exceptions import ValidationError
 
 # @pytest.mark.skip
 @pytest.mark.django_db
@@ -105,3 +105,34 @@ class TestRetrieveHosts ():
             assert 'id' not in response.data
             assert 'ci_message' not in response.data
             assert 'ci_status' not in response.data
+
+    @pytest.mark.parametrize('port_range1', [{ 'start': 12000, 'end': 13000}])
+    @pytest.mark.parametrize('port_range2', [
+        { 'start': 10000, 'end': 12000}, 
+        { 'start': 12000, 'end': 12001}, 
+        { 'start': 12001, 'end': 12999}, 
+        { 'start': 12999, 'end': 14000}, 
+    ])
+    def test_port_ranges_overlap(self, port_range1, port_range2):
+        host = baker.make(Host)
+        baker.make(PortRange, start=port_range1['start'], end=port_range1['end'], host=host)
+        assert len(host.port_ranges.all()) == 1
+        
+        with pytest.raises(ValidationError) as e_info:
+            p2 = baker.make(PortRange, start=port_range2['start'], end=port_range2['end'], host=host)
+            p2.clean()
+            assert len(host.port_ranges.all()) == 1
+
+    @pytest.mark.parametrize('port_range1', [{ 'start': 12000, 'end': 13000}])
+    @pytest.mark.parametrize('port_range2', [
+        { 'start': 10000, 'end': 11999}, 
+        { 'start': 13001, 'end': 14001}, 
+    ])
+    def test_port_ranges_do_not_overlap(self, port_range1, port_range2):
+        host = baker.make(Host)
+        baker.make(PortRange, start=port_range1['start'], end=port_range1['end'], host=host)
+        assert len(host.port_ranges.all()) == 1
+        
+        p2 = baker.make(PortRange, start=port_range2['start'], end=port_range2['end'], host=host)
+        p2.clean()
+        assert len(host.port_ranges.all()) == 2
