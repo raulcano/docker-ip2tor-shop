@@ -354,7 +354,7 @@ class LndGRpcNode(LndNode):
             combined_creds = grpc.composite_channel_credentials(cert_creds, auth_creds)
             
             if is_onion(self.host):
-                # ToDo: This won't resolve the onion address, so it does not work like this.
+                # ToDo: This won't resolve the onion address, so it does not work at the moment.
 
                 print(f'Attempting to open a gRPC channel with the ONION address "{self.host}:{self.port}".')
                 cert_cn = 'localhost' # or parse it out of the cert data
