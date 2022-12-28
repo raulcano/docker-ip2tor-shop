@@ -17,25 +17,27 @@
 alias test='docker exec ip2tor-shop-django-http pytest /home/ip2tor/ip2tor/'
 alias stest='sudo docker exec ip2tor-shop-django-http pytest /home/ip2tor/ip2tor/'
 
-alias nginx='docker-compose up -d --no-deps --build nginx'
-alias snginx='sudo docker-compose up -d --no-deps --build nginx'
+alias nginx='docker-compose --env-file ip2tor/.env up -d --no-deps --build nginx'
+alias snginx='sudo docker-compose --env-file ip2tor/.env up -d --no-deps --build nginx'
 
-alias dhttp='docker-compose up -d --no-deps --build django-http'
-alias sdhttp='sudo docker-compose up -d --no-deps --build django-http'
+alias dhttp='docker-compose --env-file ip2tor/.env up -d --no-deps --build django-http'
+alias sdhttp='sudo docker-compose --env-file ip2tor/.env up -d --no-deps --build django-http'
 
 
 #restarting containers and services
 alias regu="docker exec -it ip2tor-shop-django-http /usr/share/restart-gunicorn.sh"
 
 alias onion='docker exec -it ip2tor-shop-tor cat var/lib/tor/ip2tor-shop_hidden_service/hostname'
+# Onion address of the sample hidden service
+alias onion2='docker exec -it ip2tor-shop-sample-hidden-service cat /var/lib/tor/sample_hidden_service/hostname'
 
-alias d='sudo docker-compose down'
-alias b='sudo docker-compose build'
-alias u='sudo docker-compose up'
-alias dbu='sudo docker-compose down && sudo docker-compose build && sudo docker-compose up'
+alias d='sudo docker-compose --env-file ip2tor/.env down'
+alias b='sudo docker-compose --env-file ip2tor/.env build'
+alias u='sudo docker-compose --env-file ip2tor/.env up'
+alias dbu='sudo docker-compose --env-file ip2tor/.env down && sudo docker-compose --env-file ip2tor/.env build && sudo docker-compose --env-file ip2tor/.env up'
 
 alias off='sudo shutdown now'
-alias doff='sudo docker-compose down && sudo shutdown now'
+alias doff='sudo docker-compose --env-file ip2tor/.env down && sudo shutdown now'
 alias restart='sudo reboot now'
 
 # Aliases for the Host(s)
