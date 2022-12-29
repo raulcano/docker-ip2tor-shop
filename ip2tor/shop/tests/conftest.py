@@ -7,7 +7,7 @@ from django.db import connection
 
 from model_bakery import baker
 from rest_framework.test import APIClient
-from shop.models import Host
+from shop.models import Host, PortRange
 
 
 @pytest.fixture
@@ -24,7 +24,10 @@ def create_node_host_and_owner(create_node, global_data):
     def do_create_node_host_and_owner(nodeclass='LndGRpcNode', tls_cert_verification=False, tls_cert=global_data['invalid_cert'], owner=None, node_is_alive=False):
         owner = baker.make(User) if None == owner else owner
         node = create_node(nodeclass=nodeclass, tls_cert_verification=tls_cert_verification, tls_cert=tls_cert, owner=owner, is_alive=node_is_alive)
+        
+        
         host = baker.make(Host, is_enabled=True, is_alive=True, owner=owner)
+        port_range = baker.make(PortRange, start=10000, end=20000, host=host)
         return node, host, owner
     
 

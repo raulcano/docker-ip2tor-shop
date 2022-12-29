@@ -24,7 +24,7 @@ class TestTorBridges():
         assert 'Hello world!' in response.text
         assert response.status_code == status.HTTP_200_OK
     
-    # def test_
+    
     def test_create_purchase_order_for_TorBridge_with_specific_onion_target(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client):
         _, host, owner = create_node_host_and_owner()
         
@@ -56,8 +56,23 @@ class TestTorBridges():
         assert response_po.data['item_details'][0]['product']['comment'] == bridge.comment
         assert response_po.data['item_details'][0]['product']['status'] == bridge.status
         assert response_po.data['item_details'][0]['product']['host']['name'] == host.name
-        assert response_po.data['item_details'][0]['product']['port'] == None
+        assert response_po.data['item_details'][0]['product']['port'] == bridge.port
         assert response_po.data['item_details'][0]['product']['target'] == bridge.target
         assert response_po.data['item_details'][0]['product']['suspend_after'] == remove_utc_offset_string_from_time_isoformat(bridge.suspend_after.isoformat("T", "seconds")) + 'Z'
+        
+    def test_bridge_in_initial_status_wont_redirect_to_target(self, create_purchase_order_via_api, create_node_host_and_owner, global_data):
+        _, host, owner = create_node_host_and_owner()
+        
+        response = create_purchase_order_via_api(host=host, owner=owner, target=global_data['sample_onion_address'] + ':' + global_data['sample_onion_port'])
+        po = PurchaseOrder.objects.get(pk=response.data['id'])
+        bridge = po.item_details.first().product
+        
+        assert bridge.status == TorBridge.INITIAL
+        
+        session = requests.session()
+        response = session.get('http://' + str(host.ip) + ':' + str(bridge.port))
+        
+        assert 'Hello world!' in response.text
+        assert response.status_code == status.HTTP_200_OK
         
         
