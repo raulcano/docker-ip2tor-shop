@@ -45,3 +45,8 @@ alias hello='docker exec -it ip2tor-host ip2tor_host.sh hello'
 alias activate='docker exec -it ip2tor-host ip2tor_host.sh activate'
 alias checkin='docker exec -it ip2tor-host ip2tor_host.sh checkin 0 "Manual HELLO message"'
 alias suspend='docker exec -it ip2tor-host ip2tor_host.sh suspend'
+
+alias hd='sudo docker-compose down'
+alias hb='sudo docker-compose build'
+alias hu='sudo docker-compose up'
+alias hdbu='sudo docker-compose down && sudo docker-compose build && sudo docker-compose up'
