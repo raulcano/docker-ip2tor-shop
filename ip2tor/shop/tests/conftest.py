@@ -40,11 +40,12 @@ def create_node_host_and_owner(create_node, global_data):
 
 @pytest.fixture
 def create_purchase_order_via_api(api_client):
-    def do_create_purchase_order_via_api(po=None, owner=None, host=None):
+    def do_create_purchase_order_via_api(po=None, owner=None, host=None, target=None):
         if po == None:
-            host = baker.make(Host, is_enabled=True, is_alive=True, owner=owner) if None == host else host
+            host = baker.make(Host, is_enabled=True, is_alive=True, owner=owner, target=target) if None == host else host
             product = 'tor_bridge'
-            target = 'myonionaddresherewithaport.onion:8333' # IMPORTANT: for the sake of tests, make sure the port is in the whitelisted_service_ports (see lnpurchase/tasks.py)
+            # IMPORTANT: for the sake of tests, make sure the port is in the whitelisted_service_ports (see lnpurchase/tasks.py)
+            target = 'myonionaddresherewithaport.onion:8333' if None == target else target
             comment = 'This is my Tor bridge in a new host'
             po = {
                 'host_id': host.id,

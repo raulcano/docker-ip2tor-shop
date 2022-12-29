@@ -12,6 +12,9 @@ from model_bakery import baker
 
 @pytest.fixture
 def global_data():
+    path = dirname(abspath(__file__)) + '/../../../.env'
+    load_dotenv(path)
+
     return {
         'invalid_cert': '''-----BEGIN CERTIFICATE-----
 MIICNTCCAdqgAwIBAgIRAMdJJa0NLUnyPaecfMOaXB4wCgYIKoZIzj0EAwIwPzEf
@@ -26,7 +29,9 @@ x31usTBcBgNVHREEVTBTgglsb2NhbGhvc3SCE2xleGluZW0uZHVja2Rucy5vcmeC
 BHVuaXiCCnVuaXhwYWNrZXSCB2J1ZmNvbm6HBH8AAAGHEAAAAAAAAAAAAAAAAAAA
 AAEwCgYIKoZIzj0EAwIDSQAwRgIhAPdi2rwkOucMSNwXarys5nhPJAVu/EZKYT1i
 oAO4C6njAiEA02zmNqGDgurqJjW8456/Z7HREHCZGzcwAd9Lox0daE0=
------END CERTIFICATE-----'''
+-----END CERTIFICATE-----''', 
+        'sample_onion_address': os.getenv('SAMPLE_HIDDEN_SERVICE_ONION_ADDRESS'),
+        'sample_onion_port': os.getenv('SAMPLE_HIDDEN_SERVICE_ONION_PORT')
     }
 
 @pytest.fixture
