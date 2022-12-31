@@ -50,3 +50,18 @@ alias hd='sudo docker-compose down'
 alias hb='sudo docker-compose build'
 alias hu='sudo docker-compose up'
 alias hdbu='sudo docker-compose down && sudo docker-compose build && sudo docker-compose up'
+
+alias status='docker exec -it ip2tor-host supervisorctl status'
+alias log='docker exec -it ip2tor-host cat /home/ip2tor/logs/supervisor/supervisord.log'
+alias logip2tor='docker exec -it ip2tor-host cat /home/ip2tor/logs/supervisor/ip2tor_host-stdout.log'
+alias elogip2tor='docker exec -it ip2tor-host cat /home/ip2tor/logs/supervisor/ip2tor_host-stderr.log'
+alias logtor='docker exec -it ip2tor-host cat /home/ip2tor/logs/supervisor/tor-stdout.log'
+alias elogtor='docker exec -it ip2tor-host cat /home/ip2tor/logs/supervisor/tor-stderr.log'
+
+# Get the stdout logs of a bridge, passing the port number as an argument
+# E.g. "logbridge 21212" will return the contents of the file "ip2tor_bridge_21212-stdout.log"
+# You can replace $1 with $@ if you  want multiple args.
+alias logbridge='f(){ docker exec -it ip2tor-host cat /home/ip2tor/logs/supervisor/ip2tor_bridge_$1-stdout.log; unset -f f; }; f'
+# Get the stdout error logs of a bridge, passing the port number as an argument
+# E.g. "elogbridge 21212" will return the contents of the file "ip2tor_bridge_21212-stderr.log"
+alias elogbridge='f(){ docker exec -it ip2tor-host cat /home/ip2tor/logs/supervisor/ip2tor_bridge_$1-stderr.log; unset -f f; }; f'
