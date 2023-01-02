@@ -52,6 +52,7 @@ alias hu='sudo docker-compose up'
 alias hdbu='sudo docker-compose down && sudo docker-compose build && sudo docker-compose up'
 
 alias status='docker exec -it ip2tor-host supervisorctl status'
+alias clean='docker exec -it ip2tor-host ip2tor_host.sh clean'
 alias log='docker exec -it ip2tor-host cat /home/ip2tor/logs/supervisor/supervisord.log'
 alias logip2tor='docker exec -it ip2tor-host cat /home/ip2tor/logs/supervisor/ip2tor_host-stdout.log'
 alias elogip2tor='docker exec -it ip2tor-host cat /home/ip2tor/logs/supervisor/ip2tor_host-stderr.log'
