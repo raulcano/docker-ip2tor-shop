@@ -45,8 +45,11 @@ class PurchaseTorBridgeOnHostView(generic.UpdateView):
         # po.item_details.add(po_item, bulk=False)
         # po_item.save()
         # po.save()
-
-        po = ShopPurchaseOrder.tor_bridges.create(host=form.instance, target=clean_target, comment=clean_comment)
+        
+        host=form.instance
+        if not host.tor_bridge_ports_available(consider_safety_margin=True):
+            raise Exception('The current host does not have any Tor bridge ports available.')
+        po = ShopPurchaseOrder.tor_bridges.create(host=host, target=clean_target, comment=clean_comment)
 
         return redirect('lnpurchase:po-detail', pk=po.pk)
         # return HttpResponseRedirect(self.get_success_url())
