@@ -11,10 +11,44 @@ from shop.validators import validate_target_is_onion, validate_target_has_port
 
 class PublicHostSerializer(serializers.ModelSerializer):
     site = serializers.StringRelatedField(read_only=True)
+    
+    are_there_tor_bridge_ports_available = serializers.SerializerMethodField('are_there_tor_bridge_ports_available')
+    are_there_rssh_tunnels_ports_available = serializers.SerializerMethodField('are_there_rssh_tunnels_ports_available')
+    
+    def are_there_tor_bridge_ports_available(self):
+        return self.tor_bridge_ports_available(consider_safety_margin=True)
+    
+    def are_there_rssh_tunnels_ports_available(self):
+        return self.rssh_tunnels_ports_available(consider_safety_margin=True)
 
     class Meta:
         model = Host
-        exclude = ('token_user',)
+        fields = (
+            'id',
+            'site',
+            'created_at',
+            'modified_at',
+            'ip',
+            'is_enabled',
+            'is_alive',
+            'name',
+            'is_testnet',
+            'offers_tor_bridges',
+            'tor_bridge_duration',
+            'tor_bridge_price_initial',
+            'tor_bridge_price_extension',
+            'offers_rssh_tunnels',
+            'rssh_tunnel_price',
+            'terms_of_service',
+            'terms_of_service_url',
+            'ci_date',
+            'ci_message',
+            'ci_status',
+            'owner',
+            'are_there_tor_bridge_ports_available',
+            'are_there_rssh_tunnels_ports_available',
+        )
+        # exclude = ('token_user',)
 
 
 class PublicOrderSerializer(serializers.Serializer):
@@ -26,6 +60,9 @@ class PublicOrderSerializer(serializers.Serializer):
     def create(self, validated_data):
         product = validated_data.get('product')
         if product == TorBridge.PRODUCT:
+            if not self.host.tor_bridge_ports_available(consider_safety_margin=True):
+                raise Exception('The current host does not have any Tor bridge ports available.')
+
             po = ShopPurchaseOrder.tor_bridges.create(
                 host=self.host,
                 target=validated_data.get('target'),
@@ -84,11 +121,20 @@ class PublicOrderSerializer(serializers.Serializer):
                 raise serializers.ValidationError(f"Must accept "
                                                   f"Terms of Service (ToS): {self.host.terms_of_service}")
 
+        # Check there are ports available
+        if attrs['product'] == TorBridge.PRODUCT and not self.host.tor_bridge_ports_available(consider_safety_margin=True):
+            raise serializers.ValidationError(f"The current host does not have any Tor bridge ports available.")
+            
+        if attrs['product'] == RSshTunnel.PRODUCT and not self.host.rssh_tunnels_ports_available(consider_safety_margin=True):
+            raise serializers.ValidationError(f"The current host does not have any RSSH Tunnel ports available.")    
+
         return attrs
 
     def validate_host_id(self, value):
         try:
             self.host = Host.objects.get(id=str(value))
+
+
         except Host.DoesNotExist:
             raise serializers.ValidationError(f"No host exists with ID: {value}.")
 
