@@ -255,8 +255,9 @@ class Host(models.Model):
 
     def get_random_port(self):
         port_range = self.port_ranges.all()
-        # use only ranges that have less than 85% usage
-        port_range = [x for x in port_range if x.ports_used_percent < 0.85]
+        
+        # use only ranges that have less than a predefined % usage (see the model definition to find the precise %)
+        port_range = [x for x in port_range if x.ports_available_with_safety_margin]
 
         if not port_range:
             return
@@ -272,19 +273,29 @@ class Host(models.Model):
 
         return rand_port
 
-    @property
-    def tor_bridge_ports_available(self):
+    # @property
+    def tor_bridge_ports_available(self, consider_safety_margin=False):
         total = 0
         for _range in self.port_ranges.filter(type=PortRange.TOR_BRIDGE):
-            total += _range.ports_available
+            if (consider_safety_margin and _range.ports_available_with_safety_margin) or (not consider_safety_margin):
+                total += _range.ports_available
+        return total
+
+    # @property
+    def rssh_tunnels_ports_available(self, consider_safety_margin=False):
+        total = 0
+        for _range in self.port_ranges.filter(type=PortRange.RSSH_TUNNEL):
+            if (consider_safety_margin and _range.ports_available_with_safety_margin) or (not consider_safety_margin):
+                total += _range.ports_available
         return total
 
     @property
-    def rssh_tunnels_ports_available(self):
-        total = 0
-        for _range in self.port_ranges.filter(type=PortRange.RSSH_TUNNEL):
-            total += _range.ports_available
-        return total
+    def are_there_tor_bridge_ports_available(self, consider_safety_margin=False):
+        return True if self.tor_bridge_ports_available(consider_safety_margin=consider_safety_margin) > 0 else False
+    
+    @property
+    def are_there_rssh_tunnels_ports_available(self, consider_safety_margin=False):
+        return True if self.rssh_tunnels_ports_available(consider_safety_margin=consider_safety_margin) > 0 else False
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -375,6 +386,10 @@ class PortRange(models.Model):
     @property
     def ports_available(self):
         return self.ports_total - self.ports_used
+
+    @property
+    def ports_available_with_safety_margin(self):
+        return self.ports_used_percent < 0.85
 
     def add_port_usage(self, value):
         if not isinstance(value, int):
