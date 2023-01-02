@@ -9,11 +9,11 @@ from charged.lninvoice.models import PurchaseOrderInvoice
 from charged.lninvoice.tasks import process_initial_lni
 from charged.lnpurchase.models import PurchaseOrder
 from charged.lnpurchase.tasks import process_initial_purchase_order
-from django.db.models import signals
 from rest_framework import status
+from shop.models import PortRange
+from model_bakery import baker
 
-
-@pytest.mark.skip
+# @pytest.mark.skip
 @pytest.mark.django_db
 class TestCreatePurchaseOrder():
     def test_create_empty_po_returns_400(self, create_purchase_order_via_api):
@@ -27,6 +27,22 @@ class TestCreatePurchaseOrder():
         po = PurchaseOrder.objects.get(pk=response.data['id'])
         assert response.data['id'] == po.id
         assert response.data['url'].endswith('/api/v1/public/pos/' + str(po.id) + '/')
+
+    def test_create_purchase_order_in_host_with_no_available_ports(self, create_purchase_order_via_api, create_node_host_and_owner, api_client):
+        _, host, owner = create_node_host_and_owner()
+        
+        # We want to ensure there are no other port ranges than the ones we define
+        host.port_ranges.all().delete()
+        baker.make(PortRange, start=10000, end=10001, host=host, type=PortRange.TOR_BRIDGE)
+
+        response_po1 = create_purchase_order_via_api(owner=owner, host=host)
+        assert response_po1.status_code == status.HTTP_201_CREATED
+
+        response_po2 = create_purchase_order_via_api(owner=owner, host=host)
+        assert response_po2.status_code == status.HTTP_201_CREATED
+
+        response_po3 = create_purchase_order_via_api(owner=owner, host=host)
+        assert response_po3.status_code == status.HTTP_400_BAD_REQUEST
 
 @pytest.mark.skip
 @pytest.mark.django_db

@@ -50,6 +50,8 @@ class TestRetrieveHosts ():
         assert response.data['ci_message'] == host.ci_message
         assert response.data['ci_status'] == host.ci_status
         assert response.data['owner'] == host.owner.id
+        assert response.data['are_there_tor_bridge_ports_available'] == host.are_there_tor_bridge_ports_available
+        assert response.data['are_there_rssh_tunnels_ports_available'] == host.are_there_rssh_tunnels_ports_available
 
     def test_retrieve_single_host_not_enabled_or_alive_returns_404(self, api_client):
         host1 = baker.make(Host, is_enabled=False, is_alive=True,name="hostNEA")
