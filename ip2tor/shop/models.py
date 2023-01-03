@@ -111,7 +111,7 @@ class Host(models.Model):
 
     ip = models.GenericIPAddressField(verbose_name=_('IP Address'),
                                       help_text=_('IP Address of Host.'),
-                                      unique=True)
+                                      )
 
     is_enabled = models.BooleanField(
         default=True,
@@ -434,13 +434,14 @@ class PortRange(models.Model):
         if self.start >= self.end:
             raise ValidationError(_('Start Port must be lower than End Port.'))
 
-        # Make sure port ranges don't overlap!
-        for range in self.host.port_ranges.all():
-            if ( range.id != self.id) \
-            and((self.start >= range.start and self.start <= range.end) \
-                or (self.end >= range.start and self.end <= range.end) \
-                or (self.start <= range.start and self.end >= range.end)):
-                raise ValidationError(_('There exists at least one port range in this host (' + str(range.start) + ':' + str(range.end)+ ') that overlaps with the one just entered. Please choose a non-overlapping range.'))
+        # Make sure port ranges don't overlap WITHIN THIS HOST AND WITH ANOTHER HOST WITH SAME IP!
+        for host in Host.objects.filter(ip=self.host.ip):
+            for range in host.port_ranges.all():
+                if ( range.id != self.id) \
+                and((self.start >= range.start and self.start <= range.end) \
+                    or (self.end >= range.start and self.end <= range.end) \
+                    or (self.start <= range.start and self.end >= range.end)):
+                    raise ValidationError(_('There exists at least one port range either in this host or in a different one with this same IP (' + str(range.start) + ':' + str(range.end)+ ') that overlaps with the one just entered. Please choose a non-overlapping range.'))
 
 
 
