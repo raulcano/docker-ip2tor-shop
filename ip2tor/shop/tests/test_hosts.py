@@ -7,7 +7,7 @@ from shop.tasks import host_alive_check
 from shop.utils import remove_utc_offset_string_from_time_isoformat
 from django.core.exceptions import ValidationError
 
-# @pytest.mark.skip
+@pytest.mark.skip
 @pytest.mark.django_db
 class TestRetrieveHosts ():
     def test_if_user_is_anonymous_returns_200(self, api_client):

@@ -2,10 +2,11 @@ from datetime import timedelta
 
 from celery import shared_task
 from celery.utils.log import get_task_logger
+from charged.utils import add_change_log_entry, handle_obj_is_alive_change
+from django.conf import settings
 from django.utils import timezone
 
-from charged.utils import handle_obj_is_alive_change, add_change_log_entry
-from shop.models import TorBridge, Host
+from shop.models import Host, TorBridge
 
 logger = get_task_logger(__name__)
 
@@ -65,7 +66,7 @@ def delete_due_tor_bridges():
 
 
 @shared_task()
-def set_needs_delete_on_suspended_tor_bridges(days=45):
+def set_needs_delete_on_suspended_tor_bridges(days=getattr(settings, 'DELETE_SUSPENDED_AFTER_THESE_DAYS')):
     counter = 0
     suspended = TorBridge.objects.filter(status=TorBridge.SUSPENDED)
     if suspended:
@@ -82,7 +83,7 @@ def set_needs_delete_on_suspended_tor_bridges(days=45):
 
 
 @shared_task()
-def set_needs_delete_on_initial_tor_bridges(days=3):
+def set_needs_delete_on_initial_tor_bridges(days=getattr(settings, 'DELETE_INITIAL_AFTER_THESE_DAYS')):
     counter = 0
     initials = TorBridge.objects.filter(status=TorBridge.INITIAL)
     if initials:

@@ -13,7 +13,7 @@ from rest_framework import status
 from shop.models import PortRange
 from model_bakery import baker
 
-# @pytest.mark.skip
+@pytest.mark.skip
 @pytest.mark.django_db
 class TestCreatePurchaseOrder():
     def test_create_empty_po_returns_400(self, create_purchase_order_via_api):

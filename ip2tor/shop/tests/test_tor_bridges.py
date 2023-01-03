@@ -1,15 +1,22 @@
 import os
+from datetime import timedelta
 from os.path import abspath, dirname
 
 import pytest
 import requests
 from charged.lnpurchase.models import PurchaseOrder
 from charged.tests.conftest import global_data
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.utils import timezone
 from model_bakery import baker
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from shop.models import Bridge, TorBridge
+from shop.tasks import (delete_due_tor_bridges,
+                        set_needs_delete_on_initial_tor_bridges,
+                        set_needs_delete_on_suspended_tor_bridges,
+                        set_needs_suspend_on_expired_tor_bridges)
 from shop.utils import remove_utc_offset_string_from_time_isoformat
 
 
@@ -115,7 +122,7 @@ class TestTorBridges():
         response = api_client.get(f'/api/v1/tor_bridges/{str(bridge.id)}/')
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
         
-    @pytest.mark.parametrize('bridge_status', [Bridge.NEEDS_ACTIVATE, Bridge.NEEDS_SUSPEND])
+    @pytest.mark.parametrize('bridge_status', [TorBridge.NEEDS_ACTIVATE, TorBridge.NEEDS_SUSPEND])
     def test_list_and_patch_tor_bridges(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client, bridge_status):
         
         _, host, owner = create_node_host_and_owner()
@@ -136,7 +143,7 @@ class TestTorBridges():
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 2
 
-        response = api_client.get(f'/api/v1/tor_bridges/?host=' + str(host.id) + '&status=' + Bridge.INITIAL )
+        response = api_client.get(f'/api/v1/tor_bridges/?host=' + str(host.id) + '&status=' + TorBridge.INITIAL )
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 2
 
@@ -144,7 +151,7 @@ class TestTorBridges():
         api_client.patch(f'/api/v1/tor_bridges/{str(bridge1.id)}/', payload)
 
 
-        response = api_client.get(f'/api/v1/tor_bridges/?host=' + str(host.id) + '&status=' + Bridge.INITIAL )
+        response = api_client.get(f'/api/v1/tor_bridges/?host=' + str(host.id) + '&status=' + TorBridge.INITIAL )
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 1
 
@@ -174,10 +181,48 @@ class TestTorBridges():
         pass
 
     
-    def test_tor_bridge_status_change_after_deadline_passes(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client):
+    def test_status_change_from_active_to_needs_suspend_on_expired_tor_bridges(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client):
+        
+        _, host, owner = create_node_host_and_owner()
+        
+        # create 2 bridges
+        response = create_purchase_order_via_api(host=host, owner=owner, target=global_data['sample_onion_address'] + ':' + global_data['sample_onion_port'])
+        po = PurchaseOrder.objects.get(pk=response.data['id'])
+        bridge1 = po.item_details.first().product
 
-        # Needs set_needs_suspend_on_expired_tor_bridges
+        response = create_purchase_order_via_api(host=host, owner=owner, target=global_data['sample_onion_address'] + ':' + global_data['sample_onion_port'])
+        po = PurchaseOrder.objects.get(pk=response.data['id'])
+        bridge2 = po.item_details.first().product
+
+        # We set them as active
+        bridge1.status = TorBridge.ACTIVE
+        bridge1.save()
+        bridge2.status = TorBridge.ACTIVE
+        bridge2.save()
+        
+        
+        # We'll set bridge2 to expire
+        bridge2.suspend_after = timezone.now() - timedelta(seconds=1)
+        bridge2.save()
+
+        # We run the task to suspend expired bridges
+        set_needs_suspend_on_expired_tor_bridges()
+        assert bridge1.status == TorBridge.ACTIVE
+        assert bridge2.status == TorBridge.NEEDS_SUSPEND
+
+
+    def test_status_change_to_needs_delete_on_suspended_bridges(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client):
+        # set_needs_delete_on_suspended_tor_bridges()
         pass
+
+    def test_status_change_to_needs_delete_on_initial_bridges(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client):
+        # set_needs_delete_on_initial_tor_bridges()
+        pass
+
+    def test_delete_due_tor_bridges(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client):
+        # delete_due_tor_bridges()
+        pass
+
     # not sure how to test this
     @pytest.mark.skip
     def test_bridge_in_initial_status_wont_redirect_to_target(self, create_purchase_order_via_api, create_node_host_and_owner, global_data):
