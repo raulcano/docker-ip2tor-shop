@@ -45,19 +45,19 @@ CELERY_BEAT_SCHEDULE = {
     },
     'set_needs_delete_on_suspended_tor_bridges': {
         'task': 'shop.tasks.set_needs_delete_on_suspended_tor_bridges',
-        'schedule': crontab(hour='*/5')
+        'schedule': crontab(minute='0', hour='*/5')
     },
     'set_needs_delete_on_initial_tor_bridges': {
         'task': 'shop.tasks.set_needs_delete_on_initial_tor_bridges',
-        'schedule': crontab(hour='*/5')
+        'schedule': crontab(minute='5', hour='*/5')
     },
     'set_needs_suspend_on_expired_tor_bridges': {
         'task': 'shop.tasks.set_needs_suspend_on_expired_tor_bridges',
-        'schedule': crontab(hour='*/5')
+        'schedule': crontab(minute='10', hour='*/5')
     },
     'delete_due_tor_bridges': {
         'task': 'shop.tasks.delete_due_tor_bridges',
-        'schedule': crontab(hour='*/5')
+        'schedule': crontab(minute='15', hour='*/5')
     },
 }
 
