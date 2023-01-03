@@ -34,30 +34,37 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
 # CELERY_CACHE_BACKEND = 'django-cache'
 # CELERY_TASK_ALWAYS_EAGER = True
 
+s_node_alive = env.str("SCHEDULE_NODE_ALIVE_CHECK").split()
+s_host_alive = env.str("SCHEDULE_HOST_ALIVE_CHECK").split()
+s_needs_delete_on_suspended = env.str("SCHEDULE_SET_NEEDS_DELETE_ON_SUSPENDED_TOR_BRIDGES").split()
+s_needs_delete_on_initial = env.str("SCHEDULE_SET_NEEDS_DELETE_ON_INITIAL_TOR_BRIDGES").split()
+s_needs_suspend_on_expired = env.str("SCHEDULE_SET_NEEDS_SUSPEND_ON_EXPIRED_TOR_BRIDGES").split()
+s_delete_due = env.str("SCHEDULE_DELETE_DUE_TOR_BRIDGES").split()
+
 CELERY_BEAT_SCHEDULE = {
     'node_alive_check': {
         'task': 'charged.lnnode.tasks.node_alive_check',
-        'schedule': crontab(minute='*/30')
+        'schedule': crontab(minute=s_node_alive[0], hour=s_node_alive[1], day_of_week=s_node_alive[2], day_of_month=s_node_alive[3], month_of_year=s_node_alive[4]),
     },
     'host_alive_check': {
         'task': 'shop.tasks.host_alive_check',
-        'schedule': crontab(minute='*/4')
+        'schedule': crontab(minute=s_host_alive[0], hour=s_host_alive[1], day_of_week=s_host_alive[2], day_of_month=s_host_alive[3], month_of_year=s_host_alive[4] ),
     },
     'set_needs_delete_on_suspended_tor_bridges': {
         'task': 'shop.tasks.set_needs_delete_on_suspended_tor_bridges',
-        'schedule': crontab(minute='0', hour='*/5')
+        'schedule': crontab(minute=s_needs_delete_on_suspended[0], hour=s_needs_delete_on_suspended[1], day_of_week=s_needs_delete_on_suspended[2], day_of_month=s_needs_delete_on_suspended[3], month_of_year=s_needs_delete_on_suspended[4]),
     },
     'set_needs_delete_on_initial_tor_bridges': {
         'task': 'shop.tasks.set_needs_delete_on_initial_tor_bridges',
-        'schedule': crontab(minute='5', hour='*/5')
+        'schedule': crontab(minute=s_needs_delete_on_initial[0], hour=s_needs_delete_on_initial[1], day_of_week=s_needs_delete_on_initial[2], day_of_month=s_needs_delete_on_initial[3], month_of_year=s_needs_delete_on_initial[4]),
     },
     'set_needs_suspend_on_expired_tor_bridges': {
         'task': 'shop.tasks.set_needs_suspend_on_expired_tor_bridges',
-        'schedule': crontab(minute='10', hour='*/5')
+        'schedule': crontab(minute=s_needs_suspend_on_expired[0], hour=s_needs_suspend_on_expired[1], day_of_week=s_needs_suspend_on_expired[2], day_of_month=s_needs_suspend_on_expired[3], month_of_year=s_needs_suspend_on_expired[4]),
     },
     'delete_due_tor_bridges': {
         'task': 'shop.tasks.delete_due_tor_bridges',
-        'schedule': crontab(minute='15', hour='*/5')
+        'schedule': crontab(minute=s_delete_due[0], hour=s_delete_due[1], day_of_week=s_delete_due[2], day_of_month=s_delete_due[3], month_of_year=s_delete_due[4]),
     },
 }
 
