@@ -177,9 +177,49 @@ class TestTorBridges():
         assert response.status_code == status.HTTP_200_OK
         assert int(host.tor_bridge_price_extension) == int(po_ext.total_price_msat)
     
-    def test_extend_tor_bridge_after_successful_payment_extends_bridge_deadline(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client):
-        pass
+    @pytest.mark.parametrize('bridge_status', [TorBridge.ACTIVE, TorBridge.SUSPENDED, TorBridge.NEEDS_SUSPEND])
+    def test_extend_not_expired_tor_bridge_after_successful_payment_extends_bridge_deadline(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client, lninvoice_paid_handler_mockup, bridge_status):
+        
+        _, host, owner = create_node_host_and_owner()
+        response = create_purchase_order_via_api(host=host, owner=owner, target=global_data['sample_onion_address'] + ':' + global_data['sample_onion_port'])
+        po = PurchaseOrder.objects.get(pk=response.data['id'])
+        bridge = po.item_details.first().product
 
+        original_deadline = bridge.suspend_after
+        bridge.status = bridge_status
+        bridge.save()
+
+        response = api_client.post(f'/api/v1/public/tor_bridges/{str(bridge.id)}/extend/')
+        po_ext = PurchaseOrder.objects.get(pk=response.data['po_id'])
+
+        # simulate the payment
+        bridge = lninvoice_paid_handler_mockup("TestSender", po.item_details.first())
+
+        assert response.status_code == status.HTTP_200_OK
+        assert str(bridge.suspend_after) == str(original_deadline + timedelta(seconds=host.tor_bridge_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME'))) 
+
+    @pytest.mark.parametrize('bridge_status', [TorBridge.ACTIVE, TorBridge.SUSPENDED, TorBridge.NEEDS_SUSPEND])
+    def test_extend_expired_tor_bridge_after_successful_payment_extends_bridge_deadline(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client, lninvoice_paid_handler_mockup, bridge_status):
+        
+        _, host, owner = create_node_host_and_owner()
+        response = create_purchase_order_via_api(host=host, owner=owner, target=global_data['sample_onion_address'] + ':' + global_data['sample_onion_port'])
+        po = PurchaseOrder.objects.get(pk=response.data['id'])
+        bridge = po.item_details.first().product
+
+        bridge.status = bridge_status
+        bridge.suspend_after = timezone.now() - timedelta(seconds=172800) # set to expired 2 days ago
+
+        bridge.save()
+
+        response = api_client.post(f'/api/v1/public/tor_bridges/{str(bridge.id)}/extend/')
+        po_ext = PurchaseOrder.objects.get(pk=response.data['po_id'])
+
+        # simulate the payment
+        bridge = lninvoice_paid_handler_mockup("TestSender", po.item_details.first())
+
+        assert response.status_code == status.HTTP_200_OK
+        assert str(bridge.suspend_after) >= str(timezone.now() + timedelta(seconds=host.tor_bridge_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME')) - timedelta(seconds=1))       
+        assert str(bridge.suspend_after) <= str(timezone.now() + timedelta(seconds=host.tor_bridge_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME')))       
     
     def test_status_change_from_active_to_needs_suspend_on_expired_tor_bridges(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client):
         
