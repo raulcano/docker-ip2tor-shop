@@ -157,6 +157,27 @@ class TestTorBridges():
         assert len(response.data) == 1
         assert response.data[0]['id'] == str(bridge1.id)
 
+    def test_extend_tor_bridge_produces_purchase_order_with_extension_price(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client):
+        
+        _, host, owner = create_node_host_and_owner()
+        response = create_purchase_order_via_api(host=host, owner=owner, target=global_data['sample_onion_address'] + ':' + global_data['sample_onion_port'])
+        po = PurchaseOrder.objects.get(pk=response.data['id'])
+        bridge = po.item_details.first().product
+
+
+        response = api_client.post(f'/api/v1/public/tor_bridges/{str(bridge.id)}/extend/')
+        po_ext = PurchaseOrder.objects.get(pk=response.data['po_id'])
+        assert response.status_code == status.HTTP_200_OK
+        assert int(host.tor_bridge_price_extension) == int(po_ext.total_price_msat)
+    
+    def test_extend_tor_bridge_after_successful_payment_extends_bridge_deadline(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client):
+        pass
+
+    
+    def test_tor_bridge_status_change_after_deadline_passes(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client):
+
+        # Needs set_needs_suspend_on_expired_tor_bridges
+        pass
     # not sure how to test this
     @pytest.mark.skip
     def test_bridge_in_initial_status_wont_redirect_to_target(self, create_purchase_order_via_api, create_node_host_and_owner, global_data):
