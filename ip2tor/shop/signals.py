@@ -73,16 +73,21 @@ def lninvoice_paid_handler(sender, instance, **kwargs):
 
     elif shop_item.status == Bridge.ACTIVE:
         print(f"is already ACTIVE - assume extend")
-        # ToDo(frennkie): check/set suspend after time
-        shop_item.suspend_after = shop_item.suspend_after + timedelta(seconds=shop_item.host.tor_bridge_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME', 600))
+        if shop_item.suspend_after <= timezone.now():
+            # rare cases where it's ACTIVE but expired (the scheduled task didn't update it yet)
+            shop_item.suspend_after = timezone.now() + timedelta(seconds=shop_item.host.tor_bridge_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME', 600))
+        else:
+            shop_item.suspend_after = shop_item.suspend_after + timedelta(seconds=shop_item.host.tor_bridge_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME', 600))
 
     elif shop_item.status == Bridge.SUSPENDED or shop_item.status == Bridge.NEEDS_SUSPEND:
         print(f"is reactivate")
         shop_item.status = Bridge.NEEDS_ACTIVATE
 
-        # ToDo(frennkie): check/set suspend after time
         if shop_item.suspend_after <= timezone.now():
             shop_item.suspend_after = timezone.now() + timedelta(seconds=shop_item.host.tor_bridge_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME', 600))
+        else:
+            # rare cases where it's SUSPENDED/NEEDS_SUSPEND but it hasn't expired yet (not sure if we'll reach this state ever)
+            shop_item.suspend_after = shop_item.suspend_after + timedelta(seconds=shop_item.host.tor_bridge_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME', 600))
 
     shop_item.save()
     add_change_log_entry(shop_item, "ran lninvoice_paid_handler")
