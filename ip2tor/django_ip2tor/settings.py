@@ -43,6 +43,22 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'shop.tasks.host_alive_check',
         'schedule': crontab(minute='*/4')
     },
+    'set_needs_delete_on_suspended_tor_bridges': {
+        'task': 'shop.tasks.set_needs_delete_on_suspended_tor_bridges',
+        'schedule': crontab(hour='*/5')
+    },
+    'set_needs_delete_on_initial_tor_bridges': {
+        'task': 'shop.tasks.set_needs_delete_on_initial_tor_bridges',
+        'schedule': crontab(hour='*/5')
+    },
+    'set_needs_suspend_on_expired_tor_bridges': {
+        'task': 'shop.tasks.set_needs_suspend_on_expired_tor_bridges',
+        'schedule': crontab(hour='*/5')
+    },
+    'delete_due_tor_bridges': {
+        'task': 'shop.tasks.delete_due_tor_bridges',
+        'schedule': crontab(hour='*/5')
+    },
 }
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
