@@ -548,10 +548,10 @@ class Bridge(Product):
         super().delete(using, keep_parents)
 
     def process_activation(self):
-        print("{} status was change to activated.".format(self._meta.verbose_name))
+        print("{} status was changed to activated.".format(self._meta.verbose_name))
 
     def process_suspension(self):
-        print("{} status was change to suspended.".format(self._meta.verbose_name))
+        print("{} status was changed to suspended.".format(self._meta.verbose_name))
 
     @classmethod
     def export_metrics(cls):
