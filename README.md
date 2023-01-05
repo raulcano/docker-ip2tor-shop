@@ -79,7 +79,7 @@ The first time composer runs, it will download from Git the ip2tor app and put i
 If you want to start fresh, delete that directory, next time we run “docker compose up”, it will be downloaded.
 
 # Shop class diagram
-This is a complex system that has plenty of classes and elements carefully working together to make things work. In order to help me understand the role and relationships of all moving parts, I created the following class diagram. It is not exact or perfectly complete, as I have reverse engineered it as needed, but it has the most relevant aspects.
+This is a complex system that has plenty of classes and elements carefully working together. In order to help me understand the role and relationships of all moving parts, I created the following class diagram. It is not exact or perfectly complete, as I have reverse engineered it as needed, but it has the most relevant aspects.
 
 ![IP2Tor class diagram](images/ip2tor_shop_class_diagram.png)
 
