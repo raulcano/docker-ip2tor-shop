@@ -18,7 +18,15 @@ from shop.tasks import (delete_due_tor_bridges,
                         set_needs_delete_on_suspended_tor_bridges,
                         set_needs_suspend_on_expired_tor_bridges)
 from shop.utils import remove_utc_offset_string_from_time_isoformat
+from shop.signals import lninvoice_paid_handler
 
+
+from freezegun import freeze_time
+import datetime
+
+@freeze_time("2023-01-14 12:00:01", tz_offset=0)
+def test_fake_datetime():
+    assert timezone.now() == datetime.datetime(2023, 1, 14, 12, 0, 1, tzinfo=datetime.timezone.utc)
 
 @pytest.mark.django_db
 class TestTorBridges():
@@ -178,7 +186,7 @@ class TestTorBridges():
         assert int(host.tor_bridge_price_extension) == int(po_ext.total_price_msat)
     
     @pytest.mark.parametrize('bridge_status', [TorBridge.ACTIVE, TorBridge.SUSPENDED, TorBridge.NEEDS_SUSPEND])
-    def test_extend_not_expired_tor_bridge_after_successful_payment_extends_bridge_deadline(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client, lninvoice_paid_handler_mockup, bridge_status):
+    def test_extend_not_expired_tor_bridge_after_successful_payment_extends_bridge_deadline(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client, bridge_status):
         
         _, host, owner = create_node_host_and_owner()
         response = create_purchase_order_via_api(host=host, owner=owner, target=global_data['sample_onion_address'] + ':' + global_data['sample_onion_port'])
@@ -193,13 +201,17 @@ class TestTorBridges():
         po_ext = PurchaseOrder.objects.get(pk=response.data['po_id'])
 
         # simulate the payment
-        bridge = lninvoice_paid_handler_mockup("TestSender", po.item_details.first())
+        lninvoice_paid_handler("TestSender", po.item_details.first())
+
+        # Not sure why I need to reload the item, but if I don't do this, the data won't be persisted in the object
+        bridge = TorBridge.objects.get(pk=bridge.id)
 
         assert response.status_code == status.HTTP_200_OK
         assert str(bridge.suspend_after) == str(original_deadline + timedelta(seconds=host.tor_bridge_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME'))) 
 
+    @freeze_time("2023-01-05 09:00:01", tz_offset=0)
     @pytest.mark.parametrize('bridge_status', [TorBridge.ACTIVE, TorBridge.SUSPENDED, TorBridge.NEEDS_SUSPEND])
-    def test_extend_expired_tor_bridge_after_successful_payment_extends_bridge_deadline(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client, lninvoice_paid_handler_mockup, bridge_status):
+    def test_extend_expired_tor_bridge_after_successful_payment_extends_bridge_deadline(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client, bridge_status):
         
         _, host, owner = create_node_host_and_owner()
         response = create_purchase_order_via_api(host=host, owner=owner, target=global_data['sample_onion_address'] + ':' + global_data['sample_onion_port'])
@@ -207,7 +219,7 @@ class TestTorBridges():
         bridge = po.item_details.first().product
 
         bridge.status = bridge_status
-        bridge.suspend_after = timezone.now() - timedelta(seconds=172800) # set to expired 2 days ago
+        bridge.suspend_after = timezone.now() - timedelta(seconds=1) # set to expired 1 second ago
 
         bridge.save()
 
@@ -215,13 +227,16 @@ class TestTorBridges():
         po_ext = PurchaseOrder.objects.get(pk=response.data['po_id'])
 
         # simulate the payment
-        bridge = lninvoice_paid_handler_mockup("TestSender", po.item_details.first())
+        lninvoice_paid_handler("TestSender", po.item_details.first())
+
+        # Not sure why I need to reload the item, but if I don't do this, the data won't be persisted in the object
+        bridge = TorBridge.objects.get(pk=bridge.id)
 
         assert response.status_code == status.HTTP_200_OK
-        assert str(bridge.suspend_after) >= str(timezone.now() + timedelta(seconds=host.tor_bridge_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME')) - timedelta(seconds=1))       
-        assert str(bridge.suspend_after) <= str(timezone.now() + timedelta(seconds=host.tor_bridge_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME')))       
+        assert str(bridge.suspend_after) == str(timezone.now() + timedelta(seconds=host.tor_bridge_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME')))       
     
-    def test_status_change_from_active_to_needs_suspend_on_expired_tor_bridges(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client):
+    
+    def test_status_change_from_active_to_needs_suspend_on_expired_tor_bridges(self, create_purchase_order_via_api, create_node_host_and_owner, global_data):
         
         _, host, owner = create_node_host_and_owner()
         
@@ -242,43 +257,101 @@ class TestTorBridges():
         
         
         # We'll set bridge2 to expire
-        bridge2.suspend_after = timezone.now() - timedelta(seconds=1)
+        bridge2.suspend_after = timezone.now() - timedelta(seconds=100000)
         bridge2.save()
 
         # We run the task to suspend expired bridges
-        set_needs_suspend_on_expired_tor_bridges()
+        print(set_needs_suspend_on_expired_tor_bridges())
+
+        # Not sure why I need to reload the item, but if I don't do this, the data won't be persisted in the object
+        bridge2 = TorBridge.objects.get(pk=bridge2.id)
+
         assert bridge1.status == TorBridge.ACTIVE
         assert bridge2.status == TorBridge.NEEDS_SUSPEND
 
-
-    def test_status_change_to_needs_delete_on_suspended_bridges(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client):
-        # set_needs_delete_on_suspended_tor_bridges()
-        pass
-
-    def test_status_change_to_needs_delete_on_initial_bridges(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client):
-        # set_needs_delete_on_initial_tor_bridges()
-        pass
-
-    def test_delete_due_tor_bridges(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client):
-        # delete_due_tor_bridges()
-        pass
-
-    # not sure how to test this
-    @pytest.mark.skip
-    def test_bridge_in_initial_status_wont_redirect_to_target(self, create_purchase_order_via_api, create_node_host_and_owner, global_data):
+    def test_status_change_to_needs_delete_on_suspended_bridges(self, create_purchase_order_via_api, create_node_host_and_owner, global_data):
         _, host, owner = create_node_host_and_owner()
         
+        # create 2 bridges
         response = create_purchase_order_via_api(host=host, owner=owner, target=global_data['sample_onion_address'] + ':' + global_data['sample_onion_port'])
         po = PurchaseOrder.objects.get(pk=response.data['id'])
-        bridge = po.item_details.first().product
+        bridge1 = po.item_details.first().product
+
+        response = create_purchase_order_via_api(host=host, owner=owner, target=global_data['sample_onion_address'] + ':' + global_data['sample_onion_port'])
+        po = PurchaseOrder.objects.get(pk=response.data['id'])
+        bridge2 = po.item_details.first().product
+
+        # We set them as suspended
+        bridge1.status = TorBridge.SUSPENDED
+        bridge1.save()
         
-        assert bridge.status == TorBridge.INITIAL
+        # We'll set bridge2 modified_at date to a long enough TO BE DELETED
+        # we need to freeze time in the past we want to test, because save() will set "modified_at" with the now()
+        freezer = freeze_time(timezone.now() - timedelta(days=getattr(settings, 'DELETE_SUSPENDED_AFTER_THESE_DAYS'))) 
+        freezer.start()
+        bridge2.status = TorBridge.SUSPENDED
+        bridge2.save()
+        freezer.stop()
+
+        # We run the task to set needs delete on suspended bridges
+        print(set_needs_delete_on_suspended_tor_bridges())
+
+        # Not sure why I need to reload the item, but if I don't do this, the data won't be persisted in the object
+        bridge2 = TorBridge.objects.get(pk=bridge2.id)
+
+        assert bridge1.status == TorBridge.SUSPENDED
+        assert bridge2.status == TorBridge.NEEDS_DELETE
+
+    def test_status_change_to_needs_delete_on_initial_bridges(self, create_purchase_order_via_api, create_node_host_and_owner, global_data):
+        _, host, owner = create_node_host_and_owner()
         
-        session = requests.session()
-        response = session.get('http://' + str(host.ip) + ':' + str(bridge.port))
+        # create 2 bridges
+        response = create_purchase_order_via_api(host=host, owner=owner, target=global_data['sample_onion_address'] + ':' + global_data['sample_onion_port'])
+        po = PurchaseOrder.objects.get(pk=response.data['id'])
+        bridge1 = po.item_details.first().product
+
+        response = create_purchase_order_via_api(host=host, owner=owner, target=global_data['sample_onion_address'] + ':' + global_data['sample_onion_port'])
+        po = PurchaseOrder.objects.get(pk=response.data['id'])
+        bridge2 = po.item_details.first().product
         
-        assert 'Hello world!' not in response.text
-        assert response.status_code == status.HTTP_200_OK
+        # We'll set bridge2 modified_at date to a long enough TO BE DELETED
+        freezer = freeze_time(timezone.now() - timedelta(days=getattr(settings, 'DELETE_INITIAL_AFTER_THESE_DAYS'))) 
+        freezer.start()
+        bridge2.save() # save() updates modified_at with the now() time
+        freezer.stop()
+        
+        print(set_needs_delete_on_initial_tor_bridges())
+
+        # Not sure why I need to reload the item, but if I don't do this, the data won't be persisted in the object
+        bridge2 = TorBridge.objects.get(pk=bridge2.id)
+
+        assert bridge1.status == TorBridge.INITIAL
+        assert bridge2.status == TorBridge.NEEDS_DELETE
+
+    def test_delete_due_tor_bridges(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client):
+        _, host, owner = create_node_host_and_owner()
+        
+        # create 2 bridges
+        response = create_purchase_order_via_api(host=host, owner=owner, target=global_data['sample_onion_address'] + ':' + global_data['sample_onion_port'])
+        po = PurchaseOrder.objects.get(pk=response.data['id'])
+        bridge1 = po.item_details.first().product
+
+        response = create_purchase_order_via_api(host=host, owner=owner, target=global_data['sample_onion_address'] + ':' + global_data['sample_onion_port'])
+        po = PurchaseOrder.objects.get(pk=response.data['id'])
+        bridge2 = po.item_details.first().product
+
+        # We set one as Needs to be deleted, regardless of the dates (modified_at, suspend_after)
+        bridge2.status = TorBridge.NEEDS_DELETE
+        bridge2.save()
+        bridge2_id = bridge2.id #since we will delete the bridge, we need to recover the id to check later it does not exist
+
+        # We run the task to set needs delete on suspended bridges
+        print(delete_due_tor_bridges())
+
+        # Not sure why I need to reload the item, but if I don't do this, the data won't be persisted in the object
+
+        assert bridge1.status == TorBridge.INITIAL
+        assert False == TorBridge.objects.filter(pk=bridge2_id).exists()
         
 
         
