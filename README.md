@@ -347,25 +347,6 @@ For more info, see the task ```host_alive_check``` and the Host method ```check_
 In short, for the host to be considered alive, the check-in message in the Host instance must be HELLO and the time must not be more than 5 minutes ago from the current time.
 It is important to notice that the alive check on hosts looks in the local database when was the last time they did a checkin: if it was more than 5 minutes ago, the host is considered NOT ALIVE.
 
-## Configuring the Host
-- Decide on a port range you will be offering for Tor Bridges in this host. Let's say, it's the range __21212__ to __21221__.
-- If you are running the host in a home network, make sure to do a port forwarding in your router. That is, the selected WAN range shall be forwarded to the same LAN range of the machine in your local network that is running the Host (e.g. 192.168.0.100 or something like that).
-- In the Host machine, make sure the firewall is not blocking traffic in that range of ports.
-  - For example, run ```ufw status``` for a quick view of which rules are enabled.
-- Make sure that the same ports you decided, are exposed in the docker-compose.yml file of the Host:
-```
-ip2tor-host:
-  ...
-  ...
-  ports:
-      - "21212-21221:21212-21221"
-  ...
-  ...
-```
-- Retrieve the public IP of the Host machine. If this is your home network, try a service like https://www.whatismyip.com/ (without being connected to a  VPN!). The IP is the one you'll need to use to create a Host in the Shop.
-- Run the docker container of the Host with ```docker-compose run```.
-
-If all this has been successfully configured, we are ready to create Tor Bridges via this Host.
 
 ## Updating settings without having to modify the repo (DEPRECATED)
 At the moment, just go to the ip2tor/django_ip2tor/settings.py file and update as necessary.
