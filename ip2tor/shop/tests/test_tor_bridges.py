@@ -1,3 +1,4 @@
+import datetime
 import os
 from datetime import timedelta
 from os.path import abspath, dirname
@@ -9,20 +10,18 @@ from charged.tests.conftest import global_data
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils import timezone
+from freezegun import freeze_time
 from model_bakery import baker
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from shop.models import Bridge, TorBridge
+from shop.signals import lninvoice_paid_handler
 from shop.tasks import (delete_due_tor_bridges,
                         set_needs_delete_on_initial_tor_bridges,
                         set_needs_delete_on_suspended_tor_bridges,
                         set_needs_suspend_on_expired_tor_bridges)
 from shop.utils import remove_utc_offset_string_from_time_isoformat
-from shop.signals import lninvoice_paid_handler
 
-
-from freezegun import freeze_time
-import datetime
 
 @freeze_time("2023-01-14 12:00:01", tz_offset=0)
 def test_fake_datetime():
@@ -41,7 +40,6 @@ class TestTorBridges():
 
         assert 'Hello world!' in response.text
         assert response.status_code == status.HTTP_200_OK
-    
     
     def test_create_purchase_order_for_TorBridge_with_specific_onion_target(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client):
         _, host, owner = create_node_host_and_owner()
