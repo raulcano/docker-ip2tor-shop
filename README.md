@@ -1,7 +1,8 @@
 # IP2TOR Shop - Docker files
 This repository includes the structure to deploy the ip2tor shop using Docker compose.
 
-The content deployed is based on this repository https://github.com/frennkie/django-ip2tor. 
+The content deployed is based on this repository https://github.com/frennkie/django-ip2tor.
+__NOTE:__ These instructions correspond to a host machine running Ubuntu 22.04.1 LTS.s
 
 # TL;DR
 
@@ -20,7 +21,7 @@ docker compose build
 docker compose up
 ```
 
-To take advantage of Docker's isolation principles, the following containers are created:
+Once Docker is running, several services will be available in these containers:
 - nginx
     - _A reverse proxy, directing requests to the main services to the right URLs and ports_ 
 - django-http  
@@ -39,6 +40,11 @@ To take advantage of Docker's isolation principles, the following containers are
     - _A dashboard for monitoring tasks and workers_
 - tor
     - _This container is not mandatory, but useful to generate a hidden service to access your shop)_
+- sample-http
+    - _A simple "Hello World!" http service that responds after calling it. Useful for tests_
+- sample-hidden-service
+    - _Generates a hidden service for the 'sample-http' container. Useful for tests_
+
 
 # Getting started
 
@@ -155,12 +161,56 @@ This value is necessary for the configuration of the host, and __needs to be pas
 ```IP2TOR_HOST_TOKEN=whatever_token_you_get_for_your_host_id```  
 
 # Firewall
-_To Be Confirmed_  
-These firewall commands should be run from the 
+__IMPORTANT__: These steps need to be run in the main machine where we are running all Shop containers, not in any container in particular.
+We'll be using ```ufw``` as our firewall, even though other options are available for you to choose.
+These steps are to ensure that, by default, only these ports will be allowed for incoming traffic:
+- SSH (22)
+- HTTP (80)
+- HTTPS (443)
+- 9050
+
+
+First, we install ```ufw``` if not available:
 ```
-sudo firewall-cmd --add-service http --permanent  
-sudo firewall-cmd --add-service https --permanent
-sudo firewall-cmd --reload
+sudo apt-get install ufw
+```
+
+To check the firewall status:
+```
+sudo ufw status
+```
+
+To check which ports are open, we can use any of these commands:
+```
+netstat -lntu
+# or 
+ss -lntu
+```
+
+Also, to check if a port is used, run any of these lines (in the example, we check if port 22 is open). If the output is blank, it means the port is not being used.
+```
+netstat -na | grep :22
+# or
+ss -na | grep :22
+```
+
+By default, we block all incoming traffic and allow all outgoing
+```
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+```
+
+Now we allow the ports of our choosing for incoming traffic
+```
+sudo ufw allow ssh
+sudo ufw allow http
+sudo ufw allow https
+sudo ufw allow 9050
+```
+
+Ensure ```ufw``` is enabled
+```
+sudo ufw enable
 ```
 
 # Flower
