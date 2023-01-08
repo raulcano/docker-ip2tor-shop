@@ -69,7 +69,7 @@ class Command(BaseCommand):
         else:
             owner_object = User.objects.filter(username=owner).first()
             # Load the token user
-            token_user_object = owner_object
+            # token_user_object = owner_object
 
         # Check if the site exists - exit otherwise
         if not Site.objects.filter(domain=sitedomain).exists():
@@ -78,19 +78,30 @@ class Command(BaseCommand):
         else:
             site_object = Site.objects.filter(domain=sitedomain).first()
 
-        # Check if the host exists already - exit if it does exist
-        if Host.objects.filter(name=hostname).exists() or Host.objects.filter(ip=ip).exists():
-            self.stdout.write(f'A Host with ip "{ip}" and/or name "{hostname}" exists already. Host was not created')
+        # # Check if the host exists already (identified by the name AND the IP)
+        if Host.objects.filter(name=hostname).exists() and Host.objects.filter(ip=ip).exists():
+            self.stdout.write(f'A Host with ip "{ip}" and name "{hostname}" exists already. Host was not created')
             return
 
         # Create host, and add it to user and site
         host = Host.objects.create(
-            ip=ip, is_enabled=isenabled, is_alive=isalive, owner=owner_object, token_user=token_user_object, name=hostname, 
+            ip=ip, is_enabled=isenabled, is_alive=isalive, owner=owner_object, name=hostname, 
             site=site_object, is_testnet=istestnet, offers_tor_bridges=offerstorbridges, tor_bridge_duration=torbridgeduration,
             tor_bridge_price_initial=torbridgepriceinitial, tor_bridge_price_extension=torbridgepriceextension,
             offers_rssh_tunnels=offersrsshtunnels, rssh_tunnel_price=rsshtunnelprice,terms_of_service=tos,
             terms_of_service_url=tosurl, ci_date=cidate, ci_message=cimessage, ci_status=cistatus
         )
+        
+        # If we pass the token_user , it won't create the Host if that has been used already
+        # So we create it without token_user and it will generate one automatically
+        # # Create host, and add it to user and site
+        # host = Host.objects.create(
+        #     ip=ip, is_enabled=isenabled, is_alive=isalive, owner=owner_object, token_user=token_user_object, name=hostname, 
+        #     site=site_object, is_testnet=istestnet, offers_tor_bridges=offerstorbridges, tor_bridge_duration=torbridgeduration,
+        #     tor_bridge_price_initial=torbridgepriceinitial, tor_bridge_price_extension=torbridgepriceextension,
+        #     offers_rssh_tunnels=offersrsshtunnels, rssh_tunnel_price=rsshtunnelprice,terms_of_service=tos,
+        #     terms_of_service_url=tosurl, ci_date=cidate, ci_message=cimessage, ci_status=cistatus
+        # )
 
         # Create port range and add it to host
         PortRange.objects.create( type=rangetype, start=portstart, end=portend, host=host )
