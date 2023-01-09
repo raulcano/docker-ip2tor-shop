@@ -408,6 +408,61 @@ You could still use this way if you prefer, but you'll have to add a line in the
 ```cp /home/ip2tor/.docker/patch/settings.py /home/ip2tor/ip2tor/django_ip2tor/settings.py```
 
 
+## Get Telegraf config
+
+Using httpie (easy CLI http client)
+
+```
+http GET http://127.0.0.1:8000/api/v1/tor_bridges/?host=58b61c0b-0a00-0b00-0c00-0d0000000000 "Authorization:Token 5eceb05d00000000000000000000000000000000"
+http GET http://127.0.0.1:8000/api/v1/tor_bridges/get_telegraf_config/ "Authorization:Token 5eceb05d00000000000000000000000000000000" port==9065
+```
+
+Telegraf Monitoring
+
+```
+curl -X GET -H 'Authorization: Token 5eceb05d00000000000000000000000000000000' 'http://localhost:8000/api/v1/tor_bridges/get_telegraf_config/?port=9065'
+```
+
+## Loose notes from original repo
+
+pylightning <- Christian Decker (for lightningd (=c-lightning?!))
+
+https://github.com/lightningnetwork/lnd/blob/master/docs/grpc/python.md
+https://github.com/ElementsProject/lightning/tree/master/contrib/pylightning
+
+switch on sites (in APPs and Site_id)
+
+`lnnode` requires Redis (used to reduces external calls (e.g. getinfo) and improve performance)
+
+
+ToDo
+
+- Heartbeat / Check
+- Maybe: validate/clean/save that models are only set to things the user owns
+- AGBs/ToS
+- loaddata did't work (caused by signal activity) - check again now that celery tasks are used.
+
+
+https://github.com/jazzband/django-taggit/commit/90c7224018c941b9a260c8e8bed166536f5870df
+
+
+pymacaroons
+
+https://gist.github.com/htp/fbce19069187ec1cc486b594104f01d0
+
+
+python manage.py migrate
+
+Run on host to monitor
+
+```
+while :
+do
+  ./tor2ipc.sh list
+  sleep 10
+done
+```
+
 # Shop APPS and API endpoints
 ## APP: ```shop```
 
