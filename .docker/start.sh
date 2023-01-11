@@ -8,12 +8,16 @@ role=${CONTAINER_ROLE:-django-http}
 # This is where the global python packages are installed
 # python3 -m site
 
+
+# We create a hard link of the .env file for both the ip2tor app and the docker compose need it in their directory
+ln /home/ip2tor/ip2tor/.env /home/ip2tor/.env
+
 if [ "$role" = "django-http" ]; then
   echo "App role (Django HTTP server) ..."
 
   source /home/ip2tor/ip2tor/.env
   
-  if [ -z "$SECRET_KEY" ] || [ ! -v SECRET_KEY ]; then
+  if [ -z "$SECRET_KEY" ]; then
     echo 'Generating new secret key...'
     python3 /home/ip2tor/.docker/get-secret-key.py | tee --append .env
   else

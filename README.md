@@ -288,6 +288,34 @@ alias nconf='docker compose up -d --no-deps --build nginx'
 ```
 After wich, just run ```nconf``` to rebuild your docker nginx container with the new configuration.
 
+## How to tail Docker logs
+After starting the docker compose, you will get the logs of each container in your terminal. If you close the terminal and come back later, this is how to get those logs run on your screen.
+
+  
+
+__For tailing ONLY ONE or SELECTED containers__
+```
+docker-compose logs -f -t <service name 1> <service name 2> ... <service name N>
+```
+For example:
+```
+docker-compose logs -f -t tor nginx django-http
+```
+
+__For tailing ALL containers__
+```
+docker-compose logs -f -t
+```
+
+That's it.
+
+
+Find more info about this in this very interesting article:  
+https://www.papertrail.com/solution/tips/how-to-live-tail-docker-logs/  
+or here  
+https://stackoverflow.com/questions/37195222/how-to-view-log-output-using-docker-compose-run
+
+
 
 ## Testing
 For testing, we are using the pytest framework.
