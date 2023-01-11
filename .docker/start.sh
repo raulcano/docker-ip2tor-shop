@@ -49,14 +49,28 @@ if [ "$role" = "django-http" ]; then
     python3 manage.py create_host --owner=$DJANGO_OPERATOR_NAME --sitedomain="$SHOP_SITE_DOMAIN" --name="$SHOP_HOST6_NAME" --ip=$SHOP_HOST6_IP --portstart=$SHOP_HOST6_PORT_START --portend=$SHOP_HOST6_PORT_END --rangetype=$SHOP_HOST6_PORT_RANGE_TYPE --isenabled=$SHOP_HOST6_IS_ENABLED --isalive=$SHOP_HOST6_IS_ALIVE --istestnet=$SHOP_HOST6_IS_TESTNET --offerstorbridges=$SHOP_HOST6_OFFERS_TOR_BRIDGES --torbridgeduration=$SHOP_HOST6_TOR_BRIDGE_DURATION --torbridgepriceinitial=$SHOP_HOST6_TOR_BRIDGE_PRICE_INITIAL --torbridgepriceextension=$SHOP_HOST6_TOR_BRIDGE_PRICE_EXTENSION --offersrsshtunnels=$SHOP_HOST6_OFFERS_RSSH_TUNNELS --rsshtunnelprice=$SHOP_HOST6_RSSH_TUNNEL_PRICE --tos="$SHOP_HOST6_TERMS_OF_SERVICE" --tosurl="$SHOP_HOST6_TERMS_OF_SERVICE_URL" --cistatus=$SHOP_HOST6_CI_STATUS --cidate="$SHOP_HOST6_CI_DATE" --cimessage="$SHOP_HOST6_CI_MESSAGE"
   fi
 
-  if [ "LndGRpcNode" = $CHARGED_LND_CLASS ]; then
-    port_lnd=$CHARGED_LND_PORT_GRPC
-  elif [ "LndRestNode" = $CHARGED_LND_CLASS ]; then
-    port_lnd=$CHARGED_LND_PORT_REST
+  if [ "True" = $CHARGED_LND1_REGISTER ]; then
+    echo "Trying to create $CHARGED_LND1_CLASS on host $CHARGED_LND1_HOST and port $CHARGED_LND1_PORT {tls_verification=$CHARGED_LND1_TLS_VERIFICATION}"
+    python3 manage.py create_node --nodeclass=$CHARGED_LND1_CLASS --name=$CHARGED_LND1_NAME --priority=$CHARGED_LND1_PRIORITY --owner=$CHARGED_LND1_OWNER --macaroon_admin=$CHARGED_LND1_MACAROON_ADMIN --macaroon_invoice=$CHARGED_LND1_MACAROON_INVOICE --macaroon_readonly=$CHARGED_LND1_MACAROON_READONLY --tls_certificate="$CHARGED_LND1_TLS_CERTIFICATE" --tls_verification=$CHARGED_LND1_TLS_VERIFICATION --host=$CHARGED_LND1_HOST --port=$CHARGED_LND1_PORT
+  fi
+  if [ "True" = $CHARGED_LND2_REGISTER ]; then
+    echo "Trying to create $CHARGED_LND2_CLASS on host $CHARGED_LND2_HOST and port $CHARGED_LND2_PORT {tls_verification=$CHARGED_LND2_TLS_VERIFICATION}"
+    python3 manage.py create_node --nodeclass=$CHARGED_LND2_CLASS --name=$CHARGED_LND2_NAME --priority=$CHARGED_LND2_PRIORITY --owner=$CHARGED_LND2_OWNER --macaroon_admin=$CHARGED_LND2_MACAROON_ADMIN --macaroon_invoice=$CHARGED_LND2_MACAROON_INVOICE --macaroon_readonly=$CHARGED_LND2_MACAROON_READONLY --tls_certificate="$CHARGED_LND2_TLS_CERTIFICATE" --tls_verification=$CHARGED_LND2_TLS_VERIFICATION --host=$CHARGED_LND2_HOST --port=$CHARGED_LND2_PORT
+  fi
+  if [ "True" = $CHARGED_LND3_REGISTER ]; then
+    echo "Trying to create $CHARGED_LND3_CLASS on host $CHARGED_LND3_HOST and port $CHARGED_LND3_PORT {tls_verification=$CHARGED_LND3_TLS_VERIFICATION}"
+    python3 manage.py create_node --nodeclass=$CHARGED_LND3_CLASS --name=$CHARGED_LND3_NAME --priority=$CHARGED_LND3_PRIORITY --owner=$CHARGED_LND3_OWNER --macaroon_admin=$CHARGED_LND3_MACAROON_ADMIN --macaroon_invoice=$CHARGED_LND3_MACAROON_INVOICE --macaroon_readonly=$CHARGED_LND3_MACAROON_READONLY --tls_certificate="$CHARGED_LND3_TLS_CERTIFICATE" --tls_verification=$CHARGED_LND3_TLS_VERIFICATION --host=$CHARGED_LND3_HOST --port=$CHARGED_LND3_PORT
+  fi
+  if [ "True" = $CHARGED_LND4_REGISTER ]; then
+    echo "Trying to create $CHARGED_LND4_CLASS on host $CHARGED_LND4_HOST and port $CHARGED_LND4_PORT {tls_verification=$CHARGED_LND4_TLS_VERIFICATION}"
+    python3 manage.py create_node --nodeclass=$CHARGED_LND4_CLASS --name=$CHARGED_LND4_NAME --priority=$CHARGED_LND4_PRIORITY --owner=$CHARGED_LND4_OWNER --macaroon_admin=$CHARGED_LND4_MACAROON_ADMIN --macaroon_invoice=$CHARGED_LND4_MACAROON_INVOICE --macaroon_readonly=$CHARGED_LND4_MACAROON_READONLY --tls_certificate="$CHARGED_LND4_TLS_CERTIFICATE" --tls_verification=$CHARGED_LND4_TLS_VERIFICATION --host=$CHARGED_LND4_HOST --port=$CHARGED_LND4_PORT
+  fi
+  if [ "True" = $CHARGED_LND5_REGISTER ]; then
+    echo "Trying to create $CHARGED_LND5_CLASS on host $CHARGED_LND5_HOST and port $CHARGED_LND5_PORT {tls_verification=$CHARGED_LND5_TLS_VERIFICATION}"
+    python3 manage.py create_node --nodeclass=$CHARGED_LND5_CLASS --name=$CHARGED_LND5_NAME --priority=$CHARGED_LND5_PRIORITY --owner=$CHARGED_LND5_OWNER --macaroon_admin=$CHARGED_LND5_MACAROON_ADMIN --macaroon_invoice=$CHARGED_LND5_MACAROON_INVOICE --macaroon_readonly=$CHARGED_LND5_MACAROON_READONLY --tls_certificate="$CHARGED_LND5_TLS_CERTIFICATE" --tls_verification=$CHARGED_LND5_TLS_VERIFICATION --host=$CHARGED_LND5_HOST --port=$CHARGED_LND5_PORT
   fi
 
-  echo "Trying to create $CHARGED_LND_CLASS on host $CHARGED_LND_HOST and port $port_lnd {tls_verification=$CHARGED_LND_TLS_VERIFICATION}"
-  python3 manage.py create_node --nodeclass=$CHARGED_LND_CLASS --name=$CHARGED_LND_NAME --priority=$CHARGED_LND_PRIORITY --owner=$CHARGED_LND_OWNER --macaroon_admin=$CHARGED_LND_MACAROON_ADMIN --macaroon_invoice=$CHARGED_LND_MACAROON_INVOICE --macaroon_readonly=$CHARGED_LND_MACAROON_READONLY --tls_certificate="$CHARGED_LND_TLS_CERTIFICATE" --tls_verification=$CHARGED_LND_TLS_VERIFICATION --host=$CHARGED_LND_HOST --port=$port_lnd
+  
   
   # Limit access rights to base and media directory
   # chmod 700 /home/ip2tor/ip2tor  # !!! uncomment after debugging
@@ -65,8 +79,10 @@ if [ "$role" = "django-http" ]; then
   chmod -R 755 /home/ip2tor/media 
   chmod -R 755 /home/ip2tor/static
 
+  # This was to test if we can add LND nodes with Tor address
   # echo "Starting Tor in Django HTTP container..."
-  sudo service tor start
+  # sudo service tor start
+  
   echo "Starting Django HTTP server in port "$DJANGO_HTTP_PORT"... "
   # python3 manage.py runserver 0.0.0.0:$DJANGO_HTTP_PORT
   gunicorn --bind=0.0.0.0:$DJANGO_HTTP_PORT django_ip2tor.wsgi
