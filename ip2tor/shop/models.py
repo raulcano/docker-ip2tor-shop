@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_redis import get_redis_connection
 from rest_framework.authtoken.models import Token
+from django.conf import settings
 
 from charged.lnpurchase.models import Product, PurchaseOrder, PurchaseOrderItemDetail
 from charged.utils import add_change_log_entry
@@ -389,7 +390,7 @@ class PortRange(models.Model):
 
     @property
     def ports_available_with_safety_margin(self):
-        return self.ports_used_percent < 0.85
+        return self.ports_used_percent < getattr(settings, 'PORT_POOL_AVAILABILITY_MARGIN')
 
     def add_port_usage(self, value):
         if not isinstance(value, int):

@@ -327,7 +327,7 @@ SHOP_OPERATOR_GROUP_NAME='operators'
 
 WHITELISTED_SERVICE_PORTS =  env.list('WHITELISTED_SERVICE_PORTS', default=[ '8333', '9735' ])
 
-
+PORT_POOL_AVAILABILITY_MARGIN = env.float('PORT_POOL_AVAILABILITY_MARGIN', default=0.85)
 
 # allow for a local file ("django_ip2tor/local_settings.py") to be used to add or override settings
 if os.path.isfile(os.path.join(BASE_DIR, 'django_ip2tor', 'local_settings.py')):
