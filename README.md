@@ -398,14 +398,6 @@ In short, for the host to be considered alive, the check-in message in the Host 
 It is important to notice that the alive check on hosts looks in the local database when was the last time they did a checkin: if it was more than 5 minutes ago, the host is considered NOT ALIVE.
 
 
-## Updating settings without having to modify the repo (DEPRECATED)
-At the moment, just go to the ip2tor/django_ip2tor/settings.py file and update as necessary.
-
-Originally I designed this structure to patch the settings file with an editable copy at the .docker/patch folder.
-There, you'll find the settings.py file, which will overwrite the one downloaded the repo, so you can update some stuff there if necessary without modifying the original settings file in the django folder.
-
-You could still use this way if you prefer, but you'll have to add a line in the start.sh script:
-```cp /home/ip2tor/.docker/patch/settings.py /home/ip2tor/ip2tor/django_ip2tor/settings.py```
 
 
 ## Get Telegraf config
@@ -463,53 +455,19 @@ do
 done
 ```
 
-# Shop APPS and API endpoints
-## APP: ```shop```
+## Updating settings without having to modify the repo (DEPRECATED)
+At the moment, just go to the ip2tor/django_ip2tor/settings.py file and update as necessary.
+
+Originally I designed this structure to patch the settings file with an editable copy at the .docker/patch folder.
+There, you'll find the settings.py file, which will overwrite the one downloaded the repo, so you can update some stuff there if necessary without modifying the original settings file in the django folder.
+
+You could still use this way if you prefer, but you'll have to add a line in the start.sh script:
+```cp /home/ip2tor/.docker/patch/settings.py /home/ip2tor/ip2tor/django_ip2tor/settings.py```
 
 
+# Open points
 
-```/shop/demo```
-
-views.DemoView.as_view()
-
-name='demo'
-
- 
-
-```/shop/hosts/```
-
-views.HostListView.as_view()
-
-name='host-list'
-
-This view lists all ACTIVE hosts stored in the shop (in the model Host)
-  
-  
-```/shop/hosts/<uuid:pk>/```
-
-views.PurchaseTorBridgeOnHostView.as_view()
-
-name='host-purchase'
-
-Logic to present a purchase form.
-
-If the data is valid:
-
-- A Purchase Order order is created in the ShopPurchaseOrder model.
-
-- The user is redirected to the detail view of the Purchase Order in the app 'lnpurchase' (the link is named 'lnpurchase:po-detail'
-
-    /charged/lnpurchase/po/<uuid:pk>/
-
- 
-
- 
-
-## APP: ```charged/lnpurchase```
-
-
-```/charged/lnpurchase/po/<uuid:pk>/```
-
-views.PurchaseOrderDetailView.as_view()
-name='po-detail'
-Shows the detail view of a Purchase Order
+## The 'daphne' service
+I still need to figure out what the service offered via 'daphne' was about, since all endpoints seem to work just fine without it.
+In the meantime, the container offering it is commented out, so no 'daphne' server is loaded.
+The nginx entry points to daphne are also commented out.
