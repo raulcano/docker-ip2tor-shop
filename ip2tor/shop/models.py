@@ -431,8 +431,8 @@ class PortRange(models.Model):
         self.save()
 
     def clean(self):
-        if self.start >= self.end:
-            raise ValidationError(_('Start Port must be lower than End Port.'))
+        if self.start > self.end:
+            raise ValidationError(_('Start Port must be lower or equal than End Port.'))
 
         # Make sure port ranges don't overlap WITHIN THIS HOST AND WITH ANOTHER HOST WITH SAME IP!
         for host in Host.objects.filter(ip=self.host.ip):
