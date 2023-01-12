@@ -32,6 +32,7 @@ class PublicHostSerializer(serializers.ModelSerializer):
             'is_enabled',
             'is_alive',
             'name',
+            'description',
             'is_testnet',
             'offers_tor_bridges',
             'tor_bridge_duration',
