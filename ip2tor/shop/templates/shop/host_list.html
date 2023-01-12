@@ -19,10 +19,14 @@
                 <hr>
             {% endif %}
 
-            <div class="card border-dark mb-3">
+            <div class="card border-dark mb-3 mt-3">
                 <div class="card-header text-white bg-dark">
                     <a href="{% url 'shop:host-purchase' pk=host.pk %}"
                        class="text-light"><h5>{{ host }}</h5></a>
+                    {% if host.description %}
+                       <br>
+                        <i>{{ host.description }}</i>
+                    {% endif%}
                 </div>
             </div>
 

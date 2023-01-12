@@ -113,6 +113,12 @@ class Host(models.Model):
     ip = models.GenericIPAddressField(verbose_name=_('IP Address'),
                                       help_text=_('IP Address of Host.'),
                                       )
+    description = models.CharField(
+        max_length=140,
+        blank=True,
+        null=True,
+        verbose_name=_('Description'),
+        help_text='What is offered in this host.')
 
     is_enabled = models.BooleanField(
         default=True,

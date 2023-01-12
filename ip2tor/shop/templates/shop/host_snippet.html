@@ -1,11 +1,15 @@
 {% load i18n humanize %}
 
-<div class="row">
+<div class="row mt-3">
     <div class="col">
         <div class="card border-dark mb-3">
             <div class="card-header text-white bg-dark">
                 <a href="{% url 'shop:host-purchase' pk=host.pk %}"
                    class="text-light"><h5>{{ host }}</h5></a>
+                {% if host.description %}
+                   <br>
+                    <i>{{ host.description }}</i>
+                {% endif%}
             </div>
             <ul class="list-group list-group-flush">
                 {% if host.offers_tor_bridges %}

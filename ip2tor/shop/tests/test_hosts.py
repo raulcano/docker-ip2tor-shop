@@ -7,7 +7,7 @@ from shop.tasks import host_alive_check
 from shop.utils import remove_utc_offset_string_from_time_isoformat
 from django.core.exceptions import ValidationError
 
-@pytest.mark.skip
+# @pytest.mark.skip
 @pytest.mark.django_db
 class TestRetrieveHosts ():
     def test_if_user_is_anonymous_returns_200(self, api_client):
@@ -37,6 +37,7 @@ class TestRetrieveHosts ():
         assert response.data['is_enabled'] == host.is_enabled
         assert response.data['is_alive'] == host.is_alive
         assert response.data['name'] == host.name
+        assert response.data['description'] == host.description
         assert response.data['is_testnet'] == host.is_testnet
         assert response.data['offers_tor_bridges'] == host.offers_tor_bridges
         assert response.data['tor_bridge_duration'] == host.tor_bridge_duration
@@ -138,3 +139,31 @@ class TestRetrieveHosts ():
         p2 = baker.make(PortRange, start=port_range2['start'], end=port_range2['end'], host=host)
         p2.clean()
         assert len(host.port_ranges.all()) == 2
+
+    @pytest.mark.parametrize('port_range1', [{ 'start': 12000, 'end': 12000}])
+    @pytest.mark.parametrize('port_range2', [
+        { 'start': 12001, 'end': 12001}, 
+        { 'start': 11999, 'end': 11999}, 
+    ])
+    def test_port_ranges_of_just_one_port(self, port_range1, port_range2):
+        host = baker.make(Host)
+        baker.make(PortRange, start=port_range1['start'], end=port_range1['end'], host=host)
+        assert len(host.port_ranges.all()) == 1
+        
+        p2 = baker.make(PortRange, start=port_range2['start'], end=port_range2['end'], host=host)
+        p2.clean()
+        assert len(host.port_ranges.all()) == 2
+    
+    @pytest.mark.parametrize('port_range1', [{ 'start': 12000, 'end': 12000}])
+    @pytest.mark.parametrize('port_range2', [
+        { 'start': 12000, 'end': 12000}, 
+    ])
+    def test_port_ranges_overlap(self, port_range1, port_range2):
+        host = baker.make(Host)
+        baker.make(PortRange, start=port_range1['start'], end=port_range1['end'], host=host)
+        assert len(host.port_ranges.all()) == 1
+        
+        with pytest.raises(ValidationError) as e_info:
+            p2 = baker.make(PortRange, start=port_range2['start'], end=port_range2['end'], host=host)
+            p2.clean()
+            assert len(host.port_ranges.all()) == 1

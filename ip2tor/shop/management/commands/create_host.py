@@ -7,7 +7,7 @@ class Command(BaseCommand):
     """
     Create a site
         Example:
-        manage.py create_host --owner=operator --sitedomain="ip2tor.com" --name="host1" --ip=10.11.42.3 --portstart=10000 --portend=20000 --rangetype=T --isenabled=True --isalive=True 
+        manage.py create_host --owner=operator --sitedomain="ip2tor.com" --name="host1" --description="A cool host" --ip=10.11.42.3 --portranges=10000,11000:20000,21000 --rangetype=T --isenabled=True --isalive=True 
         --istestnet=False --offerstorbridges=True --torbridgeduration=86400 --torbridgepriceinitial=25000 --torbridgepriceextension=20000
         --offersrsshtunnels=False --rsshtunnelprice=1000 --tos="" --tosurl="" --cistatus=0 --cidate="2022-12-19 00:00" --cimessage=""
     """
@@ -16,9 +16,9 @@ class Command(BaseCommand):
         parser.add_argument("--owner", required=True)
         parser.add_argument("--sitedomain", required=True)
         parser.add_argument("--name", required=True)
+        parser.add_argument("--description", required=False)
         parser.add_argument("--ip", required=True)
-        parser.add_argument("--portstart", required=True)
-        parser.add_argument("--portend", required=True)
+        parser.add_argument("--portranges", required=False)
         parser.add_argument("--rangetype", required=False, default='I')
         parser.add_argument("--isenabled", required=False, default=True)
         parser.add_argument("--isalive", required=False, default=False)
@@ -39,9 +39,9 @@ class Command(BaseCommand):
         owner = options["owner"]
         sitedomain = options["sitedomain"]
         hostname = options["name"]
+        description = options["description"]
         ip = options["ip"]
-        portstart = options["portstart"]
-        portend = options["portend"]
+        portranges=options["portranges"]
         rangetype = options["rangetype"]
         isenabled = options["isenabled"]
         isalive = options["isalive"]
@@ -85,7 +85,7 @@ class Command(BaseCommand):
 
         # Create host, and add it to user and site
         host = Host.objects.create(
-            ip=ip, is_enabled=isenabled, is_alive=isalive, owner=owner_object, name=hostname, 
+            ip=ip, is_enabled=isenabled, is_alive=isalive, owner=owner_object, name=hostname, description=description,
             site=site_object, is_testnet=istestnet, offers_tor_bridges=offerstorbridges, tor_bridge_duration=torbridgeduration,
             tor_bridge_price_initial=torbridgepriceinitial, tor_bridge_price_extension=torbridgepriceextension,
             offers_rssh_tunnels=offersrsshtunnels, rssh_tunnel_price=rsshtunnelprice,terms_of_service=tos,
@@ -103,8 +103,12 @@ class Command(BaseCommand):
         #     terms_of_service_url=tosurl, ci_date=cidate, ci_message=cimessage, ci_status=cistatus
         # )
 
-        # Create port range and add it to host
-        PortRange.objects.create( type=rangetype, start=portstart, end=portend, host=host )
+        # Create port ranges for this host, based on a list of start,end:start2,end2:start3,end3 etc
+        
+        portranges_list = portranges.strip().split(':')
+        for range_separated_by_comma in portranges_list :
+            range = range_separated_by_comma.split(',')
+            PortRange.objects.create( type=rangetype, start=range[0], end=range[1], host=host )
 
 
         self.stdout.write(f'A Host with ip "{ip}" and name "{hostname}" was created successfully')
