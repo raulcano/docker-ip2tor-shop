@@ -74,7 +74,9 @@ if [ "$role" = "django-http" ]; then
     python3 manage.py create_node --nodeclass=$CHARGED_LND5_CLASS --name=$CHARGED_LND5_NAME --priority=$CHARGED_LND5_PRIORITY --owner=$CHARGED_LND5_OWNER --macaroon_admin=$CHARGED_LND5_MACAROON_ADMIN --macaroon_invoice=$CHARGED_LND5_MACAROON_INVOICE --macaroon_readonly=$CHARGED_LND5_MACAROON_READONLY --tls_certificate="$CHARGED_LND5_TLS_CERTIFICATE" --tls_verification=$CHARGED_LND5_TLS_VERIFICATION --host=$CHARGED_LND5_HOST --port=$CHARGED_LND5_PORT
   fi
 
-  
+
+  # Display the string of Host IDs and Tokens needed for each Host (to be added in the .env file of the machine hosting those hosts)
+  python3 manage.py get_host_ids_and_tokens
   
   # Limit access rights to base and media directory
   # chmod 700 /home/ip2tor/ip2tor  # !!! uncomment after debugging

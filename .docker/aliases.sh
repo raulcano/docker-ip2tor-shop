@@ -41,6 +41,7 @@ alias doff='sudo docker-compose down && sudo shutdown now'
 alias restart='sudo reboot now'
 
 alias dlogs='docker-compose logs -f --tail="20"'
+alias hostids='docker exec -it ip2tor-shop-django-http python3 /home/ip2tor/ip2tor/manage.py get_host_ids_and_tokens'
 
 # Aliases for the Host(s)
 alias hello='docker exec -it ip2tor-host ip2tor_host.sh hello'
