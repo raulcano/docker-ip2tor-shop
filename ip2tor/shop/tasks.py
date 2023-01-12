@@ -83,13 +83,13 @@ def set_needs_delete_on_suspended_tor_bridges(days=getattr(settings, 'DELETE_SUS
 
 
 @shared_task()
-def set_needs_delete_on_initial_tor_bridges(days=getattr(settings, 'DELETE_INITIAL_AFTER_THESE_DAYS')):
+def set_needs_delete_on_initial_tor_bridges(minutes=getattr(settings, 'DELETE_INITIAL_AFTER_THESE_MINUTES')):
     counter = 0
     initials = TorBridge.objects.filter(status=TorBridge.INITIAL)
     if initials:
         for item in initials:
             logger.debug('Running on: %s' % item)
-            if timezone.now() > item.modified_at + timedelta(days=days):
+            if timezone.now() > item.modified_at + timedelta(minutes=minutes):
                 logger.debug('Needs to be set to deleted.')
                 item.status = TorBridge.NEEDS_DELETE
                 item.save()

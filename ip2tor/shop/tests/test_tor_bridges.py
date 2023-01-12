@@ -313,7 +313,7 @@ class TestTorBridges():
         bridge2 = po.item_details.first().product
         
         # We'll set bridge2 modified_at date to a long enough TO BE DELETED
-        freezer = freeze_time(timezone.now() - timedelta(days=getattr(settings, 'DELETE_INITIAL_AFTER_THESE_DAYS'))) 
+        freezer = freeze_time(timezone.now() - timedelta(minutes=getattr(settings, 'DELETE_INITIAL_AFTER_THESE_MINUTES'))) 
         freezer.start()
         bridge2.save() # save() updates modified_at with the now() time
         freezer.stop()
