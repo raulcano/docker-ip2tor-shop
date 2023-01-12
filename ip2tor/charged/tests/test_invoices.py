@@ -6,7 +6,7 @@ from charged.lninvoice.models import PurchaseOrderInvoice
 import pytest
 import random
 
-@pytest.mark.skip
+# @pytest.mark.skip
 @pytest.mark.django_db
 class TestInvoices():
     def test_invoice_is_created_on_node_via_grpc(self, create_node, create_po):

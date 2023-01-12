@@ -28,19 +28,15 @@ def create_node():
         load_dotenv(path)
         
         owner = baker.make(User) if None == owner else owner
-        host = os.getenv('CHARGED_LND_HOST')
-        port = ""
-        if ('LndGRpcNode' == nodeclass):
-            port = os.getenv('CHARGED_LND_PORT_GRPC')
-        elif ('LndRestNode' == nodeclass):
-            port = os.getenv('CHARGED_LND_PORT_REST')
+        host = os.getenv('CHARGED_LND1_HOST')
+        port = os.getenv('CHARGED_LND1_PORT')
         
-        macaroon_invoice = os.getenv('CHARGED_LND_MACAROON_INVOICE')
-        macaroon_readonly = os.getenv('CHARGED_LND_MACAROON_READONLY')
+        macaroon_invoice = os.getenv('CHARGED_LND1_MACAROON_INVOICE')
+        macaroon_readonly = os.getenv('CHARGED_LND1_MACAROON_READONLY')
         
-        tls_cert = os.getenv('CHARGED_LND_TLS_CERTIFICATE') if None == tls_cert else tls_cert
+        tls_cert = os.getenv('CHARGED_LND1_TLS_CERTIFICATE') if None == tls_cert else tls_cert
         
-        name = 'test_' + os.getenv('CHARGED_LND_NAME')
+        name = 'test_' + os.getenv('CHARGED_LND1_NAME')
 
         Node = dynamic_import_class('charged.lnnode.models', nodeclass)
         return baker.make(Node, name=name, port=port, hostname=host, tls_cert=tls_cert, 

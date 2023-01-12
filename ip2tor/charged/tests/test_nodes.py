@@ -1,7 +1,7 @@
 import pytest
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 @pytest.mark.django_db
 class TestCheckAliveNodes():
 

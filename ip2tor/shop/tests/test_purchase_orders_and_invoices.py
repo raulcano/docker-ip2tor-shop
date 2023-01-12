@@ -13,7 +13,7 @@ from rest_framework import status
 from shop.models import PortRange
 from model_bakery import baker
 
-@pytest.mark.skip
+# @pytest.mark.skip
 @pytest.mark.django_db
 class TestCreatePurchaseOrder():
     def test_create_empty_po_returns_400(self, create_purchase_order_via_api):
@@ -44,7 +44,7 @@ class TestCreatePurchaseOrder():
         response_po3 = create_purchase_order_via_api(owner=owner, host=host)
         assert response_po3.status_code == status.HTTP_400_BAD_REQUEST
 
-@pytest.mark.skip
+# @pytest.mark.skip
 @pytest.mark.django_db
 class TestRetrievePurchaseOrder():
     
