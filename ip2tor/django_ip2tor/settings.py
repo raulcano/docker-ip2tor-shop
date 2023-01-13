@@ -227,6 +227,8 @@ DEFAULT_FROM_EMAIL = email.get('DEFAULT_FROM_EMAIL', 'webmaster@localhost')
 
 ADMINS = [(env.str("DJANGO_SUPERUSER_NAME", "admin"), env.str("DJANGO_SUPERUSER_EMAIL", "root@localhost"))]
 
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
+
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
