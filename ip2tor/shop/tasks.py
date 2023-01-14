@@ -6,7 +6,7 @@ from celery.utils.log import get_task_logger
 from charged.utils import add_change_log_entry, handle_obj_is_alive_change
 from django.conf import settings
 from django.utils import timezone
-
+from django.core.management import call_command
 from shop.models import Host, TorBridge
 
 logger = get_task_logger(__name__)
@@ -125,3 +125,7 @@ def backup_files():
 @shared_task()
 def delete_old_backups():
     subprocess.call(['bash',  settings.BASE_DIR + '/../scripts/delete-old-backups.sh'])
+
+@shared_task()
+def backup_db():
+    call_command('dbbackup')

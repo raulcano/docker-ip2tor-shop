@@ -484,10 +484,11 @@ done
 ```
 
 ## Backups
-The file ```shop/tasks.py``` includes two tasks to backup the files and to delete old backups. The ```.env``` variable ```DELETE_OLD_BACKUPS_AFTER_DAYS``` can be set to how many days to keep backup files.
+The file ```shop/tasks.py``` includes tasks to backup files and database and to delete old backups. The ```.env``` variable ```DELETE_OLD_BACKUPS_AFTER_DAYS``` can be set to how many days to keep backup files.
 Also, these variables include a cron schedule for when to run each of those tasks:
 ```
 SCHEDULE_BACKUP_FILES="0 12 * * *"
+SCHEDULE_BACKUP_DB="30 23 * * *"
 SCHEDULE_DELETE_OLD_BACKUPS="30 12 * * *"
 ```
 

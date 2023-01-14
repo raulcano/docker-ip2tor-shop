@@ -42,6 +42,8 @@ s_needs_suspend_on_expired = env.str("SCHEDULE_SET_NEEDS_SUSPEND_ON_EXPIRED_TOR_
 s_delete_due = env.str("SCHEDULE_DELETE_DUE_TOR_BRIDGES").split()
 s_backup_files = env.str("SCHEDULE_BACKUP_FILES").split()
 s_delete_old_backups = env.str("SCHEDULE_DELETE_OLD_BACKUPS").split()
+s_backup_db = env.str("SCHEDULE_BACKUP_DB").split()
+
 
 
 CELERY_BEAT_SCHEDULE = {
@@ -76,6 +78,10 @@ CELERY_BEAT_SCHEDULE = {
     'delete_old_backups': {
         'task': 'shop.tasks.delete_old_backups',
         'schedule': crontab(minute=s_delete_old_backups[0], hour=s_delete_old_backups[1], day_of_week=s_delete_old_backups[2], day_of_month=s_delete_old_backups[3], month_of_year=s_delete_old_backups[4]),
+    },
+    'backup_db': {
+        'task': 'shop.tasks.backup_db',
+        'schedule': crontab(minute=s_backup_db[0], hour=s_backup_db[1], day_of_week=s_backup_db[2], day_of_month=s_backup_db[3], month_of_year=s_backup_db[4]),
     },
 }
 
@@ -144,7 +150,8 @@ INSTALLED_APPS = [
     'charged.lninvoice',
     'charged.lnpurchase',
     'charged.lnrates',
-    'shop.apps.ShopConfig'
+    'shop.apps.ShopConfig',
+    'dbbackup',  # django-dbbackup
 ]
 
 MIDDLEWARE = [
@@ -239,6 +246,9 @@ DEFAULT_FROM_EMAIL = email.get('DEFAULT_FROM_EMAIL', 'webmaster@localhost')
 ADMINS = [(env.str("DJANGO_SUPERUSER_NAME", "admin"), env.str("DJANGO_SUPERUSER_EMAIL", "root@localhost"))]
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
+
+DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
+DBBACKUP_STORAGE_OPTIONS = {'location': '/home/ip2tor/backups/'}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators

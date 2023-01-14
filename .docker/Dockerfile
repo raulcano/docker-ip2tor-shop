@@ -11,6 +11,7 @@ RUN apt-get install -y procps
 RUN apt-get install -y iputils-ping
 RUN apt-get install -y nano
 RUN apt-get install -y tor
+RUN apt-get update -y && apt-get install -y postgresql-client
 
 RUN useradd ip2tor --comment "IP2Tor Service Account" --create-home --home /home/ip2tor --shell /bin/bash
 RUN chmod 750 /home/ip2tor
@@ -24,6 +25,7 @@ RUN python3 -m pip install --upgrade -r /usr/share/requirements.txt
 RUN python3 -m pip install --upgrade psycopg2-binary
 RUN python3 -m pip install gunicorn
 RUN python3 -m pip install flower
+RUN python3 -m pip install django-dbbackup
 
 # These are for testing
 RUN python3 -m pip install pytest
