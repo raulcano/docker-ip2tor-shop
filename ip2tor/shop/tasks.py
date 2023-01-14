@@ -1,3 +1,4 @@
+import subprocess
 from datetime import timedelta
 
 from celery import shared_task
@@ -115,3 +116,12 @@ def set_needs_suspend_on_expired_tor_bridges():
                 counter += 1
 
     return f'Set NEEDS_SUSPEND on {counter}/{len(actives)} Tor Bridge(s) (previous state: ACTIVE).'
+
+
+@shared_task()
+def backup_files():
+    subprocess.call(['sh',  settings.BASE_DIR + '/../scripts/backup-files.sh'])
+    
+@shared_task()
+def delete_old_backups():
+    subprocess.call(['bash',  settings.BASE_DIR + '/../scripts/delete-old-backups.sh'])

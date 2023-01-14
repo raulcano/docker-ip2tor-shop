@@ -1,0 +1,3 @@
+/home/ip2tor/_gsdata_
+/home/ip2tor/.vscode
+/home/ip2tor/backups

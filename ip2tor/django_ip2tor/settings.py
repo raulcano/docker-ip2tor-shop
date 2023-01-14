@@ -40,6 +40,9 @@ s_needs_delete_on_suspended = env.str("SCHEDULE_SET_NEEDS_DELETE_ON_SUSPENDED_TO
 s_needs_delete_on_initial = env.str("SCHEDULE_SET_NEEDS_DELETE_ON_INITIAL_TOR_BRIDGES").split()
 s_needs_suspend_on_expired = env.str("SCHEDULE_SET_NEEDS_SUSPEND_ON_EXPIRED_TOR_BRIDGES").split()
 s_delete_due = env.str("SCHEDULE_DELETE_DUE_TOR_BRIDGES").split()
+s_backup_files = env.str("SCHEDULE_BACKUP_FILES").split()
+s_delete_old_backups = env.str("SCHEDULE_DELETE_OLD_BACKUPS").split()
+
 
 CELERY_BEAT_SCHEDULE = {
     'node_alive_check': {
@@ -65,6 +68,14 @@ CELERY_BEAT_SCHEDULE = {
     'delete_due_tor_bridges': {
         'task': 'shop.tasks.delete_due_tor_bridges',
         'schedule': crontab(minute=s_delete_due[0], hour=s_delete_due[1], day_of_week=s_delete_due[2], day_of_month=s_delete_due[3], month_of_year=s_delete_due[4]),
+    },
+    'backup_files': {
+        'task': 'shop.tasks.backup_files',
+        'schedule': crontab(minute=s_backup_files[0], hour=s_backup_files[1], day_of_week=s_backup_files[2], day_of_month=s_backup_files[3], month_of_year=s_backup_files[4]),
+    },
+    'delete_old_backups': {
+        'task': 'shop.tasks.delete_old_backups',
+        'schedule': crontab(minute=s_delete_old_backups[0], hour=s_delete_old_backups[1], day_of_week=s_delete_old_backups[2], day_of_month=s_delete_old_backups[3], month_of_year=s_delete_old_backups[4]),
     },
 }
 
