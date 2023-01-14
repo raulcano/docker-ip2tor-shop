@@ -483,6 +483,14 @@ do
 done
 ```
 
+## Backups
+The file ```shop/tasks.py``` includes two tasks to backup the files and to delete old backups. The ```.env``` variable ```DELETE_OLD_BACKUPS_AFTER_DAYS``` can be set to how many days to keep backup files.
+Also, these variables include a cron schedule for when to run each of those tasks:
+```
+SCHEDULE_BACKUP_FILES="0 12 * * *"
+SCHEDULE_DELETE_OLD_BACKUPS="30 12 * * *"
+```
+
 ## Updating settings without having to modify the repo (DEPRECATED)
 At the moment, just go to the ip2tor/django_ip2tor/settings.py file and update as necessary.
 
