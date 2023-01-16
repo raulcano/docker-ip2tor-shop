@@ -14,7 +14,13 @@ git clone https://github.com/raulcano/docker-ip2tor-shop.git
 cd docker-ip2tor-shop
 ```
 - _Adjust the environment variables in .env (see below)_  
-- _Adjust the CSRF_TRUSTED_ORIGINS variable in ip2tor/django_ip2tor/settings.py (see below)_
+
+Create a link of the .env file
+```
+ln /home/ip2tor/docker-ip2tor-shop/.env /home/ip2tor/docker-ip2tor-shop/ip2tor/.env
+```
+
+Run docker
 
 ```
 docker compose build
@@ -53,7 +59,16 @@ Ensure no other app is using that one.
 E.g.:  
 ```sudo service apache2 stop```
 
-Open the .env file in the ip2tor folder and ensure you introduced the correct values for the database
+Open the .env file in the ip2tor folder and ensure you introduced the correct values for the database and the many other variables that are in the file.
+
+One thing not to forget is this variable, which needs to be updated accordingly. E.g.:  
+```CSRF_TRUSTED_ORIGINS=['http://localhost:8000']```
+
+For development, you don't need to do anything if you log into your Django admin pages from ```localhost:8000```, but once you deploy to production or use a different port, then you'll have to add the proper values.
+
+I haven't tested it yet, but I suppose you need to add there also the ONION address if you are using one for your shop.
+
+The ```.env``` contains quite a lot of options of configuration, so things are kept in one place as far as possible. Pay attention to the variables and take your time understanding what you are doing.
 
 
 ```
@@ -116,15 +131,6 @@ After all the preparation instructions are run, the script executes the service 
 This script ensures two things in order to correctly run ```tor```.
 - That the ```tor``` service is run with the correct user.
 - That the mounted directory has the correct permissions (i.e. 750). If left with the default permissions, tor would complain that the folder is "too permissive".
-
-# ip2tor/django_ip2tor/settings.py
-
-This variable needs to be updated accordingly. E.g.:  
-```CSRF_TRUSTED_ORIGINS=['http://localhost:8000']```
-
-For development, you don't need to do anything if you log into your Django admin pages from ```localhost:8000```, but once you deploy to production or use a different port, then you'll have to add the proper values.
-
-I haven't tested it yet, but I suppose you need to add there also the ONION address if you are using one for your shop.
 
 # Shop - admin pages
 Once the containers are up, visit your site admin pages. E.g.:  
