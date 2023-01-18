@@ -165,7 +165,7 @@ services:
     ports:
       - 6379:6379
     volumes:
-      - redis:/data
+      - ./redis-data/:/data
     networks:
       - shopnet
   
@@ -250,6 +250,6 @@ networks:
     shopnet:
         driver: bridge
 
-volumes:
-  redis:
-    driver: "local"
+# volumes:
+#   redis:
+#     driver: "local"
