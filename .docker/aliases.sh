@@ -44,3 +44,4 @@ alias dlogs='sudo docker-compose logs -f --tail="20"'
 alias hostids='sudo docker exec -it ip2tor-shop-django-http python3 /home/ip2tor/ip2tor/manage.py get_host_ids_and_tokens'
 
 alias fstatus='sudo ufw status'
+alias psql='sudo docker exec -it ip2tor-shop-postgres psql --username=shopolite --dbname=ip2tor_shop'
