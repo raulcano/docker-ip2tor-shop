@@ -95,10 +95,6 @@ docker compose build
 docker compose up
 ```
 
-The first time composer runs, it will download from Git the ip2tor app and put it in the root directory. After that, it won’t download again the repo.
-
-If you want to start fresh, delete that directory, next time we run “docker compose up”, it will be downloaded.
-
 # Shop class diagram
 This is a complex system that has plenty of classes and elements carefully working together. In order to help me understand the role and relationships of all moving parts, I created the following class diagram. It is not exact or perfectly complete, as I have reverse engineered it as needed, but it has the most relevant aspects.
 
@@ -122,10 +118,11 @@ This script is used to automatize all tasks concerning the startup of these cont
 - django-daphne
 - celery-beat
 - celery-worker
+- celery-flower
 
 Among other things, this script sets up the Python environment, run migrations for the database and collects the static data from django.
 
-After all the preparation instructions are run, the script executes the service depending on which container called it (django-http, django-daphne, celery-beat or celery-worker).
+After all the preparation instructions are run, the script executes the service depending on which container called it.
 
 # .docker/start-tor.sh
 This script ensures two things in order to correctly run ```tor```.
@@ -139,9 +136,11 @@ Once the containers are up, visit your site admin pages. E.g.:
 There, you log in with the ```DJANGO_SUPERUSER_NAME``` and ```DJANGO_SUPERUSER_PASSWORD``` you configured in the ```.env``` file.  
 
 Once in:
-- go to Sites, change the initial domain name and display name
-- go to User, create a user with the name 'operator' and add it to "operators" group
-- go to Hosts and create your first host
+- go to Sites, check and, if needed, change the initial domain name and display name
+- go to User, check and, if needed, create a user with the name 'operator' and add it to "operators" group
+- go to Hosts check and, if needed, and create new hosts
+
+The initial creation of Site(s), User(s) and Host(s) is automatized on the first run of the docker container, based on the values of the ```.env``` variable.
 
 ## Host ID (IP2TOR_HOST_ID)
 
