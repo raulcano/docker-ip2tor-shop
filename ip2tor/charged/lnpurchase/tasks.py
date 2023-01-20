@@ -86,7 +86,11 @@ def process_initial_purchase_order(obj_id):
 
     else:
         url = f'https://{target}:{target_port}/'
-        result = ensure_https(url)
+        
+        # Won't block the purchase if it's not HTTPS.
+        # Alternativeley, I will add a disclaimer in the ToS for the users to know what they are doing if they don't use HTTPS
+        # result = ensure_https(url)
+        result = True 
         if not result:
             logger.info('REMOTE CHECKS: Target is not HTTPS')
             obj.status = PurchaseOrder.REJECTED
