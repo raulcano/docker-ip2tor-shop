@@ -1,7 +1,7 @@
 _gsdata_
 db-data
 redis-data
-media
+# media
 # static
 venv
 .env
