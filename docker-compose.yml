@@ -56,9 +56,7 @@ services:
   #   networks:
   #     - shopnet
   nginx:
-    build:
-      context: .
-      dockerfile: .docker/nginx.Dockerfile
+    image: nginx
     container_name: ip2tor-shop-nginx
     hostname: nginx
     deploy:
@@ -75,12 +73,17 @@ services:
         # condition: service_completed_successfully
         # condition: service_started
     ports:
-      - 8000:88
+      - ${SHOP_CLEARNET_HTTP_PORT}:${NGINX_LISTEN_HTTP_PORT}
     volumes:
       - ./static:/usr/share/nginx/static
       - ./media:/usr/share/nginx/media
+      - .docker/nginx:/etc/nginx/templates
     environment:
-      CONTAINER_ROLE: "nginx"
+      - SHOP_SITE_DOMAIN=${SHOP_SITE_DOMAIN}
+      - DJANGO_HTTP_PORT=${DJANGO_HTTP_PORT}
+      - DJANGO_DAPHNE_PORT=${DJANGO_DAPHNE_PORT}
+      - NGINX_LISTEN_HTTP_PORT=${NGINX_LISTEN_HTTP_PORT}
+      - NGINX_LISTEN_HTTPS_PORT=${NGINX_LISTEN_HTTPS_PORT}
     networks:
       - shopnet
 
@@ -186,6 +189,9 @@ services:
     build:
       context: .
       dockerfile: .docker/tor.Dockerfile
+      args:
+        NGINX_LISTEN_HTTP_PORT: ${NGINX_LISTEN_HTTP_PORT}
+        SHOP_TOR_HTTP_PORT: ${SHOP_TOR_HTTP_PORT}
     container_name: ip2tor-shop-tor
     depends_on:
       - nginx
@@ -198,7 +204,7 @@ services:
     volumes:
           - .tor/ip2tor-shop_hidden_service:/var/lib/tor/ip2tor-shop_hidden_service/
     ports:
-      - 80:80
+      - ${SHOP_TOR_HTTP_PORT}:${SHOP_TOR_HTTP_PORT}
     networks:
       - shopnet  
       

@@ -1,8 +1,6 @@
 _gsdata_
 db-data
 redis-data
-media
-# static
 venv
 .env
 .tor
