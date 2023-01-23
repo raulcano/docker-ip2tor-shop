@@ -46,8 +46,10 @@ server {
 
     add_header Strict-Transport-Security "max-age=31536000";
 
-    ssl_certificate /etc/nginx/ssl/${SHOP_SITE_DOMAIN}/fullchain.pem;
-    ssl_certificate_key /etc/nginx/ssl/${SHOP_SITE_DOMAIN}/privkey.pem;
+    ssl_certificate /etc/nginx/fullchain.pem;
+    ssl_certificate_key /etc/nginx/privkey.pem;
+    # ssl_certificate /etc/nginx/ssl/${SHOP_SITE_DOMAIN}/fullchain.pem;
+    # ssl_certificate_key /etc/nginx/ssl/${SHOP_SITE_DOMAIN}/privkey.pem;
 
 
     ##
