@@ -1,15 +1,15 @@
 # upstream channels-backend {
-#     server django-daphne:8001;
+#     server django-daphne:${DJANGO_DAPHNE_PORT};
 # }
 
 upstream http-backend {
-    server django-http:8002;
+    server django-http:${DJANGO_HTTP_PORT};
 }
 
 server {
     # Listen on port for incoming requests.
-    listen 88;
-    server_name  localhost;
+    listen ${NGINX_LISTEN_HTTP_PORT};
+    server_name ${SHOP_SITE_DOMAIN} www.${SHOP_SITE_DOMAIN};
 
     # Django media
     location /media/  {
@@ -73,7 +73,7 @@ server {
 }
 
 # server {
-#     listen 80;
+#     listen ${NGINX_LISTEN_HTTP_PORT};
 
 #     # Django media
 #     location /media/  {
@@ -87,7 +87,7 @@ server {
 #     }
 
 #     location / {
-#         proxy_pass django-daphne:8001;
+#         proxy_pass django-daphne:${DJANGO_DAPHNE_PORT};
 
 #         proxy_http_version 1.1;
 #         proxy_set_header Upgrade $http_upgrade;
@@ -105,8 +105,8 @@ server {
 # }
 
 # # server {
-# #     listen 443 ssl;
-# #     # server_name ip2t.org www.ip2t.org shop.ip2t.org;
+# #     listen ${NGINX_LISTEN_HTTPS_PORT} ssl;
+# #     # server_name ${SHOP_SITE_DOMAIN} www.${SHOP_SITE_DOMAIN};
 # #     server_name localhost;
 
 # #     ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
@@ -115,16 +115,16 @@ server {
 
 # #     add_header Strict-Transport-Security "max-age=31536000";
 
-# #     ssl_certificate /etc/letsencrypt/live/ip2t.org/fullchain.pem;
-# #     ssl_certificate_key /etc/letsencrypt/live/ip2t.org/privkey.pem;
+# #     ssl_certificate /etc/letsencrypt/live/${SHOP_SITE_DOMAIN}/fullchain.pem;
+# #     ssl_certificate_key /etc/letsencrypt/live/${SHOP_SITE_DOMAIN}/privkey.pem;
 
 
 # #     ##
 # #     # Logging Settings
 # #     ##
 
-# #     access_log /var/log/nginx/access_shop.ip2t.org.log;
-# #     error_log /var/log/nginx/error_shop.ip2t.org.log;
+# #     access_log /var/log/nginx/access_shop.${SHOP_SITE_DOMAIN}.log;
+# #     error_log /var/log/nginx/error_shop.${SHOP_SITE_DOMAIN}.log;
 
 
 # #     location / {

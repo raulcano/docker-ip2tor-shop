@@ -275,10 +275,12 @@ To extend an existing subscription:
 
 ## Update nginx configuration and restart nginx container
 
+Note: find more info in this link about the nginx container and how we are using our configuration in the docker-compose file: https://github.com/docker-library/docs/tree/master/nginx#using-environment-variables-in-nginx-configuration
+
 This may come in handy while developing and trying different nginx configurations. 
 
 Assuming the nginx container is running with a particular configuration, we can:
-- Modify the file ```shop.localhost.conf``` in the ```.docker``` folder with a new configuration to test.
+- Modify the file ```default.conf.template``` in the ```.docker/nginx``` folder with a new configuration to test.
 - Rebuild the container
 - Restart the container
 
