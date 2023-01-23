@@ -78,7 +78,7 @@ services:
       - ./static:/usr/share/nginx/static
       - ./media:/usr/share/nginx/media
       - .docker/nginx:/etc/nginx/templates
-      - /etc/letsencrypt/live:/etc/nginx/ssl
+      - /etc/letsencrypt/live/${SHOP_SITE_DOMAIN}:/etc/nginx/ssl/${SHOP_SITE_DOMAIN}
       - ./logs/nginx:/var/log/nginx
     environment:
       - SHOP_SITE_DOMAIN=${SHOP_SITE_DOMAIN}
