@@ -78,6 +78,7 @@ services:
       - ./static:/usr/share/nginx/static
       - ./media:/usr/share/nginx/media
       - .docker/nginx:/etc/nginx/templates
+      - ./ssl:/etc/nginx/ssl
     environment:
       - SHOP_SITE_DOMAIN=${SHOP_SITE_DOMAIN}
       - DJANGO_HTTP_PORT=${DJANGO_HTTP_PORT}
