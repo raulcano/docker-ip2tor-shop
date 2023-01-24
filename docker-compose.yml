@@ -194,7 +194,9 @@ services:
       dockerfile: .docker/tor.Dockerfile
       args:
         NGINX_LISTEN_HTTP_PORT: ${NGINX_LISTEN_HTTP_PORT}
+        NGINX_LISTEN_HTTPS_PORT: ${NGINX_LISTEN_HTTPS_PORT}
         SHOP_TOR_HTTP_PORT: ${SHOP_TOR_HTTP_PORT}
+        SHOP_TOR_HTTPS_PORT: ${SHOP_TOR_HTTPS_PORT}
     container_name: ip2tor-shop-tor
     depends_on:
       - nginx
