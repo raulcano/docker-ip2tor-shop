@@ -4,7 +4,7 @@ upstream http-backend {
 
 server {
     # Listen on port for incoming requests.
-    listen ${NGINX_LISTEN_HTTP_PORT};
+    listen ${SHOP_CLEARNET_HTTP_PORT};
     server_name ${SHOP_SITE_DOMAIN} www.${SHOP_SITE_DOMAIN};
 
     location /.well-known/acme-challenge/ {
@@ -24,7 +24,7 @@ server {
 
 
 server {
-    listen ${NGINX_LISTEN_HTTPS_PORT} ssl;
+    listen ${SHOP_CLEARNET_HTTPS_PORT} ssl;
     server_name ${SHOP_SITE_DOMAIN} www.${SHOP_SITE_DOMAIN};
 
     ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
