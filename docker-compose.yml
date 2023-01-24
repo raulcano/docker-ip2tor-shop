@@ -74,6 +74,7 @@ services:
         # condition: service_started
     ports:
       - ${SHOP_CLEARNET_HTTP_PORT}:${NGINX_LISTEN_HTTP_PORT}
+      - ${SHOP_CLEARNET_HTTPS_PORT}:${NGINX_LISTEN_HTTPS_PORT}
     volumes:
       - ./static:/usr/share/nginx/static
       - ./media:/usr/share/nginx/media
