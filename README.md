@@ -498,9 +498,13 @@ In any case, if you run this command, it will tell you exactly what to do.
 sudo certbot certonly --manual --email <your@email.com> --agree-tos --manual-public-ip-logging-ok --preferred-challenges=dns -d *.<yourdomain> -d <yourdomain>
 ```
 
-Once the certificates have been generated, go to their location (usually ```/etc/letsencrypt/live```) and copy them to the folder in the Shop project ```/ssl/<yourdomain>```
+Once the certificates have been generated, go to their location (usually ```/etc/letsencrypt/live/<yourdomain>```) and copy them to the folder in the Shop project ```/ssl/<yourdomain>```
 
 ### Renewing SSL certificates
+The following command is the one to renew the certificates we generated in the Shop machine. Usually the renewal is performed (and allowed by ```certbot```) when the cert is close to its expiry date.
+```
+sudo certbot renew
+```
 
 ## Backups
 The file ```shop/tasks.py``` includes tasks to backup files and database and to delete old backups. The ```.env``` variable ```DELETE_OLD_BACKUPS_AFTER_DAYS``` can be set to how many days to keep backup files.
