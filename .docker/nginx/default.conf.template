@@ -41,8 +41,10 @@ server {
     # Logging Settings
     ##
 
-    access_log /var/log/nginx/access_shop.${SHOP_SITE_DOMAIN}.log;
-    error_log /var/log/nginx/error_shop.${SHOP_SITE_DOMAIN}.log;
+    # access_log /var/log/nginx/access_shop.${SHOP_SITE_DOMAIN}.log;
+    # error_log /var/log/nginx/error_shop.${SHOP_SITE_DOMAIN}.log;
+    error_log  stderr warn;
+    access_log  /dev/stdout main;
 
 
     location / {
