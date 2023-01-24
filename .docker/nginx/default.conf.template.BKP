@@ -2,26 +2,39 @@ upstream http-backend {
     server django-http:${DJANGO_HTTP_PORT};
 }
 
-
 server {
+    # Listen on port for incoming requests.
     listen ${NGINX_LISTEN_HTTP_PORT};
     server_name ${SHOP_SITE_DOMAIN} www.${SHOP_SITE_DOMAIN};
 
-    location /.well-known/acme-challenge/ {
-        # Set correct content type. According to this:
-        # https://community.letsencrypt.org/t/using-the-webroot-domain-verification-method/1445/29
-        # Current specification requires "text/plain" or no content header at all.
-        # It seems that "text/plain" is a safe option.
-        default_type "text/plain";
+    # Django media
+    location /media/  {
+      root /usr/share/nginx;
 
-        alias /var/www/le_root/.well-known/acme-challenge/;
+    }
+    # Django static
+    location /static/ {
+      root /usr/share/nginx;
     }
 
     location / {
-        return 301 https://$host$request_uri;
+        try_files $uri @proxy_to_app;
     }
-        
+    
+    location @proxy_to_app {
+      proxy_pass http://http-backend;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+
+      proxy_redirect off;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Host $server_name;
+    }
 }
+
 
 server {
     listen ${NGINX_LISTEN_HTTPS_PORT} ssl;
@@ -33,9 +46,10 @@ server {
 
     add_header Strict-Transport-Security "max-age=31536000";
 
-    
     ssl_certificate /etc/nginx/ssl/fullchain.pem;
     ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+    # ssl_certificate /etc/nginx/ssl/${SHOP_SITE_DOMAIN}/fullchain.pem;
+    # ssl_certificate_key /etc/nginx/ssl/${SHOP_SITE_DOMAIN}/privkey.pem;
 
 
     ##
@@ -52,16 +66,18 @@ server {
 
     # Django media
     location /media/  {
-      root /home/ip2tor;
+      # root /home/ip2tor;
+      root /usr/share/nginx;
     }
 
     # Django static
     location /static/ {
-      root /home/ip2tor;
+      # root /home/ip2tor;
+      root /usr/share/nginx;
     }
 
     location @proxy_to_app {
-        proxy_pass http://http-backend;
+          proxy_pass http://http-backend;
 
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
