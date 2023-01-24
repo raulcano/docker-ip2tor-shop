@@ -492,19 +492,44 @@ done
 ## SSL certificates for the Shop
 ### Generating SSL certificates for the first time
 From the machine running the Shop, we can get the SSL certificates running the ```certbot``` with this command, and following the steps.
-This will require that you have access to the domain ```<yourdomain>```, and that you add some dns entries in your domain management account.
+This will require that you have access to the domain stored in the env variable ```SHOP_SITE_DOMAIN```, and that you add some dns entries in your domain management account.
 In any case, if you run this command, it will tell you exactly what to do.
 ```
-sudo certbot certonly --manual --email <your@email.com> --agree-tos --manual-public-ip-logging-ok --preferred-challenges=dns -d *.<yourdomain> -d <yourdomain>
+sudo certbot certonly --manual --email <your@email.com> --agree-tos --manual-public-ip-logging-ok --preferred-challenges=dns -d *.${SHOP_SITE_DOMAIN} -d ${SHOP_SITE_DOMAIN}
 ```
 
-Once the certificates have been generated, go to their location (usually ```/etc/letsencrypt/live/<yourdomain>```) and copy them to the folder in the Shop project ```/ssl/<yourdomain>```
+Once the certificates have been generated, go to their location (usually ```/etc/letsencrypt/live/${SHOP_SITE_DOMAIN}```) and copy them to the folder in the Shop project ```/ssl/${SHOP_SITE_DOMAIN}```
 
 ### Renewing SSL certificates
 The following command is the one to renew the certificates we generated in the Shop machine. Usually the renewal is performed (and allowed by ```certbot```) when the cert is close to its expiry date.
 ```
 sudo certbot renew
 ```
+If successful, we just need to copy the new cert files into the right folder and restart the nginx container.
+
+```
+cp /etc/letsencrypt/live/${SHOP_SITE_DOMAIN}/privkey.pem / ~/docker-ip2tor-shop/ssl/${SHOP_SITE_DOMAIN}/privkey.pem
+cp /etc/letsencrypt/live/${SHOP_SITE_DOMAIN}/fullchain.pem / ~/docker-ip2tor-shop/ssl/${SHOP_SITE_DOMAIN}/fullchain.pem
+``` 
+
+There is a script ```renew-cert.sh``` in the scripts folder that you can use to automatize this task.
+
+You can create a cronjob calling this script from the machine in which the shop is hosted. For this, you need to:
+
+Make the script executable
+```
+chmod +x ~/docker-ip2tor-shop/scripts/renew-cert.sh
+```
+
+Edit the crontab:
+```
+crontab -e
+``` 
+And add this line (e.g. this would run the script every monday at 3am)
+```
+0 3 * * mon ~/docker-ip2tor-shop/scripts/renew-cert.sh
+```
+
 
 ## Backups
 The file ```shop/tasks.py``` includes tasks to backup files and database and to delete old backups. The ```.env``` variable ```DELETE_OLD_BACKUPS_AFTER_DAYS``` can be set to how many days to keep backup files.
