@@ -208,8 +208,6 @@ services:
         window: 120s
     volumes:
           - .tor/ip2tor-shop_hidden_service:/var/lib/tor/ip2tor-shop_hidden_service/
-    ports:
-      - ${SHOP_TOR_HTTP_PORT}:${SHOP_TOR_HTTP_PORT}
     networks:
       - shopnet  
       
