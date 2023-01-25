@@ -432,7 +432,55 @@ For more info, see the task ```host_alive_check``` and the Host method ```check_
 In short, for the host to be considered alive, the check-in message in the Host instance must be HELLO and the time must not be more than 5 minutes ago from the current time.
 It is important to notice that the alive check on hosts looks in the local database when was the last time they did a checkin: if it was more than 5 minutes ago, the host is considered NOT ALIVE.
 
+## Creating 'test hosts'
 
+You are allowed to create one or multiple hosts for testing purposes, which usually you set at a very low price, so you can test in mainnet without spending lots of sats. 
+The particular characteristic of a test host is that it is not possible to extend it in time. Therefore, if a user would like to abuse the low price, they would need to change the port every time the duration expires.
+In the ```.env``` file, you can set the variable ```SHOP_HOSTX_IS_TESTHOST=True``` if you want to make the host X (where X ranges from 1 to 6) a test one.
+Alternatively, you can go to the admin pages and enable the corresponding property to change any host to this mode.
+
+__WARNING!__ If you change to test host an existing host which has active bridges within it already, those bridges won't be renewed when they are due and the user will lose them. It is advisable to warn the users somehow or just to avoid this situation altogether.
+
+## SSL certificates for the Shop
+### Generating SSL certificates for the first time
+From the machine running the Shop, we can get the SSL certificates running the ```certbot``` with this command, and following the steps.
+This will require that you have access to the domain stored in the env variable ```SHOP_SITE_DOMAIN```, and that you add some dns entries in your domain management account.
+In any case, if you run this command, it will tell you exactly what to do.
+```
+sudo certbot certonly --manual --email <your@email.com> --agree-tos --manual-public-ip-logging-ok --preferred-challenges=dns -d *.${SHOP_SITE_DOMAIN} -d ${SHOP_SITE_DOMAIN}
+```
+
+Once the certificates have been generated, go to their location (usually ```/etc/letsencrypt/live/${SHOP_SITE_DOMAIN}```) and copy them to the folder in the Shop project ```/ssl/${SHOP_SITE_DOMAIN}```
+
+### Renewing SSL certificates
+The following command is the one to renew the certificates we generated in the Shop machine. Usually the renewal is performed (and allowed by ```certbot```) when the cert is close to its expiry date.
+```
+sudo certbot renew
+```
+If successful, we just need to copy the new cert files into the right folder and restart the nginx container.
+
+```
+cp /etc/letsencrypt/live/${SHOP_SITE_DOMAIN}/privkey.pem / ~/docker-ip2tor-shop/ssl/${SHOP_SITE_DOMAIN}/privkey.pem
+cp /etc/letsencrypt/live/${SHOP_SITE_DOMAIN}/fullchain.pem / ~/docker-ip2tor-shop/ssl/${SHOP_SITE_DOMAIN}/fullchain.pem
+``` 
+
+There is a script ```renew-cert.sh``` in the scripts folder that you can use to automatize this task.
+
+You can create a cronjob calling this script from the machine in which the shop is hosted. For this, you need to:
+
+Make the script executable
+```
+chmod +x ~/docker-ip2tor-shop/scripts/renew-cert.sh
+```
+
+Edit the crontab:
+```
+crontab -e
+``` 
+And add this line (e.g. this would run the script every monday at 3am)
+```
+0 3 * * mon ~/docker-ip2tor-shop/scripts/renew-cert.sh
+```
 
 
 ## Get Telegraf config
@@ -488,46 +536,6 @@ do
   ./tor2ipc.sh list
   sleep 10
 done
-```
-## SSL certificates for the Shop
-### Generating SSL certificates for the first time
-From the machine running the Shop, we can get the SSL certificates running the ```certbot``` with this command, and following the steps.
-This will require that you have access to the domain stored in the env variable ```SHOP_SITE_DOMAIN```, and that you add some dns entries in your domain management account.
-In any case, if you run this command, it will tell you exactly what to do.
-```
-sudo certbot certonly --manual --email <your@email.com> --agree-tos --manual-public-ip-logging-ok --preferred-challenges=dns -d *.${SHOP_SITE_DOMAIN} -d ${SHOP_SITE_DOMAIN}
-```
-
-Once the certificates have been generated, go to their location (usually ```/etc/letsencrypt/live/${SHOP_SITE_DOMAIN}```) and copy them to the folder in the Shop project ```/ssl/${SHOP_SITE_DOMAIN}```
-
-### Renewing SSL certificates
-The following command is the one to renew the certificates we generated in the Shop machine. Usually the renewal is performed (and allowed by ```certbot```) when the cert is close to its expiry date.
-```
-sudo certbot renew
-```
-If successful, we just need to copy the new cert files into the right folder and restart the nginx container.
-
-```
-cp /etc/letsencrypt/live/${SHOP_SITE_DOMAIN}/privkey.pem / ~/docker-ip2tor-shop/ssl/${SHOP_SITE_DOMAIN}/privkey.pem
-cp /etc/letsencrypt/live/${SHOP_SITE_DOMAIN}/fullchain.pem / ~/docker-ip2tor-shop/ssl/${SHOP_SITE_DOMAIN}/fullchain.pem
-``` 
-
-There is a script ```renew-cert.sh``` in the scripts folder that you can use to automatize this task.
-
-You can create a cronjob calling this script from the machine in which the shop is hosted. For this, you need to:
-
-Make the script executable
-```
-chmod +x ~/docker-ip2tor-shop/scripts/renew-cert.sh
-```
-
-Edit the crontab:
-```
-crontab -e
-``` 
-And add this line (e.g. this would run the script every monday at 3am)
-```
-0 3 * * mon ~/docker-ip2tor-shop/scripts/renew-cert.sh
 ```
 
 
