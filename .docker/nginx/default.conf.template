@@ -1,10 +1,11 @@
+server_names_hash_bucket_size  128;
+
 upstream http-backend {
     server django-http:${DJANGO_HTTP_PORT};
 }
 
 # Tor incoming
 server {
-    server_names_hash_bucket_size  128;
     # Listen on port for incoming requests.
     listen ${SHOP_CLEARNET_HTTP_PORT};
     server_name ${SHOP_ONION_ADDRESS};
