@@ -4,10 +4,10 @@ upstream http-backend {
 
 # Tor incoming
 server {
+    server_names_hash_bucket_size  128;
     # Listen on port for incoming requests.
     listen ${SHOP_CLEARNET_HTTP_PORT};
     server_name ${SHOP_ONION_ADDRESS};
-    
     ##
     # Logging Settings
     ##
