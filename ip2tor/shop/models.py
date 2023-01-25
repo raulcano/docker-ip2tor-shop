@@ -133,6 +133,12 @@ class Host(models.Model):
         help_text=_('Is alive?')
     )
 
+    is_test_host = models.BooleanField(
+        default=False,
+        verbose_name=_('Is it a host for tests?'),
+        help_text=_('Test hosts cannot be extended indefinitely. The work during the first duration periods and then they die.')
+    )
+
     owner = models.ForeignKey(get_user_model(),
                               editable=True,
                               on_delete=models.CASCADE,
