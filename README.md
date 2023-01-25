@@ -436,7 +436,7 @@ It is important to notice that the alive check on hosts looks in the local datab
 
 You are allowed to create one or multiple hosts for testing purposes, which usually you set at a very low price, so you can test in mainnet without spending lots of sats. 
 The particular characteristic of a test host is that it is not possible to extend it in time. Therefore, if a user would like to abuse the low price, they would need to change the port every time the duration expires.
-In the ```.env``` file, you can set the variable ```SHOP_HOSTX_IS_TESTHOST=True``` if you one to make the host X (where X ranges from 1 to 6) a test one.
+In the ```.env``` file, you can set the variable ```SHOP_HOSTX_IS_TESTHOST=True``` if you want to make the host X (where X ranges from 1 to 6) a test one.
 Alternatively, you can go to the admin pages and enable the corresponding property to change any host to this mode.
 
 __WARNING!__ If you change to test host an existing host which has active bridges within it already, those bridges won't be renewed when they are due and the user will lose them. It is advisable to warn the users somehow or just to avoid this situation altogether.
