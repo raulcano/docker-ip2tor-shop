@@ -183,6 +183,17 @@ class TestTorBridges():
         assert response.status_code == status.HTTP_200_OK
         assert int(host.tor_bridge_price_extension) == int(po_ext.total_price_msat)
     
+    def test_extend_test_host_is_not_allowed(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client):
+        
+        _, host, owner = create_node_host_and_owner(is_test_host=True)
+        response = create_purchase_order_via_api(host=host, owner=owner, target=global_data['sample_onion_address'] + ':' + global_data['sample_onion_port'])
+        po = PurchaseOrder.objects.get(pk=response.data['id'])
+        bridge = po.item_details.first().product
+
+        response = api_client.post(f'/api/v1/public/tor_bridges/{str(bridge.id)}/extend/')
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['status'] == 'error'
+    
     @pytest.mark.parametrize('bridge_status', [TorBridge.ACTIVE, TorBridge.SUSPENDED, TorBridge.NEEDS_SUSPEND])
     def test_extend_not_expired_tor_bridge_after_successful_payment_extends_bridge_deadline(self, create_purchase_order_via_api, create_node_host_and_owner, global_data, api_client, bridge_status):
         

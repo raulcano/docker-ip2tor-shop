@@ -26,7 +26,7 @@ class PublicHostViewSet(mixins.RetrieveModelMixin,
     serializer_class = serializers.PublicHostSerializer
     permission_classes = [permissions.AllowAny]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['id', 'is_testnet', 'offers_tor_bridges', 'offers_rssh_tunnels']
+    filterset_fields = ['id', 'is_testnet', 'is_test_host', 'offers_tor_bridges', 'offers_rssh_tunnels']
 
 
 class PublicInvoiceViewSet(mixins.RetrieveModelMixin,
@@ -118,19 +118,27 @@ class PublicTorBridgeViewSet(mixins.RetrieveModelMixin,
     def extend(self, request, pk=None):
         tor_bridge = self.get_object()
 
-        # create a new PO
-        po = PurchaseOrder.objects.create()
-        po_item = PurchaseOrderItemDetail(price=tor_bridge.host.tor_bridge_price_extension,
-                                          product=tor_bridge,
-                                          quantity=1)
-        po.item_details.add(po_item, bulk=False)
-        po_item.save()
-        add_change_log_entry(po_item, "set created")
-        po.save()
-        add_change_log_entry(po, "added item_details")
+        if(tor_bridge.host.is_test_host):
+            res = {
+                'status': 'error',
+                'detail': 'This bridge is in a test host and therefore cannot be extended. Try creating a completely new one from scratch.'
+            }
+        else:
+            # create a new PO
+            po = PurchaseOrder.objects.create()
+            po_item = PurchaseOrderItemDetail(price=tor_bridge.host.tor_bridge_price_extension,
+                                            product=tor_bridge,
+                                            quantity=1)
+            po.item_details.add(po_item, bulk=False)
+            po_item.save()
+            add_change_log_entry(po_item, "set created")
+            po.save()
+            add_change_log_entry(po, "added item_details")
 
-        return Response({
-            'status': 'ok',
-            'po_id': po.id,
-            'po': reverse('v1:purchaseorder-detail', args=(po.id,), request=request)
-        })
+            res = {
+                'status': 'ok',
+                'po_id': po.id,
+                'po': reverse('v1:purchaseorder-detail', args=(po.id,), request=request)
+            }
+
+        return Response(res)

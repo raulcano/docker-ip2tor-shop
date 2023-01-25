@@ -141,7 +141,7 @@ class HostAdmin(admin.ModelAdmin):
 
     search_fields = ('id', 'name')
     list_display = ['id', 'is_enabled', 'is_alive', 'owner', 'ip', 'name', 'site', 'ci_date', 'created_at']
-    list_filter = ('is_enabled', 'is_alive', 'ci_status', 'ci_date', 'created_at', 'is_testnet',
+    list_filter = ('is_enabled', 'is_alive', 'is_test_host', 'ci_status', 'ci_date', 'created_at', 'is_testnet',
                    'owner', 'ip', 'offers_tor_bridges', 'offers_rssh_tunnels')
 
     readonly_fields = ('id', 'auth_token', 'is_alive', 'ci_status', 'ci_date', 'ci_message')

@@ -22,6 +22,7 @@ class Command(BaseCommand):
         parser.add_argument("--rangetype", required=False, default='I')
         parser.add_argument("--isenabled", required=False, default=True)
         parser.add_argument("--isalive", required=False, default=False)
+        parser.add_argument("--istesthost", required=False, default=False)
         parser.add_argument("--istestnet", required=False, default=False)
         parser.add_argument("--offerstorbridges", required=False, default=True)
         parser.add_argument("--torbridgeduration", required=False, default=86400)
@@ -45,6 +46,7 @@ class Command(BaseCommand):
         rangetype = options["rangetype"]
         isenabled = options["isenabled"]
         isalive = options["isalive"]
+        istesthost = options["istesthost"]
         istestnet = options["istestnet"]
         offerstorbridges = options["offerstorbridges"]
         torbridgeduration = options["torbridgeduration"]
@@ -86,7 +88,7 @@ class Command(BaseCommand):
         # Create host, and add it to user and site
         host = Host.objects.create(
             ip=ip, is_enabled=isenabled, is_alive=isalive, owner=owner_object, name=hostname, description=description,
-            site=site_object, is_testnet=istestnet, offers_tor_bridges=offerstorbridges, tor_bridge_duration=torbridgeduration,
+            site=site_object, is_test_host=istesthost, is_testnet=istestnet, offers_tor_bridges=offerstorbridges, tor_bridge_duration=torbridgeduration,
             tor_bridge_price_initial=torbridgepriceinitial, tor_bridge_price_extension=torbridgepriceextension,
             offers_rssh_tunnels=offersrsshtunnels, rssh_tunnel_price=rsshtunnelprice,terms_of_service=tos,
             terms_of_service_url=tosurl, ci_date=cidate, ci_message=cimessage, ci_status=cistatus
@@ -97,7 +99,7 @@ class Command(BaseCommand):
         # # Create host, and add it to user and site
         # host = Host.objects.create(
         #     ip=ip, is_enabled=isenabled, is_alive=isalive, owner=owner_object, token_user=token_user_object, name=hostname, 
-        #     site=site_object, is_testnet=istestnet, offers_tor_bridges=offerstorbridges, tor_bridge_duration=torbridgeduration,
+        #     site=site_object, is_test_host=istesthost, is_testnet=istestnet, offers_tor_bridges=offerstorbridges, tor_bridge_duration=torbridgeduration,
         #     tor_bridge_price_initial=torbridgepriceinitial, tor_bridge_price_extension=torbridgepriceextension,
         #     offers_rssh_tunnels=offersrsshtunnels, rssh_tunnel_price=rsshtunnelprice,terms_of_service=tos,
         #     terms_of_service_url=tosurl, ci_date=cidate, ci_message=cimessage, ci_status=cistatus

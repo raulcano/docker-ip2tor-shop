@@ -31,6 +31,7 @@ class PublicHostSerializer(serializers.ModelSerializer):
             'ip',
             'is_enabled',
             'is_alive',
+            'is_test_host',
             'name',
             'description',
             'is_testnet',
