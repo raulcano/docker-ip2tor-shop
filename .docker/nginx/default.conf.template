@@ -7,7 +7,7 @@ upstream http-backend {
 # Tor incoming
 server {
     # Listen on port for incoming requests.
-    listen ${SHOP_CLEARNET_HTTP_PORT};
+    listen ${SHOP_TOR_HTTP_PORT};
     server_name ${SHOP_ONION_ADDRESS};
     ##
     # Logging Settings
