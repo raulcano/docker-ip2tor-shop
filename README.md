@@ -439,6 +439,8 @@ The particular characteristic of a test host is that it is not possible to exten
 In the ```.env``` file, you can set the variable ```SHOP_HOSTX_IS_TESTHOST=True``` if you one to make the host X (where X ranges from 1 to 6) a test one.
 Alternatively, you can go to the admin pages and enable the corresponding property to change any host to this mode.
 
+__WARNING!__ If you change to test host an existing host which has active bridges within it already, those bridges won't be renewed when they are due and the user will lose them. It is advisable to warn the users somehow or just to avoid this situation altogether.
+
 ## SSL certificates for the Shop
 ### Generating SSL certificates for the first time
 From the machine running the Shop, we can get the SSL certificates running the ```certbot``` with this command, and following the steps.
