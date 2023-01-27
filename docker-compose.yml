@@ -75,6 +75,7 @@ services:
     ports:
       - ${SHOP_CLEARNET_HTTP_PORT}:${SHOP_CLEARNET_HTTP_PORT}
       - ${SHOP_CLEARNET_HTTPS_PORT}:${SHOP_CLEARNET_HTTPS_PORT}
+      - ${SHOP_LOCALHOST_PORT}:${SHOP_LOCALHOST_PORT}
     volumes:
       - ./static:/usr/share/nginx/static
       - ./media:/usr/share/nginx/media
