@@ -26,6 +26,7 @@ RUN python3 -m pip install --upgrade psycopg2-binary
 RUN python3 -m pip install gunicorn
 RUN python3 -m pip install flower
 RUN python3 -m pip install django-dbbackup
+RUN python3 -m pip install django-mathfilters
 
 # These are for testing
 RUN python3 -m pip install pytest

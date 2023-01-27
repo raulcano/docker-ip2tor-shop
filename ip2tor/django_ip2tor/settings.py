@@ -138,6 +138,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.humanize',
     'django.contrib.staticfiles',
+    'mathfilters',
     'rest_framework',
     'rest_framework.authtoken',
     'django_celery_beat',

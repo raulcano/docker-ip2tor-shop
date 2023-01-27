@@ -14,6 +14,9 @@
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. -->
 
+{% load mathfilters %}
+
+
 <!DOCTYPE html>
 
 <html lang="en">
@@ -42,7 +45,7 @@ The above copyright notice and this permission notice shall be included in all c
   <nav class="navbar navbar-expand-lg fixed-top navbar-transparent " color-on-scroll="300">
     <div class="container">
       <div class="navbar-translate">
-        <a class="navbar-brand" href="#" rel="tooltip" title="" data-placement="bottom" target="_blank">
+        <a class="navbar-brand" href="#" rel="tooltip" title="" data-placement="bottom">
           {{ SHOP_SITE_DOMAIN }}
         </a>
         <button class="navbar-toggler navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,12 +56,6 @@ The above copyright notice and this permission notice shall be included in all c
       </div>
       <div class="collapse navbar-collapse justify-content-end" id="navigation">
         <ul class="navbar-nav">
-          <li class="nav-item">
-            <a href="../index.html" class="nav-link"><i class="nc-icon nc-layout-11"></i> Components</a>
-          </li>
-          <li class="nav-item">
-            <a href="https://demos.creative-tim.com/paper-kit-2/docs/1.0/getting-started/introduction.html" target="_blank" class="nav-link"><i class="nc-icon nc-book-bookmark"></i> Documentation</a>
-          </li>
           
           {% if SOCIAL_TWITTER != "" %}
           <li class="nav-item">
@@ -117,8 +114,8 @@ The above copyright notice and this permission notice shall be included in all c
         <h1>{{ SHOP_SITE_NAME }}</h1>
         <h3>Connect your Tor services to the world via a Clearnet IP.</h3>
         <br />
-        <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" class="btn btn-outline-neutral btn-round"><i class="fa fa-play"></i>Watch video</a>
-        <button type="button" class="btn btn-outline-neutral btn-round">Download</button>
+        <a href="#" class="btn btn-outline-neutral btn-round"><i class="fa fa-play"></i>Watch video</a>
+        <a href="#tor_bridges" class="btn btn-outline-neutral btn-round">Products</a>
       </div>
     </div>
   </div>
@@ -130,9 +127,10 @@ The above copyright notice and this permission notice shall be included in all c
             <h2 class="title">What is this about?</h2>
             <h5 class="description">
               If you ended up in this page, you probably know what this service is about.<br/>
-              But for the curious minds out there, the service we offer is the ability to connect your Tor address with an IP and Port on our servers, so you and your customers can use this new URL to access to your Tor Hidden Services later on from any browser, without the hassle of having to install a Tor browser.</h5>
+              But for the curious minds out there: the service we offer is the ability to connect your Tor address with an IP and Port on our servers, so you and your customers can use this new URL to access to your Tor Hidden Services later on from any browser, without the hassle of having to install a Tor browser.</h5>
             <br>
-            <a href="#paper-kit" class="btn btn-danger btn-round">See Details</a>
+            <a href="#tor_bridges" class="btn btn-danger btn-round">Go to products</a>
+            <a href="#tor_bridges" class="btn btn-outline-danger btn-round"><i class="fa fa-play"></i>How-to guide</a>
           </div>
         </div>
         <br/>
@@ -141,36 +139,35 @@ The above copyright notice and this permission notice shall be included in all c
           <div class="col-md-3">
             <div class="info">
               <div class="icon icon-danger">
-                <i class="nc-icon nc-album-2"></i>
+                <i class="nc-icon nc-badge"></i>
               </div>
               <div class="description">
                 <h4 class="info-title">Domains</h4>
-                <p class="description">With the Clearnet IP we provide, you'll be able to buy and forward a domain to your Tor service. Amazing, right?.</p>
-                <a href="javascript:;" class="btn btn-link btn-danger">See more</a>
+                <p class="description">With the Clearnet IP we provide, you'll be able to buy and forward a domain to your Tor service. Amazing, right?</p>
+                <a href="https://namesilo.com" class="btn btn-link btn-danger" target="_blank">Buy domain</a>
               </div>
             </div>
           </div>
           <div class="col-md-3">
             <div class="info">
               <div class="icon icon-danger">
-                <i class="nc-icon nc-bulb-63"></i>
+                <i class="nc-icon nc-key-25"></i>
               </div>
               <div class="description">
                 <h4 class="info-title">SSL certificates</h4>
                 <p>Once you get a domain, you'll be able to get a SSL certificate, so you and your customers know this is a trusted connection.</p>
-                <a href="javascript:;" class="btn btn-link btn-danger">See more</a>
+                <a href="https://letsencrypt.org/" class="btn btn-link btn-danger" target="_blank">Get SSL certificate</a>
               </div>
             </div>
           </div>
           <div class="col-md-3">
             <div class="info">
               <div class="icon icon-danger">
-                <i class="nc-icon nc-chart-bar-32"></i>
+                <i class="nc-icon nc-globe"></i>
               </div>
               <div class="description">
                 <h4 class="info-title">Outreach</h4>
                 <p>By enabling access from a Clearnet IP and Domain, anyone with access to Internet will be able to reach your service.</p>
-                <a href="javascript:;" class="btn btn-link btn-danger">See more</a>
               </div>
             </div>
           </div>
@@ -182,128 +179,70 @@ The above copyright notice and this permission notice shall be included in all c
               <div class="description">
                 <h4 class="info-title">API to our service</h4>
                 <p>You can build your own custom code to renew the service automatically.</p>
-                <a href="javascript:;" class="btn btn-link btn-danger">See more</a>
+                <a href="{{ SOCIAL_GITHUB }}#what-is-the-workflow-to-create-a-raspiblitz-subscription-to-a-host-bridge" class="btn btn-link btn-danger" target="_blank">Learn more</a>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="section section-dark text-center">
-      <div class="container">
-        <h2 class="title">Let's talk about us</h2>
-        <div class="row">
-          <div class="col-md-4">
-            <div class="card card-profile card-plain">
-              <div class="card-avatar">
-                <a href="#avatar">
-                  <img src="{% static 'shop/landing/img/faces/clem-onojeghuo-3.jpg' %}" alt="...">
-                </a>
-              </div>
-              <div class="card-body">
-                <a href="#paper-kit">
-                  <div class="author">
-                    <h4 class="card-title">Henry Ford</h4>
-                    <h6 class="card-category">Product Manager</h6>
-                  </div>
-                </a>
-                <p class="card-description text-center">
-                  Teamwork is so important that it is virtually impossible for you to reach the heights of your capabilities or make the money that you want without becoming very good at it.
-                </p>
-              </div>
-              <div class="card-footer text-center">
-                <a href="#pablo" class="btn btn-link btn-just-icon btn-neutral"><i class="fa fa-twitter"></i></a>
-                <a href="#pablo" class="btn btn-link btn-just-icon btn-neutral"><i class="fa fa-google-plus"></i></a>
-                <a href="#pablo" class="btn btn-link btn-just-icon btn-neutral"><i class="fa fa-linkedin"></i></a>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card card-profile card-plain">
-              <div class="card-avatar">
-                <a href="#avatar">
-                  <img src="{% static 'shop/landing/img/faces/joe-gardner-2.jpg' %}" alt="...">
-                </a>
-              </div>
-              <div class="card-body">
-                <a href="#paper-kit">
-                  <div class="author">
-                    <h4 class="card-title">Sophie West</h4>
-                    <h6 class="card-category">Designer</h6>
-                  </div>
-                </a>
-                <p class="card-description text-center">
-                  A group becomes a team when each member is sure enough of himself and his contribution to praise the skill of the others. No one can whistle a symphony. It takes an orchestra to play it.
-                </p>
-              </div>
-              <div class="card-footer text-center">
-                <a href="#pablo" class="btn btn-link btn-just-icon btn-neutral"><i class="fa fa-twitter"></i></a>
-                <a href="#pablo" class="btn btn-link btn-just-icon btn-neutral"><i class="fa fa-google-plus"></i></a>
-                <a href="#pablo" class="btn btn-link btn-just-icon btn-neutral"><i class="fa fa-linkedin"></i></a>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card card-profile card-plain">
-              <div class="card-avatar">
-                <a href="#avatar">
-                  <img src="{% static 'shop/landing/img/faces/erik-lucatero-2.jpg' %}" alt="...">
-                </a>
-              </div>
-              <div class="card-body">
-                <a href="#paper-kit">
-                  <div class="author">
-                    <h4 class="card-title">Robert Orben</h4>
-                    <h6 class="card-category">Developer</h6>
-                  </div>
-                </a>
-                <p class="card-description text-center">
-                  The strength of the team is each individual member. The strength of each member is the team. If you can laugh together, you can work together, silence isn’t golden, it’s deadly.
-                </p>
-              </div>
-              <div class="card-footer text-center">
-                <a href="#pablo" class="btn btn-link btn-just-icon btn-neutral"><i class="fa fa-twitter"></i></a>
-                <a href="#pablo" class="btn btn-link btn-just-icon btn-neutral"><i class="fa fa-google-plus"></i></a>
-                <a href="#pablo" class="btn btn-link btn-just-icon btn-neutral"><i class="fa fa-linkedin"></i></a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="section landing-section">
+
+    <a id="tor_bridges"></a>
+    <div class="section text-center section-dark">
       <div class="container">
         <div class="row">
           <div class="col-md-8 ml-auto mr-auto">
-            <h2 class="text-center mb-4">These are our IP2Tor bridges</h2>
-            
+
+
             <div class="row">
-              <div class="col-md-6">
-                <div class="card" style="width: 20rem;">
-                  <img class="card-img-top" src="{% static 'shop/landing/img/white-hat.png' %}" alt="Bridge card image">
-                  <div class="card-body">
-                    <h4 class="card-title">Card title</h4>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    <a href="#" class="btn btn-primary">Go somewhere</a>
+              <div class="col-md-12">
+
+                {% for host in object_list %}
+                  {% if forloop.first %}
+                    <h2 class="text-center mb-4">These are the active hosts</h2>
+                    <div class="row">
+                      <div class="w-100"></div>
+                  {% endif %}
+
+
+                  <div class="col">
+                    <div class="card" style="width: 20rem;">
+                      <img class="card-img-top" src="{% static 'shop/landing/img/white-hat.png' %}" alt="Bridge card image">
+                      <div class="card-body">
+                        <h4 class="card-title">{{ host }}</h4>
+                        <p class="card-text">
+                          {% if host.description %}
+                                {{ host.description }}
+                          {% endif %}
+                        </p>
+                        <p>
+                          Opening price: {{ host.tor_bridge_price_initial|div:1000 }} sats <i class="nc-icon nc-alert-circle-i" title="This is the price you will pay for the first period of usage of your bridge"></i><br>
+                          Extension price: {{ host.tor_bridge_price_extension|div:1000 }} sats <i class="nc-icon nc-alert-circle-i" title="If you renew the bridge one or more periods, then you'll pay this price per period"></i>
+                        </p>
+                        <a href="{% url 'shop:host-purchase' pk=host.pk %}" class="btn btn-primary">Buy</a>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="card" style="width: 20rem;">
-                  <img class="card-img-top" src="{% static 'shop/landing/img/white-hat.png' %}" alt="Card image cap">
-                  <div class="card-body">
-                    <h4 class="card-title">Card title</h4>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    <a href="#" class="btn btn-primary">Buy</a>
-                  </div>
-                </div>
+
+                  
+                  {% if forloop.counter|divisibleby:2 %}</div><div class="row">{% endif %}
+                  {% if forloop.last %}</div>{% endif %}<!--end row-->
+                {% empty %}
+
+                  <h2 class="text-center mb-4">There are no active hosts at the moment, sorry! </h2>
+
+                {% endfor %}
               </div>
             </div>
-            
           </div>
         </div>
       </div>
     </div>
+
+
+
+    
+    
   </div>
   <footer class="footer   footer-white ">
     <div class="container">
@@ -311,13 +250,10 @@ The above copyright notice and this permission notice shall be included in all c
         <nav class="footer-nav">
           <ul>
             <li>
-              <a href="https://www.creative-tim.com" target="_blank">Creative Tim</a>
+              <a href="#" target="_blank">Blog</a>
             </li>
             <li>
-              <a href="http://blog.creative-tim.com/" target="_blank">Blog</a>
-            </li>
-            <li>
-              <a href="https://www.creative-tim.com/license" target="_blank">Licenses</a>
+              <a href="#" target="_blank">Licenses</a>
             </li>
           </ul>
         </nav>
@@ -326,7 +262,7 @@ The above copyright notice and this permission notice shall be included in all c
             ©
             <script>
               document.write(new Date().getFullYear())
-            </script>, made with <i class="fa fa-heart heart"></i> by Creative Tim
+            </script>, made with <i class="fa fa-heart heart"></i> by IP2Tor
           </span>
         </div>
       </div>
