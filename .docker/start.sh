@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# We copy the .env variable from the root to the django project. Both the ip2tor app and the docker compose need it in their directory
+cp /home/ip2tor/.env /home/ip2tor/ip2tor/.env
+
 #Change to service user and install + update virtual python environment
 sudo su - ip2tor
 cd /home/ip2tor/ip2tor
@@ -9,8 +12,7 @@ role=${CONTAINER_ROLE:-django-http}
 # python3 -m site
 
 
-# We create a hard link of the .env file for both the ip2tor app and the docker compose need it in their directory
-ln /home/ip2tor/ip2tor/.env /home/ip2tor/.env
+
 
 if [ "$role" = "django-http" ]; then
   echo "App role (Django HTTP server) ..."

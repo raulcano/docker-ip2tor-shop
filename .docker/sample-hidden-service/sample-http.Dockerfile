@@ -8,7 +8,7 @@ RUN apt-get install -y pip
 
 RUN python3 -m pip install python-dotenv
 
-COPY ip2tor/.env /usr/share/.env
+COPY .env /usr/share/.env
 COPY .docker/sample-hidden-service/serve-page.py /usr/share/serve-page.py
 COPY .docker/sample-hidden-service/index.html /usr/share/index.html
 

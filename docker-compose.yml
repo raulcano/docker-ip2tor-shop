@@ -75,6 +75,7 @@ services:
     ports:
       - ${SHOP_CLEARNET_HTTP_PORT}:${SHOP_CLEARNET_HTTP_PORT}
       - ${SHOP_CLEARNET_HTTPS_PORT}:${SHOP_CLEARNET_HTTPS_PORT}
+      - ${SHOP_LOCALHOST_PORT}:${SHOP_LOCALHOST_PORT}
     volumes:
       - ./static:/usr/share/nginx/static
       - ./media:/usr/share/nginx/media
@@ -181,7 +182,7 @@ services:
     container_name: ip2tor-shop-postgres
     hostname: postgres
     env_file:
-      - ./ip2tor/.env 
+      - ./.env 
     # ports:
     #   - 5432:5432
     volumes:
