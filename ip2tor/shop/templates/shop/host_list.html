@@ -135,8 +135,8 @@ The above copyright notice and this permission notice shall be included in all c
         </div>
         <br/>
         <br/>
-        <div class="row">
-          <div class="col-md-3">
+        <div class="row mb-4">
+          <div class="col-md-4">
             <div class="info">
               <div class="icon icon-danger">
                 <i class="nc-icon nc-badge"></i>
@@ -148,7 +148,7 @@ The above copyright notice and this permission notice shall be included in all c
               </div>
             </div>
           </div>
-          <div class="col-md-3">
+          <div class="col-md-4">
             <div class="info">
               <div class="icon icon-danger">
                 <i class="nc-icon nc-key-25"></i>
@@ -160,18 +160,7 @@ The above copyright notice and this permission notice shall be included in all c
               </div>
             </div>
           </div>
-          <div class="col-md-3">
-            <div class="info">
-              <div class="icon icon-danger">
-                <i class="nc-icon nc-globe"></i>
-              </div>
-              <div class="description">
-                <h4 class="info-title">Outreach</h4>
-                <p>By enabling access from a Clearnet IP and Domain, anyone with access to Internet will be able to reach your service.</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
+          <div class="col-md-4">
             <div class="info">
               <div class="icon icon-danger">
                 <i class="nc-icon nc-sun-fog-29"></i>
@@ -183,7 +172,45 @@ The above copyright notice and this permission notice shall be included in all c
               </div>
             </div>
           </div>
-        </div>
+          
+        </div> <!-- row -->
+        <div class="row mt-4">
+
+          <div class="col-md-4">
+            <div class="info">
+              <div class="icon icon-danger">
+                <i class="nc-icon nc-spaceship"></i>
+              </div>
+              <div class="description">
+                <h4 class="info-title">Powererd by Lightning</h4>
+                <p>Payment only via Bitcoin Lightning Network.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="info">
+              <div class="icon icon-danger">
+                <i class="nc-icon nc-circle-10"></i>
+              </div>
+              <div class="description">
+                <h4 class="info-title">Privacy first</h4>
+                <p>We respect your privacy. You do not need an account, nor KYC, not even an email.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="info">
+              <div class="icon icon-danger">
+                <i class="nc-icon nc-globe"></i>
+              </div>
+              <div class="description">
+                <h4 class="info-title">Outreach</h4>
+                <p>By enabling access from a Clearnet IP and Domain, anyone with access to Internet will be able to reach your service.</p>
+              </div>
+            </div>
+          </div>
+
+        </div> <!-- row -->
       </div>
     </div>
 
@@ -209,15 +236,27 @@ The above copyright notice and this permission notice shall be included in all c
                     <div class="card" style="width: 20rem;">
                       <img class="card-img-top" src="{% static 'shop/landing/img/white-hat.png' %}" alt="Bridge card image">
                       <div class="card-body">
-                        <h4 class="card-title">{{ host }}</h4>
+                        <h4 class="card-title">{{ host.name }}</h4>
                         <p class="card-text">
                           {% if host.description %}
                                 {{ host.description }}
                           {% endif %}
                         </p>
                         <p>
-                          Opening price: {{ host.tor_bridge_price_initial|div:1000 }} sats <i class="nc-icon nc-alert-circle-i" title="This is the price you will pay for the first period of usage of your bridge"></i><br>
-                          Extension price: {{ host.tor_bridge_price_extension|div:1000 }} sats <i class="nc-icon nc-alert-circle-i" title="If you renew the bridge one or more periods, then you'll pay this price per period"></i>
+                          <strong>IP:</strong> {{ host.ip }}<br>
+                          <strong>Duration:</strong> 
+                          {% if host.tor_bridge_duration|div:86400 < 1 %}
+                            {% if host.tor_bridge_duration|div:3600 < 1 %}
+                              {{ host.tor_bridge_duration|div:60|floatformat }} minutes
+                            {% else%}
+                              {{ host.tor_bridge_duration|div:3600|floatformat }} hours
+                            {% endif %}
+                          {% else %}
+                            {{ host.tor_bridge_duration|div:86400|floatformat }} days
+                          {% endif %}
+                          <br>
+                          <strong>Opening fee:</strong> {{ host.tor_bridge_price_initial|div:1000|floatformat }} sats <i class="nc-icon nc-alert-circle-i" title="This is the price you will pay for the first period of usage of this bridge"></i><br>
+                          <strong>Extension fee:</strong> {{ host.tor_bridge_price_extension|div:1000|floatformat }} sats <i class="nc-icon nc-alert-circle-i" title="If you renew the bridge one or more periods, then you'll pay this price per period"></i>
                         </p>
                         <a href="{% url 'shop:host-purchase' pk=host.pk %}" class="btn btn-primary">Buy</a>
                       </div>
