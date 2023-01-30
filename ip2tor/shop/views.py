@@ -4,6 +4,8 @@ from django.views.generic import TemplateView
 
 from .forms import PurchaseTorBridgeOnHostForm
 from .models import Host, ShopPurchaseOrder
+from django.shortcuts import render
+from shop.models import Host
 
 
 class HostListView(generic.ListView):
@@ -61,3 +63,7 @@ class PurchaseTorBridgeOnHostView(generic.UpdateView):
 
 class DemoView(TemplateView):
     template_name = 'shop/demo.html'
+
+
+def index(request):
+    return  render(request, 'shop/host_list.html', { 'object_list': Host.active.all()})
