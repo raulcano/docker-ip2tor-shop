@@ -1,0 +1,427 @@
+{% extends 'shop/base_bootstrap.html' %}
+{% load static %}
+{% load mathfilters %}
+
+{% block body_open_tag %}
+<body class="landing-page sidebar-collapse">
+{% endblock body_open_tag %}
+
+
+{% block content %}
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg fixed-top navbar-transparent " color-on-scroll="300">
+    <div class="container">
+      <div class="navbar-translate">
+        <a class="navbar-brand" href="#" rel="tooltip" title="" data-placement="bottom">
+          {{ SHOP_SITE_DOMAIN }}
+        </a>
+        <button class="navbar-toggler navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-bar bar1"></span>
+          <span class="navbar-toggler-bar bar2"></span>
+          <span class="navbar-toggler-bar bar3"></span>
+        </button>
+      </div>
+      <div class="collapse navbar-collapse justify-content-end" id="navigation">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" rel="tooltip" title="Check out our IP2Tor bridges" data-placement="bottom" href="#tor_bridges">
+              <i class="nc-icon nc-minimal-down"></i>
+              <p class="">IP2Tor bridges</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" rel="tooltip" title="Check out our Nostr aliases" data-placement="bottom" href="#nostr_aliases">
+              <i class="nc-icon nc-minimal-down"></i>
+              <p class="">Nostr aliases</p>
+            </a>
+          </li>
+
+          {% if SOCIAL_TWITTER != "" %}
+          <li class="nav-item">
+            <a class="nav-link" rel="tooltip" title="Follow us on Twitter" data-placement="bottom" href="{{ SOCIAL_TWITTER }}" target="_blank">
+              <i class="fa fa-twitter"></i>
+              <p class="d-lg-none">Twitter</p>
+            </a>
+          </li>
+          {% endif %}
+
+          {% if SOCIAL_FACEBOOK != "" %}
+          <li class="nav-item">
+            <a class="nav-link" rel="tooltip" title="Like us on Facebook" data-placement="bottom" href="{{ SOCIAL_FACEBOOK }}" target="_blank">
+              <i class="fa fa-facebook-square"></i>
+              <p class="d-lg-none">Facebook</p>
+            </a>
+          </li>
+          {% endif %}
+
+          {% if SOCIAL_INSTAGRAM != "" %}
+          <li class="nav-item">
+            <a class="nav-link" rel="tooltip" title="Follow us on Instagram" data-placement="bottom" href="{{ SOCIAL_INSTAGRAM }}" target="_blank">
+              <i class="fa fa-instagram"></i>
+              <p class="d-lg-none">Instagram</p>
+            </a>
+          </li>
+          {% endif %}
+
+          {% if SOCIAL_LINKEDIN != "" %}
+          <li class="nav-item">
+            <a class="nav-link" rel="tooltip" title="Connect with us on LinkedIn" data-placement="bottom" href="{{ SOCIAL_LINKEDIN }}" target="_blank">
+              <i class="fa fa-linkedin"></i>
+              <p class="d-lg-none">LinkedIn</p>
+            </a>
+          </li>
+          {% endif %}
+
+          {% if SOCIAL_GITHUB != "" %}
+          <li class="nav-item">
+            <a class="nav-link" rel="tooltip" title="Star on GitHub" data-placement="bottom" href="{{ SOCIAL_GITHUB }}" target="_blank">
+              <i class="fa fa-github"></i>
+              <p class="d-lg-none">GitHub</p>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- End Navbar -->
+  <!-- <div class="page-header" data-parallax="true" style="background-image: url('../assets/img/daniel-olahh.jpg');"> -->
+    <div class="page-header" data-parallax="true" style="background-image: url({% static 'shop/landing/img/daniel-olahh.jpg' %});">
+        <div class="filter"></div>
+        <div class="container">
+          <div class="motto text-center">
+            <h1>{{ SHOP_SITE_NAME }}</h1>
+            <h3>We build a bridge to the world for your Tor address and Nostr account via a Clearnet IP.</h3>
+            <br />
+            <a href="#about" class="btn btn-outline-neutral btn-round">Products</a>
+          </div>
+        </div>
+      </div>
+  <!-- Main section -->
+  <div class="main">
+    <a id="about"></a>
+    <div class="section text-center">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-8 ml-auto mr-auto">
+            <h2 class="title">What is this about?</h2>
+            <h5 class="description">
+              If you ended up in this page, you probably know what this service is about.<br/>
+              But for the curious minds out there: the services we offer include the connection of your Tor address with an IP and Port on our servers, or the creation of an easy-to-remember alias for your Nostr public key. 
+              These redirections or bridges will help your Nostr persona be more identifiable, as well as allowing your Tor address to be exposed to the regular user that doesn't want to install a Tor browser.
+            </h5>
+            <br>
+            <a href="#tor_bridges" class="btn btn-danger btn-round">Go to IP2Tor bridges</a>
+            <a href="#nostr_aliases" class="btn btn-danger btn-round">Go to Nostr aliases</a>
+          </div>
+        </div>
+        <br/>
+        <br/>
+       
+        <div class="row mt-4">
+          <div class="col-md-4 mt-5">
+            <div class="info">
+              <div class="icon icon-danger">
+                <i class="nc-icon nc-spaceship"></i>
+              </div>
+              <div class="description">
+                <h4 class="info-title">Powered by Bitcoin</h4>
+                <p>Payment only via Bitcoin Lightning Network, the fastest, most secure and most empowering network of sovereign individuals.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mt-5">
+            <div class="info">
+              <div class="icon icon-danger">
+                <i class="nc-icon nc-circle-10"></i>
+              </div>
+              <div class="description">
+                <h4 class="info-title">Privacy first</h4>
+                <p>We respect your privacy. You do not need an account, nor KYC, not even an email.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mt-5">
+            <div class="info">
+              <div class="icon icon-danger">
+                <i class="nc-icon nc-sun-fog-29"></i>
+              </div>
+              <div class="description">
+                <h4 class="info-title">API to our service</h4>
+                <p>You can build your own custom code to renew the service automatically.</p>
+                <a href="{{ SOCIAL_GITHUB }}#what-is-the-workflow-to-create-a-raspiblitz-subscription-to-a-host-bridge" class="btn btn-link btn-danger" target="_blank">Learn more</a>
+              </div>
+            </div>
+          </div>
+
+        </div> <!-- row -->
+      </div>
+    </div>
+
+
+    <a id="tor_bridges"></a>
+    <div class="section text-center section-dark">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-8 ml-auto mr-auto">
+            <h2 class="title">IP2Tor bridges</h2>
+            <h5 class="description">
+              Purchase a bridge to your Tor address from an IP and Port in our servers.
+            <br>
+            <br>
+            {% include "shop/purchase_form_snippet.html" with hosts=object_list product='IP2Tor bridge' product_slug='tor_bridge' fields='target' form_action='' %}
+          </div>  
+        </div>
+
+        <div class="row mb-4">
+          <div class="col-md-4 mt-5">
+            <div class="info">
+              <div class="icon icon-danger">
+                <i class="nc-icon nc-badge"></i>
+              </div>
+              <div class="description">
+                <h4 class="info-title">Domains</h4>
+                <p class="description">With the Clearnet IP we provide, you'll be able to buy and forward a domain to your Tor service. Amazing, right?</p>
+                <a href="https://namesilo.com" class="btn btn-link btn-danger" target="_blank">Buy domain</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mt-5">
+            <div class="info">
+              <div class="icon icon-danger">
+                <i class="nc-icon nc-key-25"></i>
+              </div>
+              <div class="description">
+                <h4 class="info-title">SSL certificates</h4>
+                <p>Once you get a domain, you'll be able to get a SSL certificate, so you and your customers know this is a trusted connection.</p>
+                <a href="https://letsencrypt.org/" class="btn btn-link btn-danger" target="_blank">Get SSL certificate</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mt-5">
+            <div class="info">
+              <div class="icon icon-danger">
+                <i class="nc-icon nc-globe"></i>
+              </div>
+              <div class="description">
+                <h4 class="info-title">Outreach</h4>
+                <p>By enabling access from a Clearnet IP and Domain, anyone with access to Internet will be able to reach your service.</p>
+              </div>
+            </div>
+          </div>
+          
+        </div> <!-- row -->
+
+      </div>
+    </div>
+
+    <a id="nostr_aliases"></a>
+    <div class="section text-center">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-8 ml-auto mr-auto">
+            <h2 class="title">Nostr aliases</h2>
+            <h5 class="description">
+              Choose the alias that best fits you and share it with the world.
+            <br>
+            <br>
+            {% include "shop/purchase_form_snippet.html" with hosts=object_list product='Nostr alias' product_slug='nostr_alias' fields='alias,public_key' form_action='' %}
+          </div>  
+        </div>
+        <br/>
+        <br/>
+       
+        <div class="row mt-4">
+          <div class="col-md-4 mt-5">
+            <div class="info">
+              <div class="icon icon-danger">
+                <i class="nc-icon nc-diamond"></i>
+              </div>
+              <div class="description">
+                <h4 class="info-title">Be recognized</h4>
+                <p>Claim an alias that is easy to remember and be found much easier by your peers in Nostr.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mt-5">
+            <div class="info">
+              <div class="icon icon-danger">
+                <i class="nc-icon nc-favourite-28"></i>
+              </div>
+              <div class="description">
+                <h4 class="info-title">A piece of you</h4>
+                <p>An alias tells more about you than a random public key. You have the chance to share some love while keeping your real identity secret.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mt-5">
+            <div class="info">
+              <div class="icon icon-danger">
+                <i class="nc-icon nc-tie-bow"></i>
+              </div>
+              <div class="description">
+                <h4 class="info-title">Grow Nostr</h4>
+                <p>Be a Nostr embassador by sharing your alias in your profile in other social networks.</p>
+              </div>
+            </div>
+          </div>
+
+        </div> <!-- row -->
+      </div>
+    </div>
+
+
+    <a id="exted"></a>
+    <div class="section text-center section-dark">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-8 ml-auto mr-auto">
+            <h2 class="title">Extend subscription</h2>
+            <h5 class="description">
+              If your existing subscription to IP2Tor bridges or Nostr aliases is about to expire, you can extend it here. You just need the ID you got the first time you purchased your product.
+            <br>
+            <br>
+            {% include "shop/extend_form_snippet.html" %}
+          </div>  
+        </div>
+
+        <div class="row mb-4">
+          <div class="col-md-6 mt-5">
+            <div class="info">
+              <div class="icon icon-danger">
+                <i class="nc-icon nc-settings-gear-65"></i>
+              </div>
+              <div class="description">
+                <h4 class="info-title">Automatic</h4>
+                <p>Since we do not store any information about you, there is no simple way for us to offer automatic renewals out-of-the-box. Therefore, if you want to have your subscription automatically extended, you'll have to do some homework. Check the link on our API workflows.</p>
+                <a href="{{ SOCIAL_GITHUB }}#what-is-the-workflow-to-create-a-raspiblitz-subscription-to-a-host-bridge" class="btn btn-link btn-danger" target="_blank">Learn more</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 mt-5">
+            <div class="info">
+              <div class="icon icon-danger">
+                <i class="nc-icon nc-tap-01"></i>
+              </div>
+              <div class="description">
+                <h4 class="info-title">Manual</h4>
+                <p class="description">You can easily renew your IP2Tor bridge or Nostr alias subscription by simply entering your product ID and paying the renewal fee. No account, email or any other information needed. You just need to remember to do it about the time it expires!</p>
+              </div>
+            </div>
+          </div>
+          
+          
+        </div> <!-- row -->
+
+      </div>
+    </div>
+
+    
+    <div class="section text-center">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-8 ml-auto mr-auto">
+
+            <!-- here the Tor stuff -->
+            <div class="row">
+                <div class="col-md-12">
+  
+                  {% for host in object_list %}
+                    {% if forloop.first %}
+                      <h2 class="text-center mb-4">These are the active hosts</h2>
+                      <div class="row">
+                        <div class="w-100"></div>
+                    {% endif %}
+  
+  
+                    <div class="col">
+                      <div class="card" style="width: 20rem;">
+                        <img class="card-img-top" src="{% static 'shop/landing/img/white-hat.png' %}" alt="Bridge card image">
+                        <div class="card-body">
+                          <h4 class="card-title">{{ host.name }}</h4>
+                          <p class="card-text">
+                            {% if host.description %}
+                                  {{ host.description }}
+                            {% endif %}
+                          </p>
+                          <p>
+                            <strong>IP:</strong> {{ host.ip }}<br>
+                            <strong>Duration:</strong> 
+                            {% if host.tor_bridge_duration|div:86400 < 1 %}
+                              {% if host.tor_bridge_duration|div:3600 < 1 %}
+                                {{ host.tor_bridge_duration|div:60|floatformat }} minutes
+                              {% else%}
+                                {{ host.tor_bridge_duration|div:3600|floatformat }} hours
+                              {% endif %}
+                            {% else %}
+                              {{ host.tor_bridge_duration|div:86400|floatformat }} days
+                            {% endif %}
+                            <br>
+                            <strong>Opening fee:</strong> {{ host.tor_bridge_price_initial|div:1000|floatformat }} sats <i class="nc-icon nc-alert-circle-i" title="This is the price you will pay for the first period of usage of this bridge"></i><br>
+                            <strong>Extension fee:</strong> {{ host.tor_bridge_price_extension|div:1000|floatformat }} sats <i class="nc-icon nc-alert-circle-i" title="If you renew the bridge one or more periods, then you'll pay this price per period"></i>
+                          </p>
+                          <a href="{% url 'shop:host-purchase' pk=host.pk %}" class="btn btn-primary">Buy</a>
+                        </div>
+                      </div>
+                    </div>
+  
+                    
+                    {% if forloop.counter|divisibleby:2 %}</div><div class="row">{% endif %}
+                    {% if forloop.last %}</div>{% endif %}<!--end row-->
+                  {% empty %}
+  
+                    <h2 class="text-center mb-4">There are no active hosts at the moment, sorry! </h2>
+  
+                  {% endfor %}
+                </div>
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>   
+  <!-- Footer -->
+      <footer class="footer   footer-white ">
+        <div class="container">
+          <div class="row">
+            <nav class="footer-nav">
+              <ul>
+                <li>
+                  <a href="#" target="_blank">Blog</a>
+                </li>
+                <li>
+                  <a href="#" target="_blank">Licenses</a>
+                </li>
+              </ul>
+            </nav>
+            <div class="credits ml-auto">
+              <span class="copyright">
+                ©
+                <script>
+                  document.write(new Date().getFullYear())
+                </script>, made with <i class="fa fa-heart heart"></i> by IP2Tor
+              </span>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+{% endblock content %}
+
+{% block js %}
+<!--   Core JS Files   -->
+<script src="{% static 'shop/landing/js/core/jquery.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'shop/landing/js/core/popper.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'shop/landing/js/core/bootstrap.min.js' %}" type="text/javascript"></script>
+<!--  Plugin for Switches, full documentation here: http://www.jque.re/plugins/version3/bootstrap.switch/ -->
+<script src="{% static 'shop/landing/js/plugins/bootstrap-switch.js' %}"></script>
+<!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
+<script src="{% static 'shop/landing/js/plugins/nouislider.min.js' %}" type="text/javascript"></script>
+<!--  Plugin for the DatePicker, full documentation here: https://github.com/uxsolutions/bootstrap-datepicker -->
+<script src="{% static 'shop/landing/js/plugins/moment.min.js' %}"></script>
+<script src="{% static 'shop/landing/js/plugins/bootstrap-datepicker.js' %}" type="text/javascript"></script>
+<!-- Control Center for Paper Kit: parallax effects, scripts for the example pages etc -->
+<script src="{% static 'shop/landing/js/paper-kit.js' %}" type="text/javascript"></script>
+{% endblock js %}

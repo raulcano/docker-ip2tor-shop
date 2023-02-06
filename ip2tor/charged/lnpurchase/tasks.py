@@ -55,49 +55,50 @@ def process_initial_purchase_order(obj_id):
         add_change_log_entry(obj, 'set to: REJECTED')
         return None
 
-    # ToDo(frennkie) this should not live in Django Charged
-    target_with_port = obj.item_details.first().product.target
-    try:
-        target = target_with_port.split(':')[0]
-    except IndexError:
-        target = target_with_port
+    if obj.item_details.first().product.PRODUCT == 'tor_bridge':
+        # ToDo(frennkie) this should not live in Django Charged
+        target_with_port = obj.item_details.first().product.target
+        try:
+            target = target_with_port.split(':')[0]
+        except IndexError:
+            target = target_with_port
 
-    try:
-        target_port = target_with_port.split(':')[1]
-    except IndexError:
-        target_port = 80
+        try:
+            target_port = target_with_port.split(':')[1]
+        except IndexError:
+            target_port = 80
 
-    if TorDenyList.objects.filter(is_denied=True).filter(target=target):
-        logger.info('Target is on Deny List: %s' % target)
-        obj.status = PurchaseOrder.REJECTED
-        obj.message = "Target is on Deny List"
-        obj.save()
-        add_change_log_entry(obj, 'set to: REJECTED')
-        return None
-
-    logger.debug('set to: NEEDS_REMOTE_CHECKS')
-    obj.status = PurchaseOrder.NEEDS_REMOTE_CHECKS
-    obj.save()
-    add_change_log_entry(obj, 'set to: NEEDS_REMOTE_CHECKS')
-
-    whitelisted_service_ports = getattr(settings, 'WHITELISTED_SERVICE_PORTS')
-    if target_port in whitelisted_service_ports:
-        logger.info('REMOTE CHECKS: target port is whitelisted: %s' % target_port)
-
-    else:
-        url = f'https://{target}:{target_port}/'
-        
-        # Won't block the purchase if it's not HTTPS.
-        # Alternativeley, I will add a disclaimer in the ToS for the users to know what they are doing if they don't use HTTPS
-        # result = ensure_https(url)
-        result = True 
-        if not result:
-            logger.info('REMOTE CHECKS: Target is not HTTPS')
+        if TorDenyList.objects.filter(is_denied=True).filter(target=target):
+            logger.info('Target is on Deny List: %s' % target)
             obj.status = PurchaseOrder.REJECTED
-            obj.message = "Target is not HTTPS"
+            obj.message = "Target is on Deny List"
             obj.save()
             add_change_log_entry(obj, 'set to: REJECTED')
             return None
+
+        logger.debug('set to: NEEDS_REMOTE_CHECKS')
+        obj.status = PurchaseOrder.NEEDS_REMOTE_CHECKS
+        obj.save()
+        add_change_log_entry(obj, 'set to: NEEDS_REMOTE_CHECKS')
+
+        whitelisted_service_ports = getattr(settings, 'WHITELISTED_SERVICE_PORTS')
+        if target_port in whitelisted_service_ports:
+            logger.info('REMOTE CHECKS: target port is whitelisted: %s' % target_port)
+
+        else:
+            url = f'https://{target}:{target_port}/'
+            
+            # Won't block the purchase if it's not HTTPS.
+            # Alternativeley, I will add a disclaimer in the ToS for the users to know what they are doing if they don't use HTTPS
+            # result = ensure_https(url)
+            result = True 
+            if not result:
+                logger.info('REMOTE CHECKS: Target is not HTTPS')
+                obj.status = PurchaseOrder.REJECTED
+                obj.message = "Target is not HTTPS"
+                obj.save()
+                add_change_log_entry(obj, 'set to: REJECTED')
+                return None
 
     logger.debug('set to: NEEDS_INVOICE')
     obj.status = PurchaseOrder.NEEDS_INVOICE

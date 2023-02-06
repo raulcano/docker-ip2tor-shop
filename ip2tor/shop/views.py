@@ -66,4 +66,4 @@ class DemoView(TemplateView):
 
 
 def index(request):
-    return  render(request, 'shop/host_list.html', { 'object_list': Host.active.all()})
+    return  render(request, 'shop/landing.html', { 'object_list': Host.active.all()})

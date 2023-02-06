@@ -11,7 +11,7 @@ from charged.lnnode.models import LndGRpcNode
 from charged.lnnode.serializers import LndGRpcNodeSerializer
 from charged.lnpurchase.models import PurchaseOrder, PurchaseOrderItemDetail
 from charged.utils import add_change_log_entry
-from shop.models import TorBridge, Host
+from shop.models import TorBridge, Host, NostrAlias
 from . import serializers
 
 
@@ -26,7 +26,7 @@ class PublicHostViewSet(mixins.RetrieveModelMixin,
     serializer_class = serializers.PublicHostSerializer
     permission_classes = [permissions.AllowAny]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['id', 'is_testnet', 'is_test_host', 'offers_tor_bridges', 'offers_rssh_tunnels']
+    filterset_fields = ['id', 'is_testnet', 'is_test_host', 'offers_tor_bridges', 'offers_rssh_tunnels', 'offers_nostr_aliases']
 
 
 class PublicInvoiceViewSet(mixins.RetrieveModelMixin,
@@ -128,6 +128,48 @@ class PublicTorBridgeViewSet(mixins.RetrieveModelMixin,
             po = PurchaseOrder.objects.create()
             po_item = PurchaseOrderItemDetail(price=tor_bridge.host.tor_bridge_price_extension,
                                             product=tor_bridge,
+                                            quantity=1)
+            po.item_details.add(po_item, bulk=False)
+            po_item.save()
+            add_change_log_entry(po_item, "set created")
+            po.save()
+            add_change_log_entry(po, "added item_details")
+
+            res = {
+                'status': 'ok',
+                'po_id': po.id,
+                'po': reverse('v1:purchaseorder-detail', args=(po.id,), request=request)
+            }
+
+        return Response(res)
+
+class PublicNostrAliasViewSet(mixins.RetrieveModelMixin,
+                             GenericViewSet):
+    """
+    API endpoint that allows **anybody** to `retrieve` nostr aliases.
+    Additional action `extend` allows **anybody** to extend an existing nostr alias.
+    `Create`, `edit`, `list` and `delete` is **not possible**.
+    """
+    queryset = NostrAlias.objects.all().order_by('host__ip', 'alias')
+    serializer_class = serializers.PublicNostrAliasSerializer
+    permission_classes = [permissions.AllowAny]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['host', 'status']
+
+    @action(detail=True, methods=['post'])
+    def extend(self, request, pk=None):
+        nostr_alias = self.get_object()
+
+        if(nostr_alias.host.is_test_host):
+            res = {
+                'status': 'error',
+                'detail': 'This bridge is in a test host and therefore cannot be extended. Try creating a completely new one from scratch.'
+            }
+        else:
+            # create a new PO
+            po = PurchaseOrder.objects.create()
+            po_item = PurchaseOrderItemDetail(price=nostr_alias.host.nostr_alias_price_extension,
+                                            product=nostr_alias,
                                             quantity=1)
             po.item_details.add(po_item, bulk=False)
             po_item.save()

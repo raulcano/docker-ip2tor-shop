@@ -28,3 +28,14 @@ def validate_target_has_port(value):
         int(p)
     except (IndexError, ValueError):
         raise ValidationError(_('Must include a port as last part.'))
+
+def validate_nostr_alias_blacklist(value):
+    blacklist = ['www', 'shop','api', 'public', 'hosts', 'admin', 'api-auth', 'charged']
+    if value in blacklist:
+        raise ValidationError(
+            _('Must not be one of: %(blacklist)s'),
+            params={'blacklist': ', '.join(blacklist)},
+        )
+
+def validate_nostr_pubkey(value):
+    pass

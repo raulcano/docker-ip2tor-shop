@@ -1,0 +1,127 @@
+server_names_hash_bucket_size  128;
+
+upstream http-backend {
+    server django-http:${DJANGO_HTTP_PORT};
+}
+
+# Tor incoming
+server {
+    # Listen on port for incoming requests.
+    listen ${SHOP_TOR_HTTP_PORT};
+    server_name ${SHOP_ONION_ADDRESS};
+    ##
+    # Logging Settings
+    ##
+
+    # access_log /var/log/nginx/access_shop.${SHOP_SITE_DOMAIN}.log;
+    # error_log /var/log/nginx/error_shop.${SHOP_SITE_DOMAIN}.log;
+    error_log  stderr warn;
+    access_log  /dev/stdout main;
+
+
+    location / {
+        try_files $uri @proxy_to_app;
+    }
+
+    # Django media
+    location /media/  {
+      root /usr/share/nginx;
+    }
+
+    # Django static
+    location /static/ {
+      root /usr/share/nginx;
+    }
+
+    location @proxy_to_app {
+        proxy_pass http://http-backend;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        proxy_redirect off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $server_name;
+    }
+
+}
+
+server {
+    # Listen on port for incoming requests.
+    listen ${SHOP_CLEARNET_HTTP_PORT};
+    server_name ${SHOP_SITE_DOMAIN} www.${SHOP_SITE_DOMAIN};
+
+    location /.well-known/acme-challenge/ {
+        # Set correct content type. According to this:
+        # https://community.letsencrypt.org/t/using-the-webroot-domain-verification-method/1445/29
+        # Current specification requires "text/plain" or no content header at all.
+        # It seems that "text/plain" is a safe option.
+        default_type "text/plain";
+
+        alias /var/www/le_root/.well-known/acme-challenge/;
+    }
+    
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+
+server {
+    listen ${SHOP_CLEARNET_HTTPS_PORT} ssl;
+    server_name ${SHOP_SITE_DOMAIN} www.${SHOP_SITE_DOMAIN};
+
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers "EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA256:EECDH+aRSA+SHA256:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:EECDH+aRSA+SHA384:EDH+aRSA+AESGCM:EDH+aRSA+SHA256:EDH+aRSA:EECDH:!aNULL:!eNULL:!MEDIUM:!LOW:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS:!RC4:!SEED";
+
+    add_header Strict-Transport-Security "max-age=31536000";
+
+    ssl_certificate /etc/nginx/ssl/${SHOP_SITE_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/nginx/ssl/${SHOP_SITE_DOMAIN}/privkey.pem;
+
+
+    ##
+    # Logging Settings
+    ##
+
+    # access_log /var/log/nginx/access_shop.${SHOP_SITE_DOMAIN}.log;
+    # error_log /var/log/nginx/error_shop.${SHOP_SITE_DOMAIN}.log;
+    error_log  stderr warn;
+    access_log  /dev/stdout main;
+
+
+    location / {
+        try_files $uri @proxy_to_app;
+    }
+
+    # Django media
+    location /media/  {
+      root /usr/share/nginx;
+    }
+
+    # Django static
+    location /static/ {
+      root /usr/share/nginx;
+    }
+
+    location @proxy_to_app {
+        proxy_pass http://http-backend;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        proxy_redirect off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $server_name;
+        proxy_set_header X-Forwarded-Proto https;
+
+    }
+
+}

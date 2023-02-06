@@ -7,6 +7,7 @@ app_name = 'shop_api_v1'
 
 router = routers.DefaultRouter()
 router.register(r'public/tor_bridges', shop.api.v1.public.views.PublicTorBridgeViewSet, basename='public_tor_bridges')
+router.register(r'public/nostr_aliases', shop.api.v1.public.views.PublicNostrAliasViewSet, basename='public_nostr_aliases')
 # router.register(r'public/rssh_tunnels', shop.api.v1.public.views.PublicTorBridgeViewSet,
 #                 basename='public_rssh_tunnels')
 router.register(r'public/hosts', shop.api.v1.public.views.PublicHostViewSet)
@@ -21,6 +22,7 @@ router.register(r'public/order', shop.api.v1.public.views.PublicOrderViewSet, ba
 router.register(r'public/lnnodes/lndgrpc', shop.api.v1.public.views.PublicLndGRpcNodeViewSet)
 
 router.register(r'tor_bridges', views.TorBridgeViewSet)
+router.register(r'nostr_aliases', views.NostrAliasViewSet)
 # router.register(r'rssh_tunnels', views.TorBridgeViewSet)
 router.register(r'hosts', views.HostViewSet)
 

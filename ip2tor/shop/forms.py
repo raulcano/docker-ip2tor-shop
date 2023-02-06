@@ -1,11 +1,16 @@
 from django import forms
 
-from shop.models import TorBridge, RSshTunnel
+from shop.models import TorBridge, NostrAlias, RSshTunnel
 
 
 class TorBridgeAdminForm(forms.ModelForm):
     class Meta:
         model = TorBridge
+        fields = '__all__'
+
+class NostrAliasAdminForm(forms.ModelForm):
+    class Meta:
+        model = NostrAlias
         fields = '__all__'
 
 
