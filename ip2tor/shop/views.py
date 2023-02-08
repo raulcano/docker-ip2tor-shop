@@ -6,7 +6,7 @@ from .forms import PurchaseTorBridgeOnHostForm
 from .models import Host, ShopPurchaseOrder
 from django.shortcuts import render
 from shop.models import Host
-
+from django.db.models import Value
 
 class HostListView(generic.ListView):
     model = Host
@@ -66,4 +66,30 @@ class DemoView(TemplateView):
 
 
 def index(request):
-    return  render(request, 'shop/landing.html', { 'object_list': Host.active.all()})
+
+    fields_nostr_alias = [
+        { 'name': 'alias',
+        'placeholder': 'Enter your alias here...',
+        'help_text': 'This is the recognizable alias you would like to appear after the slash in the URL "/".'
+         },
+         { 'name': 'public_key',
+        'placeholder': 'Enter your Nostr public key...',
+        'help_text': 'This is a long alphanumeric string that uniquely identifies you in the Nostr network.'
+         },
+    ]
+
+    fields_tor_bridge = [
+        { 'name': 'target',
+        'placeholder': 'Enter your onion address and port...',
+        'help_text': 'Target address and port. E.g. "myonionhiddenservice:8333"'
+         },
+    ]
+
+    
+
+    return  render(request, 'shop/landing.html', { 
+            'hosts_tor_bridges': sorted(Host.active.filter(offers_tor_bridges=True), key=lambda t: t.sats_per_day_tor_bridge, reverse=True), 
+            'hosts_nostr_aliases': sorted(Host.active.filter(offers_nostr_aliases=True), key=lambda t: t.sats_per_day_nostr_alias, reverse=True),
+            'fields_nostr_alias': fields_nostr_alias,
+            'fields_tor_bridge': fields_tor_bridge,
+        })

@@ -112,8 +112,8 @@
               These redirections or bridges will help your Nostr persona be more identifiable, as well as allowing your Tor address to be exposed to the regular user that doesn't want to install a Tor browser.
             </h5>
             <br>
-            <a href="#tor_bridges" class="btn btn-danger btn-round">Go to IP2Tor bridges</a>
-            <a href="#nostr_aliases" class="btn btn-danger btn-round">Go to Nostr aliases</a>
+            <a href="#tor_bridges" class="btn btn-danger btn-round">IP2Tor bridges</a>
+            <a href="#nostr_aliases" class="btn btn-danger btn-round">Nostr aliases</a>
           </div>
         </div>
         <br/>
@@ -170,7 +170,7 @@
               Purchase a bridge to your Tor address from an IP and Port in our servers.
             <br>
             <br>
-            {% include "shop/purchase_form_snippet.html" with hosts=object_list product='IP2Tor bridge' product_slug='tor_bridge' fields='target' form_action='' %}
+            {% include "shop/purchase_form_snippet.html" with form=form hosts=hosts_tor_bridges product='IP2Tor bridge' product_slug='tor_bridge' fields=fields_tor_bridge %}
           </div>  
         </div>
 
@@ -226,7 +226,7 @@
               Choose the alias that best fits you and share it with the world.
             <br>
             <br>
-            {% include "shop/purchase_form_snippet.html" with hosts=object_list product='Nostr alias' product_slug='nostr_alias' fields='alias,public_key' form_action='' %}
+            {% include "shop/purchase_form_snippet.html" with form=form hosts=hosts_nostr_aliases product='Nostr alias' product_slug='nostr_alias' fields=fields_nostr_alias %}
           </div>  
         </div>
         <br/>
@@ -327,7 +327,7 @@
             <div class="row">
                 <div class="col-md-12">
   
-                  {% for host in object_list %}
+                  {% for host in hosts_tor_bridges %}
                     {% if forloop.first %}
                       <h2 class="text-center mb-4">These are the active hosts</h2>
                       <div class="row">

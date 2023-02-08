@@ -331,6 +331,33 @@ class Host(models.Model):
     def are_there_rssh_tunnels_ports_available(self, consider_safety_margin=False):
         return True if self.rssh_tunnels_ports_available(consider_safety_margin=consider_safety_margin) > 0 else False
 
+    @property
+    def sats_per_day_tor_bridge(self):
+        return int((self.tor_bridge_price_extension / 1000) / (self.tor_bridge_duration / 86400))
+
+    @property
+    def sats_per_day_nostr_alias(self):
+        return int((self.nostr_alias_price_extension / 1000) / (self.nostr_alias_duration / 86400))
+
+    @property
+    def duration_readable_tor_bridge(self):
+        if self.tor_bridge_duration / 86400 < 1:
+            if self.tor_bridge_duration / 3600 < 1:
+                return str(int(self.tor_bridge_duration / 60)) + ' minutes'
+            else:
+                return str(int(self.tor_bridge_duration / 3600)) + ' hours'
+        else:
+            return str(int(self.tor_bridge_duration / 86400)) + ' days'
+    @property
+    def duration_readable_nostr_alias(self):
+        if self.nostr_alias_duration / 86400 < 1:
+            if self.nostr_alias_duration / 3600 < 1:
+                return str(int(self.nostr_alias_duration / 60)) + ' minutes'
+            else:
+                return str(int(self.nostr_alias_duration / 3600)) + ' hours'
+        else:
+            return str(int(self.nostr_alias_duration / 86400)) + ' days'
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 

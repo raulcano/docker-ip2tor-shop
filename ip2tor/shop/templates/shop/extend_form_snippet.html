@@ -5,6 +5,7 @@
   </button>
   
   <!-- Modal -->
+  <form onsubmit="alert('hello');">
   <div class="modal fade" id="extensionModal" tabindex="-1" role="dialog" aria-labelledby="extensionModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -14,7 +15,7 @@
           </button>
         </div>
         <div class="modal-body text-center">
-            <form>
+            
                 <div class="form-group">
                 <input type="text" class="form-control" id="productID" aria-describedby="productIDHelp" placeholder="Enter product ID">
                 <small id="productIDHelp" class="form-text text-muted">A string similar to this: <strong>0f35a3b7-a261-5ec-a01b-0b2b25923g79</strong>. <br>
@@ -31,11 +32,6 @@
                     </label>
                 </div>
             
-                <!-- <button type="submit" class="btn btn-primary">Extend</button> -->
-            </form>
-
-
-
         </div>
         <div class="modal-footer">
             <div class="left-side">
@@ -43,9 +39,10 @@
             </div>
             <div class="divider"></div>
             <div class="right-side">
-                <button type="button" class="btn btn-success btn-link">EXTEND SUBSCRIPTION</button>
+                <button type="submit" class="btn btn-success btn-link">EXTEND SUBSCRIPTION</button>
             </div>
         </div>
       </div>
     </div>
   </div>
+</form>

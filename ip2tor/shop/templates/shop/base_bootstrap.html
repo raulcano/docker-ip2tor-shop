@@ -47,7 +47,8 @@ The above copyright notice and this permission notice shall be included in all c
 {% block content %}{% endblock %}
 
 <!-- JavaScript block per template page -->
-{% block js %}{% endblock %}
+{% block js %}{% endblock js %}
+{% block js_after_jQuery %}{% endblock js_after_jQuery %}
 
 </body>
 </html>
