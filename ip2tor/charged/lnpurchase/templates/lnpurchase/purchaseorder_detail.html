@@ -4,7 +4,9 @@
 {% load i18n humanize %}
 
 {% block head %}
+  {% if object.status != object.PAID %}
     <meta http-equiv="refresh" content="5">
+  {% endif %}
 {% endblock %}
 
 {% block title %}
