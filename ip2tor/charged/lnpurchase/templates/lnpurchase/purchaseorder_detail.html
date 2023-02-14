@@ -1,18 +1,92 @@
-{% extends "charged/base.html" %}
-
+{% extends 'shop/base_bootstrap.html' %}
+{% load static %}
+{% load mathfilters %}
 {% load i18n humanize %}
 
 {% block head %}
-    <meta http-equiv="refresh" content="25">{% endblock %}
+    <meta http-equiv="refresh" content="5">
+{% endblock %}
 
 {% block title %}
     {# Translators: Title on Purchase Order Detail View Page #}
-    {% trans "Purchase Order Detail View" as title %}
+    {% trans "Details of your purchase" as title %}
     {{ title }}
 {% endblock %}
 
+{% block body_open_tag %}
+<body class="landing-page sidebar-collapse">
+{% endblock body_open_tag %}
+
 {% block content %}
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg fixed-top navbar-transparent " color-on-scroll="300">
     <div class="container">
-        {% include "lnpurchase/purchaseorder_snippet.html" with object=object %}
+      
     </div>
+  </nav>
+  <!-- End Navbar -->
+  
+  <!-- Main section -->
+  <div class="main">
+    <a id="purchase"></a>
+    <div class="section text-center section-dark">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 ml-auto mr-auto">
+            {% if object.status == object.PAID %}
+                <h2 class="title">Details of your purchase</h2>
+                <div class="alert alert-warning text-dark" role="alert">
+                    <h3>IMPORTANT: Copy the ID below!</h3>
+                    Copy and store safely the following line. You will need it to renew this service and you won't have another chance to see it.
+                    <h2>{{ object.item_details.first.product.id}}</h2>
+                </div>
+            {% else %}
+                <h2 class="title">Just one last step...</h2>
+            {% endif %}
+
+            {% include "lnpurchase/purchaseorder_snippet.html" with object=object %}
+            
+            {% if object.status != object.PAID %}
+              {% if object.ln_invoices.all|length_is:"0" or object.ln_invoices.all|length_is:"1" and object.ln_invoices.first.status != object.ln_invoices.first.UNPAID %}
+                  <div class="card" style="width: 100%">
+                          <div class="card-body">
+                            <div class="spinner-border mb-4" role="status">
+                              <span class="sr-only">Loading...</span>
+                          </div>
+                          <br>
+                          Loading QR code (refresh if it doesn't appear after a few seconds)...
+                          <br>
+                          <button class="btn btn-primary mt-2" onClick="window.location.reload();">Refresh (F5)</button>
+                          </div>
+                      </div>
+                  </div>
+              {% elif object.ln_invoices.all|length_is:"1" %}
+                  {% include "lninvoice/purchaseorderinvoice_snippet.html" with object=object.ln_invoices.first %}
+              {% else %}
+                  {% for ln_invoice in object.ln_invoices.all %}
+                      {% include "lninvoice/purchaseorderinvoice_snippet.html" with object=ln_invoice %}
+                  {% endfor %}
+              {% endif %}
+            {% endif %}
+
+
+
+
+
+          </div>
+        </div>
+        <br/>
+        <br/>
+       
+        
+      </div>
+    </div>
+
+    
+  </div>   
+
+  {% include "shop/footer_snippet.html" %}
+
+
 {% endblock %}

@@ -1,0 +1,18 @@
+{% extends "charged/base.html" %}
+
+{% load i18n humanize %}
+
+{% block head %}
+    <meta http-equiv="refresh" content="25">{% endblock %}
+
+{% block title %}
+    {# Translators: Title on Purchase Order Detail View Page #}
+    {% trans "Purchase Order Detail View" as title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        {% include "lnpurchase/purchaseorder_snippet.html" with object=object %}
+    </div>
+{% endblock %}

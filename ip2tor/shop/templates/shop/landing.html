@@ -1,6 +1,7 @@
 {% extends 'shop/base_bootstrap.html' %}
 {% load static %}
 {% load mathfilters %}
+{% load i18n humanize %}
 
 {% block body_open_tag %}
 <body class="landing-page sidebar-collapse">
@@ -170,7 +171,7 @@
               Purchase a bridge to your Tor address from an IP and Port in our servers.
             <br>
             <br>
-            {% include "shop/purchase_form_snippet.html" with form=form hosts=hosts_tor_bridges product='IP2Tor bridge' product_slug='tor_bridge' fields=fields_tor_bridge %}
+            {% include "shop/purchase_form_snippet.html" with form=form_tb hosts=hosts_tor_bridges product='IP2Tor bridge' product_slug='tor_bridge' submitted_product_type=submitted_product_type host_id=host_id  %}
           </div>  
         </div>
 
@@ -226,7 +227,7 @@
               Choose the alias that best fits you and share it with the world.
             <br>
             <br>
-            {% include "shop/purchase_form_snippet.html" with form=form hosts=hosts_nostr_aliases product='Nostr alias' product_slug='nostr_alias' fields=fields_nostr_alias %}
+            {% include "shop/purchase_form_snippet.html" with form=form_na hosts=hosts_nostr_aliases product='Nostr alias' product_slug='nostr_alias' submitted_product_type=submitted_product_type host_id=host_id %}
           </div>  
         </div>
         <br/>
@@ -272,7 +273,7 @@
     </div>
 
 
-    <a id="exted"></a>
+    <a id="extend"></a>
     <div class="section text-center section-dark">
       <div class="container">
         <div class="row">
@@ -318,95 +319,9 @@
     </div>
 
     
-    <div class="section text-center">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-8 ml-auto mr-auto">
-
-            <!-- here the Tor stuff -->
-            <div class="row">
-                <div class="col-md-12">
-  
-                  {% for host in hosts_tor_bridges %}
-                    {% if forloop.first %}
-                      <h2 class="text-center mb-4">These are the active hosts</h2>
-                      <div class="row">
-                        <div class="w-100"></div>
-                    {% endif %}
-  
-  
-                    <div class="col">
-                      <div class="card" style="width: 20rem;">
-                        <img class="card-img-top" src="{% static 'shop/landing/img/white-hat.png' %}" alt="Bridge card image">
-                        <div class="card-body">
-                          <h4 class="card-title">{{ host.name }}</h4>
-                          <p class="card-text">
-                            {% if host.description %}
-                                  {{ host.description }}
-                            {% endif %}
-                          </p>
-                          <p>
-                            <strong>IP:</strong> {{ host.ip }}<br>
-                            <strong>Duration:</strong> 
-                            {% if host.tor_bridge_duration|div:86400 < 1 %}
-                              {% if host.tor_bridge_duration|div:3600 < 1 %}
-                                {{ host.tor_bridge_duration|div:60|floatformat }} minutes
-                              {% else%}
-                                {{ host.tor_bridge_duration|div:3600|floatformat }} hours
-                              {% endif %}
-                            {% else %}
-                              {{ host.tor_bridge_duration|div:86400|floatformat }} days
-                            {% endif %}
-                            <br>
-                            <strong>Opening fee:</strong> {{ host.tor_bridge_price_initial|div:1000|floatformat }} sats <i class="nc-icon nc-alert-circle-i" title="This is the price you will pay for the first period of usage of this bridge"></i><br>
-                            <strong>Extension fee:</strong> {{ host.tor_bridge_price_extension|div:1000|floatformat }} sats <i class="nc-icon nc-alert-circle-i" title="If you renew the bridge one or more periods, then you'll pay this price per period"></i>
-                          </p>
-                          <a href="{% url 'shop:host-purchase' pk=host.pk %}" class="btn btn-primary">Buy</a>
-                        </div>
-                      </div>
-                    </div>
-  
-                    
-                    {% if forloop.counter|divisibleby:2 %}</div><div class="row">{% endif %}
-                    {% if forloop.last %}</div>{% endif %}<!--end row-->
-                  {% empty %}
-  
-                    <h2 class="text-center mb-4">There are no active hosts at the moment, sorry! </h2>
-  
-                  {% endfor %}
-                </div>
-              </div>
-            
-          </div>
-        </div>
-      </div>
-    </div>
+    
   </div>   
-  <!-- Footer -->
-      <footer class="footer   footer-white ">
-        <div class="container">
-          <div class="row">
-            <nav class="footer-nav">
-              <ul>
-                <li>
-                  <a href="#" target="_blank">Blog</a>
-                </li>
-                <li>
-                  <a href="#" target="_blank">Licenses</a>
-                </li>
-              </ul>
-            </nav>
-            <div class="credits ml-auto">
-              <span class="copyright">
-                ©
-                <script>
-                  document.write(new Date().getFullYear())
-                </script>, made with <i class="fa fa-heart heart"></i> by IP2Tor
-              </span>
-            </div>
-          </div>
-        </div>
-      </footer>
+  {% include "shop/footer_snippet.html" %}
 
 {% endblock content %}
 

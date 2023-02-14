@@ -1,94 +1,57 @@
 {% load humanize %}
+{% load mathfilters %}
 
-<table id="pos">
-    <tr>
-        <th>Purchase Order ID</th>
-        <th>{{ object.id }}</th>
-    </tr>
-    <tr>
-        <td>Created At</td>
-        <td>{{ object.created_at }} ({{ object.created_at|naturaltime }})</td>
-    <tr>
-        <td>Status</td>
-        <td>{{ object.get_status_display }}</td>
-    </tr>
-    <tr>
-        <td>Message</td>
-        <td>{% if object.message %}{{ object.message }}{% endif %}</td>
-    </tr>
-    <tr>
-        <td>Total Price (Satoshi)</td>
-        <td>{{ object.total_price_sat }} (Milli-Satoshi: {{ object.total_price_msat }})</td>
-    </tr>
-    <tr>
-        <td>In Tax Currency</td>
-        <td>
-            {% if object.poi %}
-                {{ object.poi.price_in_tax_currency }} @ {{ object.poi.tax_currency_rate2 }}
-                (including {{ object.poi.tax_rate|floatformat }}% Tax: {{ object.poi.tax_in_tax_currency }})
+<div class="card" style="width: 100%">
+    
+    <div class="card-body">
+    
+    {% for item in object.item_details.all %}
+        {% if object.status == object.PAID %}
+            <div class="alert alert-success text-dark" role="alert">
+            Success! Your 
+            {% if item.product.PRODUCT == 'tor_bridge' %}
+                <a href="{% url 'v1:public_tor_bridges-detail' pk=item.product.id %}" target="_blank">{{ item.product.meta.verbose_name }}</a> is now reachable at: <br>
+                <a href="http://{{ item.product.host.ip }}:{{ item.product.port }}" target="_blank"><h3>{{ item.product.host.ip }}:{{ item.product.port }}</h3></a>
+            {% elif item.product.PRODUCT == 'nostr_alias' %}
+                <a href="{% url 'v1:public_nostr_aliases-detail' pk=item.product.id %}" target="_blank">{{ item.product.meta.verbose_name }}</a> is now reachable at: <br>
+                <a href="{{ item.product.host.ip }}/{{ item.product.alias }}" target="_blank"><h3>{{ item.product.host.ip }}:{{ item.product.port }}</h3></a>
             {% endif %}
-        </td>
-    </tr>
-    <tr>
-        <td>In Info Currency</td>
-        <td>{% if object.poi %}
-                {{ object.poi.price_in_info_currency }} @ {{ object.poi.info_currency_rate2 }}{% endif %}</td>
-    </tr>
+            and points to
+            {% if item.product.PRODUCT == 'tor_bridge' %}
+                the Tor address<br><h3>{{ item.product.target }}</h3>
+            {% elif item.product.PRODUCT == 'nostr_alias' %}
+                the Nostr public key<br><h3>{{ item.product.public_key }}</h3>
+            {% endif %}
+            
+        </div>    
+            <strong>Hostname: </strong>{{ item.product.host.name }}<br>
+            <strong>API link: </strong>
+            {% if item.product.PRODUCT == 'tor_bridge' %}
+                <a href="{% url 'v1:public_tor_bridges-detail' pk=item.product.id %}" target="_blank">{{ item.product.meta.verbose_name }}</a>
+            {% elif item.product.PRODUCT == 'nostr_alias' %}
+                <a href="{% url 'v1:public_nostr_aliases-detail' pk=item.product.id %}" target="_blank">{{ item.product.meta.verbose_name }}</a>
+            {% endif %}
+            <br>
+            <strong>IP: </strong>{{ item.product.host.ip }}<br>
+            <strong>Port: </strong>{{ item.product.port }}<br>
+            <strong>Status: </strong>{{ item.product.get_status_display }}<br>
+            <strong>Expriry date: </strong>{{ item.product.suspend_after }} <i class="nc-icon nc-alert-circle-i" title="This product will work until this date. You will need to renew it before this date if you want to keep using it."></i><br>
+        {% else %}
+            <div class="alert alert-info text-dark" role="alert">
+            Pay the Lightning invoice below to get your {{ item.product.meta.verbose_name }} up and running!
+            </div>
+            <br>
+        {% endif %}
+        <!-- <hr>
+        <strong>Order ID: </strong>{{ object.id }}<br>
+        <strong>Created at: </strong>{{ object.created_at }} ({{ object.created_at|naturaltime }})<br>
+        <strong>Order status: </strong>{{ object.get_status_display }}<br> -->
+        {% if object.message %}
+        <strong>Message: </strong>{{ object.message }}<br>
+        {% endif %}
+        
+        <h4><strong>Total price (sats): </strong>{{ object.total_price_sat }}</h4><br>
+    {% endfor %}
 
-    <tr>
-        <th colspan="2">Items</th>
-    </tr>
-    <tr>
-        <td colspan="2">
-            <table id="pos">
-                <tr>
-                    <th>Product</th>
-                    <!-- ToDo(frennkie) (mask this - unless paid!) -->
-                    <th>IP</th>
-                    <th>Name</th>
-                    <th>Port</th>
-                    <th>Status</th>
-                    <th>Suspend After</th>
-                    <th>Price (msat)</th>
-                </tr>
-                {% for item in object.item_details.all %}
-                    <tr>
-                        <td>
-                            <a href="{% url 'v1:public_tor_bridges-detail' pk=item.product.id %}"
-                               class="text-light">Tor Bridge</a>
-                        </td>
-                        <td>{{ item.product.host.ip }}</td>
-                        <td>{{ item.product.host.name }}</td>
-                        <td>{{ item.product.port }}</td>
-                        <td>{{ item.product.get_status_display }}</td>
-                        <td>{{ item.product.suspend_after }}</td>
-                        <td>{{ item.price }}</td>
-                    </tr>
-                {% endfor %}
-            </table>
-    </tr>
-    <tr>
-        <th colspan="2">
-            Lightning Invoices
-        </th>
-    </tr>
-    <tr>
-        <td colspan="2">
-            <table>
-                <tr>
-
-
-                    {% if object.ln_invoices.all|length_is:"0" %}
-                        <td>Not ready yet. Try refreshing the page (F5)</td>
-                    {% elif object.ln_invoices.all|length_is:"1" %}
-                        {% include "lninvoice/purchaseorderinvoice_snippet.html" with object=object.ln_invoices.first %}
-                    {% else %}
-                        {% for ln_invoice in object.ln_invoices.all %}
-                            {% include "lninvoice/purchaseorderinvoice_snippet.html" with object=ln_invoice %}
-                        {% endfor %}
-                    {% endif %}
-                </tr>
-            </table>
-        </td>
-    </tr>
-</table>
+    </div>
+</div>

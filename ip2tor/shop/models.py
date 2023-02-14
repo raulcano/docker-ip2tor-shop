@@ -597,6 +597,9 @@ class Bridge(Product):
                                         self.host, _port,
                                         self.get_status_display())
 
+    def meta(self):
+        return self._meta
+        
     def delete(self, using=None, keep_parents=False):
         for pr in self.host.port_ranges.all():
             if isinstance(self.port, int):
