@@ -1,0 +1,1 @@
+Copy the corresponding template to a new file called 'default.conf.template' with the contents appropriate to the environment you'll be using (e.g. localhost or prod)

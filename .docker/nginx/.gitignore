@@ -1,0 +1,5 @@
+*
+!.gitignore
+!default.conf.template_localhost
+!default.conf.template_prod
+!README.md
