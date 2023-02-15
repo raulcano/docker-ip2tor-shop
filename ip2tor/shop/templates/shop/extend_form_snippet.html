@@ -16,7 +16,7 @@
           <input type="hidden" id="action_type" name="action_type" value="extend">
           
           <div class="modal-body text-center">
-              {% if errors %}
+              {% if errors and 'extension' == submitted_product_type %}
               <div class="alert alert-danger" role="alert">
                 {% for error in errors %}
                   {{ error }}<br>
