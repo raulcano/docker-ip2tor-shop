@@ -18,7 +18,7 @@ def validate_host_name_blacklist(value):
 
 def validate_target_is_onion(value):
     if '.onion:' not in value:
-        raise ValidationError(_('Must include be a .onion address followed by a port.'))
+        raise ValidationError(_('Must be an .onion address followed by a port.'))
 
 
 def validate_target_has_port(value):

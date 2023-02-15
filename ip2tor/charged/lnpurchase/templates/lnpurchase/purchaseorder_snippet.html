@@ -10,10 +10,10 @@
             <div class="alert alert-success text-dark" role="alert">
             Success! Your 
             {% if item.product.PRODUCT == 'tor_bridge' %}
-                <a href="{% url 'v1:public_tor_bridges-detail' pk=item.product.id %}" target="_blank">{{ item.product.meta.verbose_name }}</a> is now reachable at: <br>
+                <a href="{% url 'v1:public_tor_bridges-detail' pk=item.product.id %}" target="_blank">{{ item.product.meta.verbose_name }}</a> is ready at <i class="nc-icon nc-alert-circle-i" title="If this is a purchase of a new IP2Tor Bridge, it may take a couple of minutes until is is operational. If you renewed an existing one, you just ensured that the bridge will continue to work uninterrupted until the new expiry date."></i><br>
                 <a href="http://{{ item.product.host.ip }}:{{ item.product.port }}" target="_blank"><h3>{{ item.product.host.ip }}:{{ item.product.port }}</h3></a>
             {% elif item.product.PRODUCT == 'nostr_alias' %}
-                <a href="{% url 'v1:public_nostr_aliases-detail' pk=item.product.id %}" target="_blank">{{ item.product.meta.verbose_name }}</a> is now reachable at: <br>
+                <a href="{% url 'v1:public_nostr_aliases-detail' pk=item.product.id %}" target="_blank">{{ item.product.meta.verbose_name }}</a> is ready at <i class="nc-icon nc-alert-circle-i" title="If this is a purchase of a new Nostr Alias, it may take a couple of minutes until is is operational. If you renewed an existing one, you just ensured that the alias will continue to work uninterrupted until the new expiry date."></i><br>
                 <a href="{{ item.product.host.ip }}/{{ item.product.alias }}" target="_blank"><h3>{{ item.product.host.ip }}:{{ item.product.port }}</h3></a>
             {% endif %}
             and points to
@@ -35,22 +35,53 @@
             <strong>IP: </strong>{{ item.product.host.ip }}<br>
             <strong>Port: </strong>{{ item.product.port }}<br>
             <strong>Status: </strong>{{ item.product.get_status_display }}<br>
-            <strong>Expriry date: </strong>{{ item.product.suspend_after }} <i class="nc-icon nc-alert-circle-i" title="This product will work until this date. You will need to renew it before this date if you want to keep using it."></i><br>
+            <strong>This {{ item.product.meta.verbose_name }} will expire on: </strong>{{ item.product.suspend_after }} <i class="nc-icon nc-alert-circle-i" title="This product will work until this date. You will need to renew it before this date if you want to keep using it. Don't worry if you renew some time before the expiry date, you keep the time you didn't consume and it will add up to the renewal extension time."></i><br>
+            
         {% else %}
             <div class="alert alert-info text-dark" role="alert">
-            Pay the Lightning invoice below to get your {{ item.product.meta.verbose_name }} up and running!
+            Pay the Lightning invoice below to ensure your {{ item.product.meta.verbose_name }} is up and running!
             </div>
             <br>
+
+            You will get a {{ item.product.meta.verbose_name }} redirecting to 
+            {% if item.product.PRODUCT == 'tor_bridge' %}
+                the Tor address <strong>{{ item.product.target }}</strong> for a duration of <strong>
+                {% if item.product.host.tor_bridge_duration|div:86400 < 1 %}
+                    {% if item.product.host.tor_bridge_duration|div:3600 < 1 %}
+                        {{ item.product.host.tor_bridge_duration|div:60|floatformat }} minutes
+                    {% else%}
+                        {{ item.product.host.tor_bridge_duration|div:3600|floatformat }} hours
+                    {% endif %}
+                {% else %}
+                    {{ item.product.host.tor_bridge_duration|div:86400|floatformat }} days
+                {% endif %}
+                </strong>.
+
+            {% elif item.product.PRODUCT == 'nostr_alias' %}
+                the Nostr public key <strong>{{ item.product.public_key }}</strong> for a duration of <strong>
+                {% if item.product.host.nostr_alias_duration|div:86400 < 1 %}
+                    {% if item.product.host.nostr_alias_duration|div:3600 < 1 %}
+                        {{ item.product.host.nostr_alias_duration|div:60|floatformat }} minutes
+                    {% else%}
+                        {{ item.product.host.nostr_alias_duration|div:3600|floatformat }} hours
+                    {% endif %}
+                {% else %}
+                    {{ item.product.host.nostr_alias_duration|div:86400|floatformat }} days
+                {% endif %}
+                </strong>.
+            {% endif %}
+            <br>
+            If you are extending an existing {{ item.product.meta.verbose_name }}, you will extend the expiry date by that same duration.
+
         {% endif %}
-        <!-- <hr>
-        <strong>Order ID: </strong>{{ object.id }}<br>
-        <strong>Created at: </strong>{{ object.created_at }} ({{ object.created_at|naturaltime }})<br>
-        <strong>Order status: </strong>{{ object.get_status_display }}<br> -->
+        
+
+
         {% if object.message %}
         <strong>Message: </strong>{{ object.message }}<br>
         {% endif %}
         
-        <h4><strong>Total price (sats): </strong>{{ object.total_price_sat }}</h4><br>
+        <h4><strong>Total price: </strong>{{ object.total_price_sat }} sats</h4><br>
     {% endfor %}
 
     </div>

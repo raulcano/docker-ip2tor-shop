@@ -37,6 +37,12 @@
               <p class="">Nostr aliases</p>
             </a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" rel="tooltip" title="Extend an existing subscription" data-placement="bottom" href="#extend">
+              <i class="nc-icon nc-minimal-down"></i>
+              <p class="">Extend subscription</p>
+            </a>
+          </li>
 
           {% if SOCIAL_TWITTER != "" %}
           <li class="nav-item">
@@ -283,7 +289,7 @@
               If your existing subscription to IP2Tor bridges or Nostr aliases is about to expire, you can extend it here. You just need the ID you got the first time you purchased your product.
             <br>
             <br>
-            {% include "shop/extend_form_snippet.html" %}
+            {% include "shop/extend_form_snippet.html" with submitted_product_type=submitted_product_type errors=errors%}
           </div>  
         </div>
 

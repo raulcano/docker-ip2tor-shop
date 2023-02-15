@@ -12,13 +12,6 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-            {% if form.non_field_errors %}
-                <div class="alert alert-danger" role="alert">
-                    {% for error in form.non_field_errors %}
-                        {{ error }}
-                    {% endfor %}
-                </div>
-            {% endif %}
             <div class="dropdown">
                 <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="{{ product_slug }}dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Select an option for your {{ product }}...
@@ -39,6 +32,7 @@
         <form action="/" id="{{ product_slug }}Form" method="post">
           {% csrf_token %}
           <input type="hidden" id="product_type" name="product_type" value="{{ product_slug }}">
+          <input type="hidden" id="action_type" name="action_type" value="purchase">
           <input type="hidden" id="{{ product_slug }}Host_id" name="{{ product_slug }}Host_id" value="">
           {% for hidden_field in form.hidden_fields %}
             {{ hidden_field }}
@@ -62,19 +56,47 @@
                 
               </div>
                 {% endfor %}
+                {% if errors %}
+                <div class="alert alert-danger" role="alert">
+                  {% for error in errors %}
+                    {{ error }}<br>
+                  {% endfor %}
+                </div>
+                {% endif %}
+                {% if form.errors %}
+                  {% for field in form %}
+                    <div class="alert alert-danger">
+                    {% for error in field.errors %}
+                      {{ error|escape }}<br>
+                    {% endfor %}
+                    </div>
+                  {% endfor %}
+                  {% for error in form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {% for error in form.non_field_errors %}
+                            {{ error|escape }}<br>
+                        {% endfor %}
+                    </div>
+                  {% endfor %}
+                {% endif %}
 
-                {{ form }}
+                {% for field in form %}
+                  <div class="mb-4">
+                    {{ field.label }}<br>
+                    {{ field }}<br>
+                    {{ field.help_text }}<br>
+                  </div>
+                {% endfor %}
+
 
                 {% for host in hosts %}
                 <a class="tos_link {{ product_slug }}" id="{{ host.name|slugify }}_tos" href="{{ host.terms_of_service_url }}" target="_blank">
-                Terms of Service (ToS)
+                <strong>Terms of Service (ToS)</strong>
                 </a>
                 {% endfor %}
-              
+                <br>
+                <button type="submit" class="btn btn-success mt-4">Accept ToS and Checkout</button>              
 
-          </div>
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-success btn-link">Accept ToS and Checkout</button>
           </div>
         </form>
       </div>

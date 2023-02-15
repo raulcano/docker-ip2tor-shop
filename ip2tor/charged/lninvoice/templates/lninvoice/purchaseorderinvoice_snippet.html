@@ -1,5 +1,4 @@
 {% load i18n humanize %}
-{% load mathfilters %}
 
 <div class="card" style="width: 100%">
     
@@ -11,14 +10,14 @@
                         <img src="{{ object.qr_image.url }}" width="{{ object.qr_image.width }}" height="{{ object.qr_image.height }}" alt="Invoice QR Code"/> <br>
                         <strong>Payment Request: </strong><a href="{{ object.payment_request }}">{{ object.payment_request|truncatechars:40 }}</a><br>
                         <strong>PR with scheme: </strong><a href="lightning:{{ object.payment_request }}">lightning:{{ object.payment_request|truncatechars:40 }}</a><br>
-                        <strong>Expires at: </strong>{{ object.expires_at }}<br>
+                        <strong>Invoice expires at: </strong>{{ object.expires_at }}<br>
                         <strong>Paid at: </strong>{% if object.paid_at %}{{ object.paid_at }}{% endif %}<br>
                         <strong>Invoice ID: </strong>{{ object.id }}<br>
                         <strong>Link: </strong><a href="{% url 'lninvoice:po-invoice-detail' pk=object.id %}">{{ object.id }}</a><br>
                         <strong>Label: </strong>{{ object.label }}<br>
                         <strong>Created at: </strong>{{ object.created_at }} ({{ object.created_at|naturaltime }})<br>
                         <strong>Status: </strong>{{ object.get_status_display }}<br>
-                        <strong>Amount (sats): </strong>{{ object.amount_full_satoshi }} (Milli-Satohsi: {{ object.msatoshi }})<br>
+                        <strong>Amount: </strong>{{ object.amount_full_satoshi }} sats<br>
                     {% else %}
                         <div class="spinner-border mb-4" role="status">
                             <span class="sr-only">Loading...</span>
