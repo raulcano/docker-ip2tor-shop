@@ -1,0 +1,59 @@
+{% load static %}
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#extensionModal">
+    Extend my subscription now!
+  </button>
+  
+  <!-- Modal -->
+  
+  
+  <div class="modal fade" id="extensionModal" tabindex="-1" role="dialog" aria-labelledby="extensionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <form action="/" id="extendForm" method="post">
+          {% csrf_token %}
+          <input type="hidden" id="action_type" name="action_type" value="extend">
+          
+          <div class="modal-body text-center">
+              {% if errors %}
+              <div class="alert alert-danger" role="alert">
+                {% for error in errors %}
+                  {{ error }}<br>
+                {% endfor %}
+              </div>
+              {% endif %}
+
+
+              <div class="form-group">
+                  <input type="text" class="form-control" id="productID" name="productID" aria-describedby="productIDHelp" placeholder="Enter product ID" 
+                  {% if 'extension' == submitted_product_type and '' != productID %}
+                  value="{{productID}}"
+                  {% endif %}
+                  >
+                  <small id="productIDHelp" class="form-text text-muted">A string similar to this: <strong>0f35a3b7-a261-5ec-a01b-0b2b25923g79</strong>. <br>
+                      You got your product ID the first time you purchased this product or at any subsequent extensions of it.
+                  </small>
+                </div>               
+                <br>
+                <button type="submit" class="btn btn-success mt-4">Extend subscription</button>
+          </div>
+      </form>
+    </div>
+  </div>
+  </div>
+
+  {% block js %}
+  <script src="{% static 'shop/landing/js/core/jquery.min.js' %}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(window).on('load', function() {
+        
+ 
+        // If there is a form submission error, 
+        //  show the modal
+        if ('extension' == '{{ submitted_product_type }}' ){
+          $('#extensionModal').modal('show');
+        }
+    });
+  </script>
+  {% endblock js %}

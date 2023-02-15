@@ -7,7 +7,7 @@ from rest_framework import renderers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from shop.models import TorBridge, Host
+from shop.models import TorBridge, Host, NostrAlias
 from . import serializers
 from .serializers import HostCheckInSerializer
 
@@ -19,6 +19,30 @@ class PlainTextRenderer(renderers.BaseRenderer):
     def render(self, data, media_type=None, renderer_context=None):
         return smart_str(data, encoding=self.charset)
 
+
+class NostrAliasViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows **admins** and **authenticated users** to `create`, `retrieve`,
+    `update`, `delete` and `list` nostr aliases.
+    """
+    queryset = NostrAlias.objects.all().order_by('host__ip', 'alias')
+    serializer_class = serializers.NostrAliasSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['host', 'status']
+
+    def get_queryset(self):
+        """
+        This view returns a list of all the nostr aliases for the currently authenticated user.
+        """
+        user = self.request.user
+        if user.is_superuser:
+            return NostrAlias.objects.all()
+
+        return NostrAlias.objects.filter(host__token_user=user)
+    
+    # @action(detail=False, methods=['get'], renderer_classes=[PlainTextRenderer])
+    # def get_telegraf_config(self, request, **kwargs):
 
 class TorBridgeViewSet(viewsets.ModelViewSet):
     """

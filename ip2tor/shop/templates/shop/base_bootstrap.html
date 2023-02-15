@@ -1,0 +1,57 @@
+
+<!--
+=========================================================
+ Paper Kit 2 - v2.2.0
+=========================================================
+
+ Product Page: https://www.creative-tim.com/product/paper-kit-2
+ Copyright 2019 Creative Tim (https://www.creative-tim.com)
+ Licensed under MIT (https://github.com/creativetimofficial/paper-kit-2/blob/master/LICENSE.md)
+
+ Coded by Creative Tim
+
+=========================================================
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+  
+  <!-- head block per template page -->
+  {% block head %}{% endblock %}
+
+  <title>{% block title %}{% endblock %}</title>
+
+  {% load static %}
+
+  <link rel="apple-touch-icon" sizes="76x76" href="{% static 'shop/landing/img//apple-icon.png' %}">
+  <link rel="icon" type="image/png" href="{% static 'shop/landing/img//favicon.png' %}">
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+  <!-- CSS Files -->
+  <link href="{% static 'shop/landing/css/bootstrap.min.css' %}" rel="stylesheet" />
+  <link href="{% static 'shop/landing/css/paper-kit.css' %}" rel="stylesheet" />
+
+    <!-- CSS block per template page -->
+    {% block css %}{% endblock %}
+</head>
+
+{% block body_open_tag %}{% endblock %}
+
+{% load i18n %}
+
+{% block content %}{% endblock %}
+
+<!-- JavaScript block per template page -->
+{% block js %}{% endblock js %}
+{% block js_after_jQuery %}{% endblock js_after_jQuery %}
+
+</body>
+</html>

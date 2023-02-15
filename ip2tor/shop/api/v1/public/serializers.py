@@ -4,8 +4,8 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from charged.lnpurchase.serializers import PurchaseOrderItemDetailSerializer, PurchaseOrderSerializer
-from shop.api.v1.serializers import TorBridgeSerializer
-from shop.models import Host, TorBridge, ShopPurchaseOrder, RSshTunnel
+from shop.api.v1.serializers import TorBridgeSerializer, NostrAliasSerializer
+from shop.models import Host, TorBridge, ShopPurchaseOrder, RSshTunnel, NostrAlias
 from shop.validators import validate_target_is_onion, validate_target_has_port
 
 
@@ -39,6 +39,11 @@ class PublicHostSerializer(serializers.ModelSerializer):
             'tor_bridge_duration',
             'tor_bridge_price_initial',
             'tor_bridge_price_extension',
+            'offers_nostr_aliases',
+            'nostr_alias_port',
+            'nostr_alias_duration',
+            'nostr_alias_price_initial',
+            'nostr_alias_price_extension',
             'offers_rssh_tunnels',
             'rssh_tunnel_price',
             'terms_of_service',
@@ -71,6 +76,14 @@ class PublicOrderSerializer(serializers.Serializer):
                 comment=validated_data.get('comment')
             )
             return po
+        elif product == NostrAlias.PRODUCT:
+            po = ShopPurchaseOrder.nostr_aliases.create(
+                host=self.host,
+                alias=validated_data.get('alias'),
+                public_key=validated_data.get('public_key'),
+                comment=validated_data.get('comment')
+            )
+            return po
 
         elif product == RSshTunnel.PRODUCT:
             raise NotImplementedError("only tor_bridges")
@@ -78,7 +91,7 @@ class PublicOrderSerializer(serializers.Serializer):
         else:
             raise NotImplementedError("only tor_bridges")
 
-    product = serializers.ChoiceField(choices=[TorBridge.PRODUCT, RSshTunnel.PRODUCT])
+    product = serializers.ChoiceField(choices=[TorBridge.PRODUCT, NostrAlias.PRODUCT, RSshTunnel.PRODUCT])
 
     host_id = serializers.UUIDField()
     tos_accepted = serializers.BooleanField(required=True)
@@ -91,10 +104,12 @@ class PublicOrderSerializer(serializers.Serializer):
                     validate_target_has_port]
     )
 
+    alias = serializers.CharField(required=False, max_length=100)
+
     public_key = serializers.CharField(required=False, max_length=5000)
 
     class Meta:
-        fields = ('product', 'host_id', 'tos_accepted', 'comment', 'target')
+        fields = ('product', 'host_id', 'tos_accepted', 'comment', 'target', 'alias', 'public_key')
 
     def to_representation(self, instance):
         req = self.context.get('request')
@@ -110,6 +125,9 @@ class PublicOrderSerializer(serializers.Serializer):
 
         if attrs['product'] == TorBridge.PRODUCT and not attrs.get('target'):
             raise serializers.ValidationError(f"Product '{TorBridge.PRODUCT}' requires 'target'")
+
+        if attrs['product'] == NostrAlias.PRODUCT and not attrs.get('alias') and not attrs.get('public_key'):
+            raise serializers.ValidationError(f"Product '{NostrAlias.PRODUCT}' requires 'alias' and 'public_key'")
 
         if attrs['product'] == RSshTunnel.PRODUCT and not attrs.get('public_key'):
             raise serializers.ValidationError(f"Product '{RSshTunnel.PRODUCT}' requires 'public_key'")
@@ -135,8 +153,6 @@ class PublicOrderSerializer(serializers.Serializer):
     def validate_host_id(self, value):
         try:
             self.host = Host.objects.get(id=str(value))
-
-
         except Host.DoesNotExist:
             raise serializers.ValidationError(f"No host exists with ID: {value}.")
 
@@ -157,6 +173,9 @@ class ProductRelatedField(serializers.RelatedField):
             # ToDo(frennkie) public should link to public..
             # serializer = PublicTorBridgeSerializer(value, context={'request': self.context.get('request')})
 
+        elif isinstance(value, NostrAlias):
+            serializer = NostrAliasSerializer(value, context={'request': self.context.get('request')})
+        
         # elif isinstance(value, RSshTunnel):
         #     # ToDo(frennkie) replace with RSshTunnel
         #     serializer = TorBridgeSerializer(value, context={'request': self.context.get('request')})
@@ -187,4 +206,12 @@ class PublicTorBridgeSerializer(serializers.HyperlinkedModelSerializer):
         model = TorBridge
         fields = ('id', 'status', 'host_id', 'port', 'suspend_after',
                   'comment', 'target')
+        read_only_fields = ['id', 'status', 'port', 'suspend_after']
+
+class PublicNostrAliasSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = NostrAlias
+        fields = ('id', 'status', 'host_id', 'port', 'suspend_after',
+                  'comment', 'alias', 'public_key')
         read_only_fields = ['id', 'status', 'port', 'suspend_after']

@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, validate_slug
 from django.db import models
 from django.db.models import Count
 from django.utils import timezone
@@ -23,6 +23,8 @@ from shop.validators import validate_host_name_blacklist
 from shop.validators import validate_host_name_no_underscore
 from shop.validators import validate_target_has_port
 from shop.validators import validate_target_is_onion
+from shop.validators import validate_nostr_alias_blacklist
+from shop.validators import validate_nostr_pubkey
 
 
 class DenyList(models.Model):
@@ -185,6 +187,25 @@ class Host(models.Model):
                                                         help_text=_('Price of a Tor Bridge in milli-satoshi '
                                                                     'for extending existing bridge.'),
                                                         default=20000)
+    offers_nostr_aliases = models.BooleanField(default=False,
+                                             verbose_name=_('Does host offer Nostr Aliases?'))
+    nostr_alias_port = models.PositiveSmallIntegerField(default=80,
+                                            verbose_name=_('Nostr Alias Port'),
+                                            help_text=_('At which port will the host access the Nostr Aliases. E.g. nostr_alias.com:80'))
+
+    nostr_alias_duration = models.BigIntegerField(verbose_name=_('Alias Duration (seconds)'),
+                                                 help_text=_('Lifetime of Alias (either initial or extension).'),
+                                                 default=60 * 60 * 24)
+
+    nostr_alias_price_initial = models.BigIntegerField(verbose_name=_('Alias Price (mSAT)'),
+                                                      help_text=_('Price of a Nostr Alias in milli-satoshi '
+                                                                  'for initial Purchase.'),
+                                                      default=25000)
+
+    nostr_alias_price_extension = models.BigIntegerField(verbose_name=_('Alias Extension Price (mSAT)'),
+                                                        help_text=_('Price of a Nostr Alias in milli-satoshi '
+                                                                    'for extending existing bridge.'),
+                                                        default=20000)
 
     offers_rssh_tunnels = models.BooleanField(default=False,
                                               verbose_name=_('Does host offer Reverse SSH Tunnels?'))
@@ -309,6 +330,33 @@ class Host(models.Model):
     @property
     def are_there_rssh_tunnels_ports_available(self, consider_safety_margin=False):
         return True if self.rssh_tunnels_ports_available(consider_safety_margin=consider_safety_margin) > 0 else False
+
+    @property
+    def sats_per_day_tor_bridge(self):
+        return int((self.tor_bridge_price_extension / 1000) / (self.tor_bridge_duration / 86400))
+
+    @property
+    def sats_per_day_nostr_alias(self):
+        return int((self.nostr_alias_price_extension / 1000) / (self.nostr_alias_duration / 86400))
+
+    @property
+    def duration_readable_tor_bridge(self):
+        if self.tor_bridge_duration / 86400 < 1:
+            if self.tor_bridge_duration / 3600 < 1:
+                return str(int(self.tor_bridge_duration / 60)) + ' minutes'
+            else:
+                return str(int(self.tor_bridge_duration / 3600)) + ' hours'
+        else:
+            return str(int(self.tor_bridge_duration / 86400)) + ' days'
+    @property
+    def duration_readable_nostr_alias(self):
+        if self.nostr_alias_duration / 86400 < 1:
+            if self.nostr_alias_duration / 3600 < 1:
+                return str(int(self.nostr_alias_duration / 60)) + ' minutes'
+            else:
+                return str(int(self.nostr_alias_duration / 3600)) + ' hours'
+        else:
+            return str(int(self.nostr_alias_duration / 86400)) + ' days'
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -549,6 +597,9 @@ class Bridge(Product):
                                         self.host, _port,
                                         self.get_status_display())
 
+    def meta(self):
+        return self._meta
+        
     def delete(self, using=None, keep_parents=False):
         for pr in self.host.port_ranges.all():
             if isinstance(self.port, int):
@@ -596,6 +647,24 @@ class Bridge(Product):
             con.hmset(f'{key}.{item}', ret_dict[item])
 
 
+class NostrAlias(Bridge):
+    PRODUCT = 'nostr_alias'
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = _('Nostr Alias')
+        verbose_name_plural = _('Nostr Aliases')
+
+    alias = models.CharField(max_length=100,
+                               unique=True,
+                               verbose_name=_('Nostr Alias'),
+                               help_text=_('Alias for your Nostr public key (allowed only letters, numbers, underscore and hyphens).'),
+                               validators=[validate_slug,validate_nostr_alias_blacklist])
+
+    public_key = models.CharField(max_length=5000,
+                                  verbose_name=_('Nostr Public Key'),
+                                  help_text=_('The public key that identifies you in the Nostr network.'),
+                                  validators=[validate_slug,validate_nostr_pubkey,])
+
 class TorBridge(Bridge):
     PRODUCT = 'tor_bridge'
 
@@ -632,6 +701,27 @@ class PurchaseOrderTorBridgeManager(models.Manager):
 
         return po
 
+class PurchaseOrderNostrAliasManager(models.Manager):
+    """creates a purchase order for a new nostr alias"""
+
+    def create(self, host, alias, public_key, comment=None):
+        nostr_alias = NostrAlias.objects.create(comment=comment,
+                                              host=host,
+                                              alias=alias,
+                                              public_key=public_key)
+
+        po = PurchaseOrder.objects.create()
+        po_item = PurchaseOrderItemDetail(price=host.nostr_alias_price_initial,
+                                          product=nostr_alias,
+                                          quantity=1)
+        po.item_details.add(po_item, bulk=False)
+        po_item.save()
+        add_change_log_entry(po_item, "added item_details")
+        po.save()
+        add_change_log_entry(po, "new po created")
+
+        return po
+
 
 class RSshTunnel(Bridge):
     PRODUCT = 'rssh_tunnel'
@@ -649,3 +739,4 @@ class RSshTunnel(Bridge):
 class ShopPurchaseOrder(PurchaseOrder):
     objects = models.Manager()
     tor_bridges = PurchaseOrderTorBridgeManager()
+    nostr_aliases = PurchaseOrderNostrAliasManager()

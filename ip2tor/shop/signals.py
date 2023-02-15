@@ -17,7 +17,7 @@ from charged.lnnode.signals import lnnode_invoice_created
 from charged.lnpurchase.models import PurchaseOrder
 from charged.lnpurchase.tasks import process_initial_purchase_order
 from charged.utils import add_change_log_entry
-from shop.models import TorBridge, RSshTunnel, Bridge
+from shop.models import TorBridge, NostrAlias, RSshTunnel, Bridge
 
 log = logging.getLogger(__name__)
 
@@ -62,8 +62,13 @@ def lninvoice_paid_handler(sender, instance, **kwargs):
 
     if shop_item_content_type == ContentType.objects.get_for_model(TorBridge):
         shop_item = TorBridge.objects.get(id=shop_item_id)
+        item_duration = shop_item.host.tor_bridge_duration
+    elif shop_item_content_type == ContentType.objects.get_for_model(NostrAlias):
+        shop_item = NostrAlias.objects.get(id=shop_item_id)
+        item_duration = shop_item.host.nostr_alias_duration
     elif shop_item_content_type == ContentType.objects.get_for_model(RSshTunnel):
         shop_item = RSshTunnel.objects.get(id=shop_item_id)
+        item_duration = shop_item.host.tor_bridge_duration
     else:
         raise NotImplementedError
 
@@ -73,21 +78,22 @@ def lninvoice_paid_handler(sender, instance, **kwargs):
 
     elif shop_item.status == Bridge.ACTIVE:
         print(f"is already ACTIVE - assume extend")
+
         if shop_item.suspend_after <= timezone.now():
             # rare cases where it's ACTIVE but expired (the scheduled task didn't update it yet)
-            shop_item.suspend_after = timezone.now() + timedelta(seconds=shop_item.host.tor_bridge_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME', 600))
+            shop_item.suspend_after = timezone.now() + timedelta(seconds=item_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME', 600))
         else:
-            shop_item.suspend_after = shop_item.suspend_after + timedelta(seconds=shop_item.host.tor_bridge_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME', 600))
+            shop_item.suspend_after = shop_item.suspend_after + timedelta(seconds=item_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME', 600))
 
     elif shop_item.status == Bridge.SUSPENDED or shop_item.status == Bridge.NEEDS_SUSPEND:
         print(f"is reactivate")
         shop_item.status = Bridge.NEEDS_ACTIVATE
 
         if shop_item.suspend_after <= timezone.now():
-            shop_item.suspend_after = timezone.now() + timedelta(seconds=shop_item.host.tor_bridge_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME', 600))
+            shop_item.suspend_after = timezone.now() + timedelta(seconds=item_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME', 600))
         else:
             # rare cases where it's SUSPENDED/NEEDS_SUSPEND but it hasn't expired yet (not sure if we'll reach this state ever)
-            shop_item.suspend_after = shop_item.suspend_after + timedelta(seconds=shop_item.host.tor_bridge_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME', 600))
+            shop_item.suspend_after = shop_item.suspend_after + timedelta(seconds=item_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME', 600))
 
     shop_item.save()
     add_change_log_entry(shop_item, "ran lninvoice_paid_handler")
@@ -138,6 +144,37 @@ def post_save_tor_bridge(sender, instance: TorBridge, **kwargs):
 
 @receiver(post_init, sender=TorBridge)
 def remember_status_tor_bridge(sender, instance: TorBridge, **kwargs):
+    instance.previous_status = instance.status
+
+@receiver(post_save, sender=NostrAlias)
+@disable_for_loaddata
+def post_save_nostr_alias(sender, instance: NostrAlias, **kwargs):
+    created = kwargs.get('created')
+
+    if instance.previous_status != instance.status or created:
+        if instance.status == sender.ACTIVE:
+            instance.process_activation()
+        elif instance.status == sender.NEEDS_SUSPEND:
+            instance.process_suspension()
+
+    if created:
+        print("Nostr Alias created - setting assigned port...")
+        instance.port = instance.host.nostr_alias_port
+
+        if instance.host.nostr_alias_duration == 0:
+            instance.suspend_after = timezone.make_aware(timezone.datetime.max,
+                                                         timezone.get_default_timezone())
+        else:
+            instance.suspend_after = timezone.now() \
+                                     + timedelta(seconds=instance.host.nostr_alias_duration) \
+                                     + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME', 600))
+
+        instance.save()
+        add_change_log_entry(instance, "created")
+
+
+@receiver(post_init, sender=NostrAlias)
+def remember_status_nostr_alias(sender, instance: NostrAlias, **kwargs):
     instance.previous_status = instance.status
 
 

@@ -1,0 +1,112 @@
+{% load static %}
+{% load mathfilters %}
+{% load widget_tweaks %}
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#{{ product_slug }}Modal">
+    Get my {{ product }} now!
+  </button>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="{{ product_slug }}Modal" tabindex="-1" role="dialog" aria-labelledby="{{ product_slug }}ModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div class="dropdown">
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="{{ product_slug }}dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Select an option for your {{ product }}...
+                </a>
+              
+                <div class="dropdown-menu" aria-labelledby="{{ product_slug }}dropdownMenuLink">
+
+                  {% for host in hosts %}
+                    {% if product_slug == 'nostr_alias' %}
+                      <a class="dropdown-item" href="#" id="{{ host.name|slugify }}" data-action="{% url 'shop:host-purchase' pk=host.pk %}">{{ host.name }} - {{ host.sats_per_day_nostr_alias }} sats/day</a>
+                    {% elif product_slug == 'tor_bridge' %}
+                      <a class="dropdown-item" href="#" id="{{ host.name|slugify }}" data-action="{% url 'shop:host-purchase' pk=host.pk %}">{{ host.name }} - {{ host.sats_per_day_tor_bridge }} sats/day</a>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+            </div>
+        </div>
+        <form action="" id="{{ product_slug }}Form" method="post">
+          {% csrf_token %}
+          <input type="hidden" id="product_type" value="{{ product_slug }}">
+          {% for hidden_field in form.hidden_fields %}
+            {{ hidden_field }}
+          {% endfor %}
+          <div class="modal-body text-center">
+            {% for host in hosts %}
+              <div id="{{ host.name|slugify }}_info" data-hostname="{{ host.name|slugify }}" class="product_info mb-3" >
+                <h1 class="mb-3">{{ host.name }}</h1>
+                <div id="{{ product_slug }}Description" class="mb-2 mt-2"><i>{{ host.description }}</i></div><br>
+                {% if product_slug == 'tor_bridge' %}
+                <strong>IP:</strong> <span id="{{ product_slug }}IP"><i>{{ host.ip }}</i></span> <i class="nc-icon nc-alert-circle-i" title="You will be assigned a random port on this IP"></i><br>
+                <strong>Duration:</strong> <span id="{{ product_slug }}Duration"><i>{{ host.duration_readable_tor_bridge }}</i></span> <i class="nc-icon nc-alert-circle-i" title="This is both the billing and active period. Your bridge or alias will be active from the moment of the purchase for this duration. Once this time passes, you will have to renew the product if you want to continue using it"></i><br>
+                <strong>Opening fee:</strong> <span id="{{ product_slug }}InitialFee"><i>{{ host.tor_bridge_price_initial|div:1000|floatformat }} sats</i></span> <i class="nc-icon nc-alert-circle-i" title="This is the price you will pay for the first period of usage of this product"></i><br>
+                <strong>Extension fee:</strong> <span id="{{ product_slug }}ExtensionFee"><i>{{ host.tor_bridge_price_extension|div:1000|floatformat }} sats</i></span> <i class="nc-icon nc-alert-circle-i" title="If you renew the product one or more periods, then you'll pay this price per period"></i><br>
+                {% elif product_slug == 'nostr_alias' %}
+                <strong>Duration:</strong> <span id="{{ product_slug }}Duration"><i>{{ host.duration_readable_nostr_alias }}</i></span> <i class="nc-icon nc-alert-circle-i" title="This is both the billing and active period. Your bridge or alias will be active from the moment of the purchase for this duration. Once this time passes, you will have to renew the product if you want to continue using it"></i><br>
+                <strong>Opening fee:</strong> <span id="{{ product_slug }}InitialFee"><i>{{ host.nostr_alias_price_initial|div:1000|floatformat }} sats</i></span> <i class="nc-icon nc-alert-circle-i" title="This is the price you will pay for the first period of usage of this product"></i><br>
+                <strong>Extension fee:</strong> <span id="{{ product_slug }}ExtensionFee"><i>{{ host.nostr_alias_price_extension|div:1000|floatformat }} sats</i></span> <i class="nc-icon nc-alert-circle-i" title="If you renew the product one or more periods, then you'll pay this price per period"></i><br>
+                {% endif %}
+                
+              </div>
+                {% endfor %}
+                    {% for field in fields %}
+                      <div class="form-group">
+                      <input type="text" class="form-control" id="{{ field.name }}" aria-describedby="{{ field.name }}Help" placeholder="{{ field.placeholder }}">
+                      <small id="{{ field.name }}Help" class="form-text text-muted">{{ field.help_text }}</small>
+                      </div>
+                    {% endfor %}
+                  {% for host in hosts %}
+                  <a class="tos_link" id="{{ host.name|slugify }}_tos" href="{{ host.terms_of_service_url }}" target="_blank">
+                  Terms of Service (ToS)
+                  </a>
+                  {% endfor %}
+              
+
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success btn-link">Accept ToS and Checkout</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+
+{% block js %}
+<script src="{% static 'shop/landing/js/core/jquery.min.js' %}" type="text/javascript"></script>
+<script type="text/javascript">
+  $(window).on('load', function() {
+      $('.product_info').hide();
+      $('.tos_link').hide();
+
+      $('.dropdown-item').on('click', function(event) {
+        event.preventDefault();
+        var hostname = $(this).attr('id');
+        var action = $(this).attr('data-action');
+        $('.product_info').hide();
+        $('.tos_link').hide();
+        $('#' + hostname + '_info').show();
+        $('#' + hostname + '_tos').show();
+        $('#{{ product_slug }}Form').attr('action', action)
+      });
+
+      // Display the first item in the list and load the first action
+      first_hostname = $('.product_info').first().attr('data-hostname');
+      first_action = $('.dropdown-item').first().attr('data-action');
+      $('.product_info').first().show();
+      $('#' + first_hostname + '_tos').show();
+      $('#{{ product_slug }}Form').attr('action', first_action)
+  });
+</script>
+{% endblock js %}

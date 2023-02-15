@@ -6,8 +6,8 @@ from django.http import JsonResponse
 from django.utils.translation import gettext_lazy as _
 
 from charged.lnnode.models import LndRestNode, CLightningNode, FakeNode
-from shop.forms import TorBridgeAdminForm, RSshTunnelAdminForm
-from shop.models import Host, PortRange, TorBridge, RSshTunnel, Bridge, TorDenyList, IpDenyList
+from shop.forms import TorBridgeAdminForm, NostrAliasAdminForm, RSshTunnelAdminForm
+from shop.models import Host, PortRange, TorBridge, NostrAlias, RSshTunnel, Bridge, TorDenyList, IpDenyList
 
 
 class TorBridgeInline(admin.TabularInline):
@@ -118,6 +118,19 @@ class TorBridgeAdmin(BridgeTunnelAdmin):
         search_fields += ('target',)
         return search_fields
 
+class NostrAliasAdmin(BridgeTunnelAdmin):
+    form = NostrAliasAdminForm
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = super().get_readonly_fields(request, obj)
+        readonly_fields += ('alias', 'public_key',)
+        return readonly_fields
+
+    def get_search_fields(self, request):
+        search_fields = super().get_search_fields(request)
+        search_fields += ('alias','public_key',)
+        return search_fields
+
 
 class TorDenyListAdmin(admin.ModelAdmin):
     search_fields = ('id', 'target', 'comment')
@@ -180,6 +193,7 @@ admin.site.unregister(FakeNode)
 
 # admin.site.register(RSshTunnel, RSshTunnelAdmin)
 admin.site.register(TorBridge, TorBridgeAdmin)
+admin.site.register(NostrAlias, NostrAliasAdmin)
 admin.site.register(Host, HostAdmin)
 admin.site.register(IpDenyList, IpDenyListAdmin)
 admin.site.register(TorDenyList, TorDenyListAdmin)

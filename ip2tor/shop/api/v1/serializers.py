@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from rest_framework import serializers
 
-from shop.models import TorBridge, Host
+from shop.models import TorBridge, Host, NostrAlias
 
 
 class SiteSerializer(serializers.HyperlinkedModelSerializer):
@@ -34,6 +34,13 @@ class TorBridgeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = TorBridge
         fields = ('url', 'id', 'comment', 'status', 'host', 'port', 'target', 'suspend_after')
+
+class NostrAliasSerializer(serializers.HyperlinkedModelSerializer):
+    host = HostSerializer()
+
+    class Meta:
+        model = NostrAlias
+        fields = ('url', 'id', 'comment', 'status', 'host', 'port', 'alias', 'public_key', 'suspend_after')
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
