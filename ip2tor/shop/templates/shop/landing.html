@@ -43,6 +43,12 @@
               <p class="">Extend subscription</p>
             </a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" rel="tooltip" title="Frequently asked questions" data-placement="bottom" href="#faq">
+              <i class="nc-icon nc-minimal-down"></i>
+              <p class="">FAQ</p>
+            </a>
+          </li>
 
           {% if SOCIAL_TWITTER != "" %}
           <li class="nav-item">
@@ -324,6 +330,65 @@
           
         </div> <!-- row -->
 
+      </div>
+    </div> <!-- section -->
+    <a id="faq"></a>
+    <div class="section text-center ">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-8 ml-auto mr-auto">
+            <h2 class="title">Frequently asked questions</h2>
+            <h5 class="description">
+              Find answers to the most relevant topics of the service we offer here.
+            </h5>
+          </div>  
+        </div>
+        <div class="row">
+          <div class="col-md-12 ml-auto mr-auto">
+            <div class="faq-item mt-3">
+              <i class="nc-icon nc-minimal-down mr-3"></i><span class="h3 mt-3 question">What is an IP2Tor bridge?</span><br>
+              <span class="answer">An IP2Tor bridge is a redirection from a regular IP and port to your Tor hidden service. In other words, if you are running a website and broadcast it to the world using an onion address, you know that the end user will need the Tor browser. Using a IP2Tor bridge, you will get an IP and port that can be used in <strong>any</strong> browser, giving access to any user around the world to your web service, without any special requirements.</span>
+            </div>
+            <div class="faq-item mt-3">
+              <i class="nc-icon nc-minimal-down mr-3"></i><span class="h3 mt-3 question">How do you ensure that the redirect from your IP goes to my Tor address?</span><br>
+              <span class="answer">When you purchase an IP2Tor bridge you are assigned a unique port that points to your service. It is the combination of IP and port that you need to use to get the redirection working as expected.</span>
+            </div>
+            <div class="faq-item mt-3">
+              <i class="nc-icon nc-minimal-down mr-3"></i><span class="h3 mt-3 question">Can I add a Tor address that is not behind a HTTPs certificate (i.e. a HTTP one)?</span><br>
+              <span class="answer">Originally, we thought to require HTTPS in the Tor end, so communication is encrypted end-to-end. However, we understand that sometimes you want to have some quick tests and do not want to go through the process of getting and configure the SSL certs. For that reason, we decided to allow non-HTTP target onion addresses. While this is not recommended from an operational point of view, it's up to you to balance your risks.</span>
+            </div>
+            <div class="faq-item mt-3">
+              <i class="nc-icon nc-minimal-down mr-3"></i><span class="h3 mt-3 question">Why do I need to keep that long ID number I get after I purchase a product?</span><br>
+              <span class="answer">It is VERY IMPORTANT that you store safely the ID of your product, which you get after the payment is successful, for future renewals of the subscription. For the sake of privacy, we do not keep user accounts or emails, which means we have no way to send the product ID to you and if you lose it, you cannot renew your product. Please understand that this is a trade-off between privacy and usability, for which we are leaning to the first one.</span>
+            </div>
+            <div class="faq-item mt-3">
+              <i class="nc-icon nc-minimal-down mr-3"></i><span class="h3 mt-3 question">How do I extend my subscription?</span><br>
+              <span class="answer">You can <a title="Extend an existing subscription" href="#extend">extend your subscription</a> any time before it expires and some short time after it expires. We concede a grace period but we don't guarantee full availability if you wait too long. The way to extend your subscription is as simple as pasting your subscription ID in the extension form and paying the fee with Lightning.</span>
+            </div>
+            <div class="faq-item mt-3">
+              <i class="nc-icon nc-minimal-down mr-3"></i><span class="h3 mt-3 question">What happens if I extend my subscription before the expiry date?</span><br>
+              <span class="answer">No worries, the time between the moment you renew and the current expiry date will be added to your extension, so you won't lose any time in your subscription by renewing early. For example, if I purchase a 7 day subscription on Monday, May 1st, at 00:00, the original expiry date will be on Sunday 7th at 23:59 (plus a grace period, but let's omit that for simplicity). If I renew my subscription on Thursday (May 4th) for another week, then my bridge will ve valid until Sunday, May 14th at 23:59. You can <a title="Extend an existing subscription" href="#extend">extend your subscription here</a>.</span>
+            </div>
+            <div class="faq-item mt-3">
+              <i class="nc-icon nc-minimal-down mr-3"></i><span class="h3 mt-3 question">Can I extend my subscription automatically?</span><br>
+              <span class="answer">At the moment, the automatic extension only works in <a href="https://github.com/rootzoll/raspiblitz" target="_blank">Raspiblitz</a>. That means that if you have a running Raspiblitz node and subscribe to our service, you can 'set and forget', since you will be billed automatically at every reneweal period. If you want to have an automatic renewal but don't have a Raspiblitz node, you will need to program it yourself <a href="https://github.com/odyseum/docker-ip2tor-shop#what-is-the-workflow-to-create-a-raspiblitz-subscription-to-a-host-bridge" target="_blank">using our API</a>.</span>
+            </div>
+            <div class="faq-item mt-3">
+              <i class="nc-icon nc-minimal-down mr-3"></i><span class="h3 mt-3 question">Can I extend my subscription as long as I want?</span><br>
+              <span class="answer">Yes, absolutely. Please note that it must be done in increments defined in the product you choose originally. So if you bought a 1 day subscription, you'll need to renew it every day; if you bought a 7 day subscription, every week and if you bought a 30 day subscription, every month. Usually, the daily and weekly subscriptions work well for your tests, until you figure out your setup. If you don't want to have to renew it this often, monthly subscriptions are the way to go.</span>
+            </div>
+            <div class="faq-item mt-3">
+              <i class="nc-icon nc-minimal-down mr-3"></i><span class="h3 mt-3 question">How do I change the target onion address in a IP2Tor bridge?</span><br>
+              <span class="answer">At the moment, it is not allowed to edit the target onion address in your bridge. An edit feature is in the pipeline but we do not have a timeframe for this. If you need to change the address, we'd recommend you let the old one expire and you subscribe to a new one.</span>
+            </div>
+            
+            <div class="faq-item mt-3">
+              <i class="nc-icon nc-minimal-down mr-3"></i><span class="h3 mt-3 question">What is the duration of my subscription?</span><br>
+              <span class="answer">Every subscription has a "Duration" field where it is specified how long the product will be valid. This duration is both the billing and active period. Your product (e.g. IP2Tor bridge) will be active from the moment of the purchase during this duration. Before this time passes, you will have to renew the product if you want to continue using it.</span>
+            </div>
+            
+          </div>
+        </div>
       </div>
     </div>
 
