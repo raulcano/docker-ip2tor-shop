@@ -9,6 +9,7 @@ class Command(BaseCommand):
         Example:
         manage.py create_host --owner=operator --sitedomain="ip2tor.com" --name="host1" --description="A cool host" --ip=10.11.42.3 --portranges=10000,11000:20000,21000 --rangetype=T --isenabled=True --isalive=True 
         --istestnet=False --offerstorbridges=True --torbridgeduration=86400 --torbridgepriceinitial=25000 --torbridgepriceextension=20000
+        --offersnostraliases=True --nostraliasport=80 --nostraliasduration=2592000 --nostraliaspriceinitial=25000000 --nostraliaspriceextension=20000000
         --offersrsshtunnels=False --rsshtunnelprice=1000 --tos="" --tosurl="" --cistatus=0 --cidate="2022-12-19 00:00" --cimessage=""
     """
 
@@ -28,6 +29,11 @@ class Command(BaseCommand):
         parser.add_argument("--torbridgeduration", required=False, default=86400)
         parser.add_argument("--torbridgepriceinitial", required=False, default=25000)
         parser.add_argument("--torbridgepriceextension", required=False, default=20000)
+        parser.add_argument("--offersnostraliases", required=False, default=False)
+        parser.add_argument("--nostraliasport", required=False, default=80)
+        parser.add_argument("--nostraliasduration", required=False, default=2592000)
+        parser.add_argument("--nostraliaspriceinitial", required=False, default=25000000)
+        parser.add_argument("--nostraliaspriceextension", required=False, default=20000000)
         parser.add_argument("--offersrsshtunnels", required=False, default=False)
         parser.add_argument("--rsshtunnelprice", required=False, default=1000)
         parser.add_argument("--tos", required=False)
@@ -52,6 +58,11 @@ class Command(BaseCommand):
         torbridgeduration = options["torbridgeduration"]
         torbridgepriceinitial = options["torbridgepriceinitial"]
         torbridgepriceextension = options["torbridgepriceextension"]
+        offersnostraliases = options["offersnostraliases"]
+        nostraliasport = options["nostraliasport"]
+        nostraliasduration = options["nostraliasduration"]
+        nostraliaspriceinitial = options["nostraliaspriceinitial"]
+        nostraliaspriceextension = options["nostraliaspriceextension"]
         offersrsshtunnels = options["offersrsshtunnels"]
         rsshtunnelprice = options["rsshtunnelprice"]
         tos = options["tos"]
@@ -89,7 +100,7 @@ class Command(BaseCommand):
         host = Host.objects.create(
             ip=ip, is_enabled=isenabled, is_alive=isalive, owner=owner_object, name=hostname, description=description,
             site=site_object, is_test_host=istesthost, is_testnet=istestnet, offers_tor_bridges=offerstorbridges, tor_bridge_duration=torbridgeduration,
-            tor_bridge_price_initial=torbridgepriceinitial, tor_bridge_price_extension=torbridgepriceextension,
+            tor_bridge_price_initial=torbridgepriceinitial, tor_bridge_price_extension=torbridgepriceextension, offersnostraliases=offersnostraliases, nostraliasport=nostraliasport, nostraliasduration=nostraliasduration, nostraliaspriceinitial=nostraliaspriceinitial, nostraliaspriceextension=nostraliaspriceextension, 
             offers_rssh_tunnels=offersrsshtunnels, rssh_tunnel_price=rsshtunnelprice,terms_of_service=tos,
             terms_of_service_url=tosurl, ci_date=cidate, ci_message=cimessage, ci_status=cistatus
         )
