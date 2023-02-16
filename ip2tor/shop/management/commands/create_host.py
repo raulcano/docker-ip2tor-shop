@@ -91,16 +91,40 @@ class Command(BaseCommand):
         else:
             site_object = Site.objects.filter(domain=sitedomain).first()
 
-        # # Check if the host exists already (identified by the name AND the IP)
-        if Host.objects.filter(name=hostname).exists() and Host.objects.filter(ip=ip).exists():
+        # Check if the host exists already (identified by the name AND the IP)
+        if Host.objects.filter(ip=ip, name=hostname).exists():
             self.stdout.write(f'A Host with ip "{ip}" and name "{hostname}" exists already. Host was not created')
             return
+
+
+        portranges_list = portranges.strip().split(':')
+        
+        if offersnostraliases == True:
+            # Check if there is a host with same IP and same port for Nostr, that is actively offering the Nostr aliases
+            if Host.objects.filter(ip=ip, nostr_alias_port=nostraliasport, offers_nostr_aliases=True).exists():
+                self.stdout.write(f'A Host with ip "{ip}" offering Nostr aliases in port "{nostraliasport}" exists already. Host was not created')
+                return
+
+            # Make sure the Nostr port is not overlapping within port ranges on hosts in the same IP (including itself)
+            for range_separated_by_comma in portranges_list :
+                range = range_separated_by_comma.split(',')
+                start=range[0]
+                end=range[1]
+                if ((start <= nostraliasport and end >= nostraliasport)):
+                    self.stdout.write(f'There exists at least one port range in this host (' + str(start) + ':' + str(end)+ ') that overlaps with the current Nostr alias port. Please choose a non-overlapping port or range. Host was not created')
+                    return
+            
+            for host in Host.objects.filter(ip=ip):
+                for range in host.port_ranges.all():
+                    if ((range.start <= nostraliasport and range.end >= nostraliasport)):
+                        self.stdout.write(f'There exists at least one port range in a different host one with this same IP (' + str(range.start) + ':' + str(range.end)+ ') that overlaps with the current Nostr alias port in this host. Please choose a non-overlapping port or range. Host was not created')
+                        return
 
         # Create host, and add it to user and site
         host = Host.objects.create(
             ip=ip, is_enabled=isenabled, is_alive=isalive, owner=owner_object, name=hostname, description=description,
             site=site_object, is_test_host=istesthost, is_testnet=istestnet, offers_tor_bridges=offerstorbridges, tor_bridge_duration=torbridgeduration,
-            tor_bridge_price_initial=torbridgepriceinitial, tor_bridge_price_extension=torbridgepriceextension, offersnostraliases=offersnostraliases, nostraliasport=nostraliasport, nostraliasduration=nostraliasduration, nostraliaspriceinitial=nostraliaspriceinitial, nostraliaspriceextension=nostraliaspriceextension, 
+            tor_bridge_price_initial=torbridgepriceinitial, tor_bridge_price_extension=torbridgepriceextension, offers_nostr_aliases=offersnostraliases, nostr_alias_port=nostraliasport, nostr_alias_duration=nostraliasduration, nostr_alias_price_initial=nostraliaspriceinitial, nostr_alias_price_extension=nostraliaspriceextension, 
             offers_rssh_tunnels=offersrsshtunnels, rssh_tunnel_price=rsshtunnelprice,terms_of_service=tos,
             terms_of_service_url=tosurl, ci_date=cidate, ci_message=cimessage, ci_status=cistatus
         )
@@ -118,7 +142,6 @@ class Command(BaseCommand):
 
         # Create port ranges for this host, based on a list of start,end:start2,end2:start3,end3 etc
         
-        portranges_list = portranges.strip().split(':')
         for range_separated_by_comma in portranges_list :
             range = range_separated_by_comma.split(',')
             PortRange.objects.create( type=rangetype, start=range[0], end=range[1], host=host )
