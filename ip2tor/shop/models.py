@@ -671,7 +671,6 @@ class NostrAlias(Bridge):
         verbose_name_plural = _('Nostr Aliases')
 
     alias = models.CharField(max_length=100,
-                               unique=True,
                                verbose_name=_('Nostr Alias'),
                                help_text=_('Alias for your Nostr public key (allowed only letters, numbers, underscore and hyphens).'),
                                validators=[validate_slug,validate_nostr_alias_blacklist])

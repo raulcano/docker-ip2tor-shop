@@ -234,15 +234,15 @@
       <div class="container">
         <div class="row">
           <div class="col-md-8 ml-auto mr-auto">
-            <h2 class="title">Nostr aliases</h2>
+            <h2 class="title">Nostr aliases in <a href="http://nostro.fun/#nostr_aliases">NOSTRO.FUN</a></h2>
             <h5 class="description">
-              Choose the alias that best fits you and share it with the world.
+              Choose the alias that best fits you and share it with the world. <br>
+               If your subscribe 'yourname' as a Nostr alias, the following URLs will point to your Nostr public key:
+              <br>
+              <strong>yourname.nostro.fun</strong> AND <strong>nostro.fun/yourname</strong>
             <br>
             <br>
-            {# include "shop/purchase_form_snippet.html" with form=form_na hosts=hosts_nostr_aliases product='Nostr alias' product_slug='nostr_alias' submitted_product_type=submitted_product_type host_id=host_id #}
-            <button class="btn btn-warning">
-              COMING SOON!
-            </button>
+            {% include "shop/purchase_form_snippet.html" with form=form_na hosts=hosts_nostr_aliases product='Nostr alias' product_slug='nostr_alias' submitted_product_type=submitted_product_type host_id=host_id %}
           </div>  
         </div>
         <br/>
@@ -256,7 +256,7 @@
               </div>
               <div class="description">
                 <h4 class="info-title">Be recognized</h4>
-                <p>Claim an alias that is easy to remember and be found much easier by your peers in Nostr.</p>
+                <p>Claim an alias that is easy to remember and be found much easier by your peers in Nostr. Also, become a Nostr embassador by sharing your alias in your profile in other social networks.</p>
               </div>
             </div>
           </div>
@@ -274,11 +274,11 @@
           <div class="col-md-4 mt-5">
             <div class="info">
               <div class="icon icon-danger">
-                <i class="nc-icon nc-tie-bow"></i>
+                <i class="nc-icon nc-button-play"></i>
               </div>
               <div class="description">
-                <h4 class="info-title">Grow Nostr</h4>
-                <p>Be a Nostr embassador by sharing your alias in your profile in other social networks.</p>
+                <h4 class="info-title">Clickable Nostr ID</h4>
+                <p>By having a domain alias, your Nostr ID will be clickable if you write it in your Twitter bio, for instance.</p>
               </div>
             </div>
           </div>
@@ -354,8 +354,12 @@
               <span class="answer">When you purchase an IP2Tor bridge you are assigned a unique port that points to your service. It is the combination of IP and port that you need to use to get the redirection working as expected.</span>
             </div>
             <div class="faq-item mt-3">
-              <i class="nc-icon nc-minimal-down mr-3"></i><span class="h3 mt-3 question">Can I add a Tor address that is not behind a HTTPs certificate (i.e. a HTTP one)?</span><br>
-              <span class="answer">Originally, we thought to require HTTPS in the Tor end, so communication is encrypted end-to-end. However, we understand that sometimes you want to have some quick tests and do not want to go through the process of getting and configure the SSL certs. For that reason, we decided to allow non-HTTP target onion addresses. While this is not recommended from an operational point of view, it's up to you to balance your risks.</span>
+              <i class="nc-icon nc-minimal-down mr-3"></i><span class="h3 mt-3 question">Can I add a Tor address that is not behind a HTTPS certificate (i.e. a HTTP one)?</span><br>
+              <span class="answer">Originally, we thought to require HTTPS in the Tor end, so communication is encrypted end-to-end. However, we understand that sometimes you want to have some quick tests and do not want to go through the process of getting and configure the SSL certs. For that reason, we decided to allow non-HTTPS target onion addresses. While this is not recommended from an operational point of view, it's up to you to balance your risks.</span>
+            </div>
+            <div class="faq-item mt-3">
+              <i class="nc-icon nc-minimal-down mr-3"></i><span class="h3 mt-3 question">What is a Nostr alias?</span><br>
+              <span class="answer">An alias is an URL of the form "yourname.nostro.fun" or "nostro.fun/yourname" that points to your Nostr public key, with the prefix 'nostr://', so the user default app will open your Nostr profile if the alias is clicked. If you have been following the recent developments on Nostr, you may have noticed that your Nostr ID is a public key, that is, a long string of letters and numbers very difficult to remember. If you want to share your Nostr ID with other users in a way that is easy for everyone to remember, the alias we offer is a good way to go.</span>
             </div>
             <div class="faq-item mt-3">
               <i class="nc-icon nc-minimal-down mr-3"></i><span class="h3 mt-3 question">Why do I need to keep that long ID number I get after I purchase a product?</span><br>
@@ -380,6 +384,10 @@
             <div class="faq-item mt-3">
               <i class="nc-icon nc-minimal-down mr-3"></i><span class="h3 mt-3 question">How do I change the target onion address in a IP2Tor bridge?</span><br>
               <span class="answer">At the moment, it is not allowed to edit the target onion address in your bridge. An edit feature is in the pipeline but we do not have a timeframe for this. If you need to change the address, we'd recommend you let the old one expire and you subscribe to a new one.</span>
+            </div>
+            <div class="faq-item mt-3">
+              <i class="nc-icon nc-minimal-down mr-3"></i><span class="h3 mt-3 question">How do I change the public key in a Nostr alias?</span><br>
+              <span class="answer">At the moment, it is not allowed to edit the public key in your Nostr alias. An edit feature is in the pipeline but we do not have a timeframe for this. If you need to change the public key, we'd recommend you let the old one expire and you subscribe to a new one.</span>
             </div>
             
             <div class="faq-item mt-3">
