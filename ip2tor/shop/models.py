@@ -679,6 +679,7 @@ class NostrAlias(Bridge):
                                   verbose_name=_('Nostr Public Key'),
                                   help_text=_('The public key that identifies you in the Nostr network.'),
                                   validators=[validate_slug,validate_nostr_pubkey,])
+        
 
 class TorBridge(Bridge):
     PRODUCT = 'tor_bridge'

@@ -155,9 +155,16 @@ def index(request):
                     if not host.offers_nostr_aliases:
                         raise Exception('This host does not offer the product "' + submitted_product_type + '". Please stop messing around.')
                     clean_alias = form.cleaned_data.get('alias')
-                    clean_public_key = form.cleaned_data.get('public_key')
-                    po = ShopPurchaseOrder.nostr_aliases.create(host=host, alias=clean_alias, public_key=clean_public_key, comment='')
-                    return redirect('lnpurchase:po-detail', pk=po.pk)
+
+                    for nostr_alias in NostrAlias.objects.filter(alias__iexact=clean_alias):
+                        if nostr_alias.host.ip == host.ip:
+                            host_id = request.POST.get(submitted_product_type + 'Host_id')
+                            errors.append('This alias is already taken. Please try another one...')
+                            break
+                    if len(errors) == 0:
+                        clean_public_key = form.cleaned_data.get('public_key')
+                        po = ShopPurchaseOrder.nostr_aliases.create(host=host, alias=clean_alias, public_key=clean_public_key, comment='')
+                        return redirect('lnpurchase:po-detail', pk=po.pk)
             else:
                 host_id = request.POST.get(submitted_product_type + 'Host_id')
         

@@ -183,7 +183,7 @@
               Purchase a bridge to your Tor address from an IP and Port in our servers.
             <br>
             <br>
-            {% include "shop/purchase_form_snippet.html" with form=form_tb hosts=hosts_tor_bridges product='IP2Tor bridge' product_slug='tor_bridge' submitted_product_type=submitted_product_type host_id=host_id  %}
+            {% include "shop/purchase_form_snippet.html" with form=form_tb hosts=hosts_tor_bridges product='IP2Tor bridge' product_slug='tor_bridge' submitted_product_type=submitted_product_type host_id=host_id errors=errors %}
           </div>  
         </div>
 
@@ -242,7 +242,7 @@
               <strong>yourname.nostro.fun</strong> AND <strong>nostro.fun/yourname</strong>
             <br>
             <br>
-            {% include "shop/purchase_form_snippet.html" with form=form_na hosts=hosts_nostr_aliases product='Nostr alias' product_slug='nostr_alias' submitted_product_type=submitted_product_type host_id=host_id %}
+            {% include "shop/purchase_form_snippet.html" with form=form_na hosts=hosts_nostr_aliases product='Nostr alias' product_slug='nostr_alias' submitted_product_type=submitted_product_type host_id=host_id errors=errors %}
           </div>  
         </div>
         <br/>
@@ -298,7 +298,7 @@
               If your existing subscription to IP2Tor bridges or Nostr aliases is about to expire, you can extend it here. You just need the ID you got the first time you purchased your product.
             <br>
             <br>
-            {% include "shop/extend_form_snippet.html" with submitted_product_type=submitted_product_type errors=errors%}
+            {% include "shop/extend_form_snippet.html" with submitted_product_type=submitted_product_type errors=errors %}
           </div>  
         </div>
 

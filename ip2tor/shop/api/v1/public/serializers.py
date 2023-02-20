@@ -134,8 +134,10 @@ class PublicOrderSerializer(serializers.Serializer):
                 raise serializers.ValidationError(f"Sorry, this host does not offer the product '{NostrAlias.PRODUCT}' at the moment.")
             if not attrs.get('alias') or not attrs.get('public_key'):
                 raise serializers.ValidationError(f"Product '{NostrAlias.PRODUCT}' requires 'alias' and 'public_key'")
-            if NostrAlias.objects.filter(alias=attrs.get('alias'), host=self.host).exists():
-                raise serializers.ValidationError(f"Sorry, the alias '{attrs.get('alias')}' is taken. Try another one.")
+            
+            for nostr_alias in NostrAlias.objects.filter(alias__iexact=attrs.get('alias')):
+                if nostr_alias.host.ip == self.host.ip:
+                    raise serializers.ValidationError(f"Sorry, the alias '{attrs.get('alias')}' is taken. Try another one.")
 
         if attrs['product'] == RSshTunnel.PRODUCT:
             if not self.host.offers_rssh_tunnels:

@@ -37,5 +37,7 @@ def validate_nostr_alias_blacklist(value):
             _('The selected alias is taken. Try another one...')
         )
 
+
+
 def validate_nostr_pubkey(value):
     pass
