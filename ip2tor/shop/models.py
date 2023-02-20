@@ -360,9 +360,9 @@ class Host(models.Model):
 
     def clean(self):
         if self.offers_nostr_aliases:
-            # Ensure there is no other host with the same IP and same Nostr port            
-            if Host.objects.filter(ip=self.ip, nostr_alias_port=self.nostr_alias_port, offers_nostr_aliases=True).exclude(pk=self.pk).exists():
-                raise ValidationError(_('Another Host with ip ' + self.ip + ' offering Nostr aliases in port ' + str(self.nostr_alias_port) + ' exists already. Change the Nostr port or disable the Nostr alias function in either Host.'))
+            # Ensure there is no other host with the same IP and same Nostr port - NOT NEEDED (The only check is if the alias exists, when creating the product)            
+            # if Host.objects.filter(ip=self.ip, nostr_alias_port=self.nostr_alias_port, offers_nostr_aliases=True).exclude(pk=self.pk).exists():
+            #     raise ValidationError(_('Another Host with ip ' + self.ip + ' offering Nostr aliases in port ' + str(self.nostr_alias_port) + ' exists already. Change the Nostr port or disable the Nostr alias function in either Host.'))
 
             # Make sure the Nostr port is not overlapping within port ranges on hosts in the same IP (including itself)
             for host in Host.objects.filter(ip=self.ip):

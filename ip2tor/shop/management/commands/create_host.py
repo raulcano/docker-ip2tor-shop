@@ -144,7 +144,8 @@ class Command(BaseCommand):
         
         for range_separated_by_comma in portranges_list :
             range = range_separated_by_comma.split(',')
-            PortRange.objects.create( type=rangetype, start=range[0], end=range[1], host=host )
+            if len(range) == 2:
+                PortRange.objects.create( type=rangetype, start=range[0], end=range[1], host=host )
 
 
         self.stdout.write(f'A Host with ip "{ip}" and name "{hostname}" was created successfully')
