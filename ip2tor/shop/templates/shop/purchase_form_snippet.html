@@ -57,19 +57,22 @@
               </div>
                 {% endfor %}
                 {% if errors and product_slug == submitted_product_type %}
-                <div class="alert alert-danger" role="alert">
+                
                   {% for error in errors %}
-                    {{ error }}<br>
+                    <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                    </div>
                   {% endfor %}
-                </div>
                 {% endif %}
                 {% if form.errors %}
                   {% for field in form %}
-                    <div class="alert alert-danger">
+                    
                     {% for error in field.errors %}
-                      {{ error|escape }}<br>
-                    {% endfor %}
+                    <div class="alert alert-danger">
+                      {{ error|escape }}
                     </div>
+                    {% endfor %}
+                    
                   {% endfor %}
                   {% for error in form.non_field_errors %}
                     <div class="alert alert-danger" role="alert">

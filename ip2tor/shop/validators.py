@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from django.conf import settings
 
 
 def validate_host_name_no_underscore(value):
@@ -30,11 +31,10 @@ def validate_target_has_port(value):
         raise ValidationError(_('Must include a port as last part.'))
 
 def validate_nostr_alias_blacklist(value):
-    blacklist = ['www', 'shop','api', 'public', 'hosts', 'admin', 'api-auth', 'charged']
+    blacklist = getattr(settings, 'NOSTR_ALIAS_BLACKLIST')
     if value in blacklist:
         raise ValidationError(
-            _('Must not be one of: %(blacklist)s'),
-            params={'blacklist': ', '.join(blacklist)},
+            _('The selected alias is taken. Try another one...')
         )
 
 def validate_nostr_pubkey(value):
