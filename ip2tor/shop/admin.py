@@ -36,7 +36,7 @@ class BridgeTunnelAdmin(admin.ModelAdmin):
     list_display = ['id', 'comment', 'status', 'host', 'port', 'suspend_after', 'created_at', 'po_count']
     list_filter = ('status', 'created_at', 'host')
 
-    readonly_fields = ('host', 'port', 'status', 'created_at', 'suspend_after', 'po_count')
+    readonly_fields = ('host', 'port', 'created_at', 'po_count')
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         form = super().get_form(request, obj, change, **kwargs)
@@ -110,7 +110,7 @@ class TorBridgeAdmin(BridgeTunnelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super().get_readonly_fields(request, obj)
-        readonly_fields += ('target',)
+        # readonly_fields += ('target',)
         return readonly_fields
 
     def get_search_fields(self, request):
@@ -123,7 +123,7 @@ class NostrAliasAdmin(BridgeTunnelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super().get_readonly_fields(request, obj)
-        readonly_fields += ('alias', 'public_key',)
+        # readonly_fields += ('alias', 'public_key',)
         return readonly_fields
 
     def get_search_fields(self, request):
