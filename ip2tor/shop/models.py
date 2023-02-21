@@ -189,7 +189,7 @@ class Host(models.Model):
                                                         default=20000)
     offers_nostr_aliases = models.BooleanField(default=False,
                                              verbose_name=_('Does host offer Nostr Aliases?'))
-    nostr_alias_port = models.PositiveSmallIntegerField(default=80,
+    nostr_alias_port = models.PositiveIntegerField(default=80,
                                             verbose_name=_('Nostr Alias Port'),
                                             help_text=_('At which port will the host access the Nostr Aliases. E.g. nostr_alias.com:80'))
 
@@ -358,6 +358,18 @@ class Host(models.Model):
         else:
             return str(int(self.nostr_alias_duration / 86400)) + ' days'
 
+    def clean(self):
+        if self.offers_nostr_aliases:
+            # Ensure there is no other host with the same IP and same Nostr port - NOT NEEDED (The only check is if the alias exists, when creating the product)            
+            # if Host.objects.filter(ip=self.ip, nostr_alias_port=self.nostr_alias_port, offers_nostr_aliases=True).exclude(pk=self.pk).exists():
+            #     raise ValidationError(_('Another Host with ip ' + self.ip + ' offering Nostr aliases in port ' + str(self.nostr_alias_port) + ' exists already. Change the Nostr port or disable the Nostr alias function in either Host.'))
+
+            # Make sure the Nostr port is not overlapping within port ranges on hosts in the same IP (including itself)
+            for host in Host.objects.filter(ip=self.ip):
+                for range in host.port_ranges.all():
+                    if ((range.start <= self.nostr_alias_port and range.end >= self.nostr_alias_port)):
+                        raise ValidationError(_('There exists at least one port range either in this host or in a different one with this same IP (' + str(range.start) + ':' + str(range.end)+ ') that overlaps with the current Nostr alias port in this host. Please choose a non-overlapping port or range.'))
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
@@ -497,12 +509,16 @@ class PortRange(models.Model):
 
         # Make sure port ranges don't overlap WITHIN THIS HOST AND WITH ANOTHER HOST WITH SAME IP!
         for host in Host.objects.filter(ip=self.host.ip):
+            if (self.start <= host.nostr_alias_port and self.end >= host.nostr_alias_port and host.offers_nostr_aliases):
+                    raise ValidationError(_('This port range overlaps with the Nostr alias port (' + str(host.nostr_alias_port) + ') at another host with the same IP (' + host.name + '). Please choose a non-overlapping range or disable the Nostr function in that host.'))
+
             for range in host.port_ranges.all():
                 if ( range.id != self.id) \
                 and((self.start >= range.start and self.start <= range.end) \
                     or (self.end >= range.start and self.end <= range.end) \
                     or (self.start <= range.start and self.end >= range.end)):
                     raise ValidationError(_('There exists at least one port range either in this host or in a different one with this same IP (' + str(range.start) + ':' + str(range.end)+ ') that overlaps with the one just entered. Please choose a non-overlapping range.'))
+                
 
 
 
@@ -655,7 +671,6 @@ class NostrAlias(Bridge):
         verbose_name_plural = _('Nostr Aliases')
 
     alias = models.CharField(max_length=100,
-                               unique=True,
                                verbose_name=_('Nostr Alias'),
                                help_text=_('Alias for your Nostr public key (allowed only letters, numbers, underscore and hyphens).'),
                                validators=[validate_slug,validate_nostr_alias_blacklist])
@@ -664,6 +679,7 @@ class NostrAlias(Bridge):
                                   verbose_name=_('Nostr Public Key'),
                                   help_text=_('The public key that identifies you in the Nostr network.'),
                                   validators=[validate_slug,validate_nostr_pubkey,])
+        
 
 class TorBridge(Bridge):
     PRODUCT = 'tor_bridge'

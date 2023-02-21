@@ -341,6 +341,7 @@ CHARGED_LNINVOICE_TIMEOUT = env.int('CHARGED_LNINVOICE_TIMEOUT', default=900)
 
 CHARGED_LNDNODE_IMPLEMENTING_CLASSES = env.list('CHARGED_LNDNODE_IMPLEMENTING_CLASSES', default=['LndGRpcNode', 'LndRestNode'])
 
+
 CHARGED_LND_HTTP_PROXY = env.str('CHARGED_LND_HTTP_PROXY', default='')
 
 SHOP_BRIDGE_DURATION_GRACE_TIME = env.int('SHOP_BRIDGE_DURATION_GRACE_TIME', default=600)
@@ -353,6 +354,8 @@ SHOP_OPERATOR_GROUP_NAME='operators'
 WHITELISTED_SERVICE_PORTS =  env.list('WHITELISTED_SERVICE_PORTS', default=[ '8333', '9735' ])
 
 PORT_POOL_AVAILABILITY_MARGIN = env.float('PORT_POOL_AVAILABILITY_MARGIN', default=0.85)
+
+NOSTR_ALIAS_BLACKLIST = env.list('NOSTR_ALIAS_BLACKLIST', default=['www', 'shop','api', 'public', 'hosts', 'admin', 'api-auth', 'charged'])
 
 # allow for a local file ("django_ip2tor/local_settings.py") to be used to add or override settings
 if os.path.isfile(os.path.join(BASE_DIR, 'django_ip2tor', 'local_settings.py')):

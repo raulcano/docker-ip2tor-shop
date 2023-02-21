@@ -14,7 +14,8 @@
                 <a href="http://{{ item.product.host.ip }}:{{ item.product.port }}" target="_blank"><h3>{{ item.product.host.ip }}:{{ item.product.port }}</h3></a>
             {% elif item.product.PRODUCT == 'nostr_alias' %}
                 <a href="{% url 'v1:public_nostr_aliases-detail' pk=item.product.id %}" target="_blank">{{ item.product.meta.verbose_name }}</a> is ready at <i class="nc-icon nc-alert-circle-i" title="If this is a purchase of a new Nostr Alias, it may take a couple of minutes until is is operational. If you renewed an existing one, you just ensured that the alias will continue to work uninterrupted until the new expiry date."></i><br>
-                <a href="{{ item.product.host.ip }}/{{ item.product.alias }}" target="_blank"><h3>{{ item.product.host.ip }}:{{ item.product.port }}</h3></a>
+                <a href="http://nostro.fun/{{ item.product.alias }}" target="_blank"><h3>nostro.fun/{{ item.product.alias }}</h3></a>
+                <a href="http://{{ item.product.alias }}.nostro.fun" target="_blank"><h3>{{ item.product.alias }}.nostro.fun</h3></a>
             {% endif %}
             and points to
             {% if item.product.PRODUCT == 'tor_bridge' %}

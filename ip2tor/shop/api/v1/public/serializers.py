@@ -123,14 +123,27 @@ class PublicOrderSerializer(serializers.Serializer):
         check required fields based on product
         """
 
-        if attrs['product'] == TorBridge.PRODUCT and not attrs.get('target'):
-            raise serializers.ValidationError(f"Product '{TorBridge.PRODUCT}' requires 'target'")
+        if attrs['product'] == TorBridge.PRODUCT:
+            if not self.host.offers_tor_bridges:
+                raise serializers.ValidationError(f"Sorry, this host does not offer the product '{TorBridge.PRODUCT}' at the moment.")
+            if not attrs.get('target'):
+                raise serializers.ValidationError(f"Product '{TorBridge.PRODUCT}' requires 'target'")
 
-        if attrs['product'] == NostrAlias.PRODUCT and not attrs.get('alias') and not attrs.get('public_key'):
-            raise serializers.ValidationError(f"Product '{NostrAlias.PRODUCT}' requires 'alias' and 'public_key'")
+        if attrs['product'] == NostrAlias.PRODUCT:
+            if not self.host.offers_nostr_aliases:
+                raise serializers.ValidationError(f"Sorry, this host does not offer the product '{NostrAlias.PRODUCT}' at the moment.")
+            if not attrs.get('alias') or not attrs.get('public_key'):
+                raise serializers.ValidationError(f"Product '{NostrAlias.PRODUCT}' requires 'alias' and 'public_key'")
+            
+            for nostr_alias in NostrAlias.objects.filter(alias__iexact=attrs.get('alias')):
+                if nostr_alias.host.ip == self.host.ip:
+                    raise serializers.ValidationError(f"Sorry, the alias '{attrs.get('alias')}' is taken. Try another one.")
 
-        if attrs['product'] == RSshTunnel.PRODUCT and not attrs.get('public_key'):
-            raise serializers.ValidationError(f"Product '{RSshTunnel.PRODUCT}' requires 'public_key'")
+        if attrs['product'] == RSshTunnel.PRODUCT:
+            if not self.host.offers_rssh_tunnels:
+                raise serializers.ValidationError(f"Sorry, this host does not offer the product '{RSshTunnel.PRODUCT}' at the moment.")
+            if not attrs.get('public_key'):
+                raise serializers.ValidationError(f"Product '{RSshTunnel.PRODUCT}' requires 'public_key'")
 
         if not attrs.get('tos_accepted'):
             if self.host.terms_of_service_url:
