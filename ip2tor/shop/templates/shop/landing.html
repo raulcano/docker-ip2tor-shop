@@ -240,6 +240,9 @@
                If your subscribe 'yourname' as a Nostr alias, the following URLs will point to your Nostr public key:
               <br>
               <strong>yourname.nostro.fun</strong> AND <strong>nostro.fun/yourname</strong>
+              <br>
+              In addition, you will get a NIP-05 address such as: <br>
+              <strong>yourname@nostro.fun</strong>
             <br>
             <br>
             {% include "shop/purchase_form_snippet.html" with form=form_na hosts=hosts_nostr_aliases product='Nostr alias' product_slug='nostr_alias' submitted_product_type=submitted_product_type host_id=host_id errors=errors %}
@@ -266,8 +269,11 @@
                 <i class="nc-icon nc-favourite-28"></i>
               </div>
               <div class="description">
-                <h4 class="info-title">A piece of you</h4>
-                <p>An alias tells more about you than a random public key. You have the chance to share some love while keeping your real identity secret.</p>
+                <h4 class="info-title">NIP-05 address</h4>
+                <p>You will also get your NIP-05 address of the form <strong>youralias@nostro.fun</strong>. <br>
+                  You can then include this in your Nostr profile, so people can also find you by your alias. <br>
+                <a href="https://github.com/nostr-protocol/nips/blob/master/05.md" class="btn btn-link btn-danger" target="_blank">Learn about NIP-05</a>
+              </p>
               </div>
             </div>
           </div>
