@@ -15,5 +15,5 @@
 source /home/ip2tor/docker-ip2tor-shop/.env
 sudo certbot renew
 
-cp /etc/letsencrypt/live/${SHOP_SITE_DOMAIN}/privkey.pem / /home/ip2tor/docker-ip2tor-shop/ssl/${SHOP_SITE_DOMAIN}/privkey.pem
-cp /etc/letsencrypt/live/${SHOP_SITE_DOMAIN}/fullchain.pem / /home/ip2tor/docker-ip2tor-shop/ssl/${SHOP_SITE_DOMAIN}/fullchain.pem
+cp /etc/letsencrypt/live/${SHOP_SITE_DOMAIN}/privkey.pem /home/ip2tor/docker-ip2tor-shop/ssl/${SHOP_SITE_DOMAIN}/privkey.pem
+cp /etc/letsencrypt/live/${SHOP_SITE_DOMAIN}/fullchain.pem /home/ip2tor/docker-ip2tor-shop/ssl/${SHOP_SITE_DOMAIN}/fullchain.pem
