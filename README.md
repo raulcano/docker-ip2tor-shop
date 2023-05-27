@@ -460,8 +460,8 @@ sudo certbot renew
 If successful, we just need to copy the new cert files into the right folder and restart the nginx container.
 
 ```
-cp /etc/letsencrypt/live/${SHOP_SITE_DOMAIN}/privkey.pem / ~/docker-ip2tor-shop/ssl/${SHOP_SITE_DOMAIN}/privkey.pem
-cp /etc/letsencrypt/live/${SHOP_SITE_DOMAIN}/fullchain.pem / ~/docker-ip2tor-shop/ssl/${SHOP_SITE_DOMAIN}/fullchain.pem
+cp /etc/letsencrypt/live/${SHOP_SITE_DOMAIN}/privkey.pem ~/docker-ip2tor-shop/ssl/${SHOP_SITE_DOMAIN}/privkey.pem
+cp /etc/letsencrypt/live/${SHOP_SITE_DOMAIN}/fullchain.pem ~/docker-ip2tor-shop/ssl/${SHOP_SITE_DOMAIN}/fullchain.pem
 ``` 
 
 There is a script ```renew-cert.sh``` in the scripts folder that you can use to automatize this task.
