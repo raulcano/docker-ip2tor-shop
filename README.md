@@ -486,9 +486,23 @@ And add this line (e.g. this would run the script every monday at 3am)
 
 To avoid an ever-growing  ```dump.rdb``` file from Redis to cause trouble, you can create a cronjob that deletes such file every day (or with the frequency you want).
 
-For instance, this line will remove the dump.rdb file every day at 23:07.
+The same applies to certain log files. It would be safe to delete them once a week.
+
+For instance, this line will remove the dump.rdb file every day at 23:07. 
+Likewise, it will remove ```celery-beat.log```, ```celery-worker.log```, ```access.log``` once per weeek.
 ```
 07 23 * * * sudo rm /home/ip2tor/docker-ip2tor-shop/redis-data/dump.rdb
+46 22 * * mon sudo rm /home/ip2tor/docker-ip2tor-shop/logs/celery-beat.log
+46 22 * * mon sudo rm /home/ip2tor/docker-ip2tor-shop/logs/celery-worker.log
+12 23 * * mon sudo rm /home/ip2tor/docker-ip2tor-shop/logs/nginx/access.log
+```
+
+## Listing files by size
+This is a miscellaneous command that may come in handy if we want to delete the biggest, useless files in the system. 
+
+The command will search from the actual directory and its subdirectories and it will list in order the biggets 10 files:  
+```
+sudo find . -type f -exec du -Sh {} + | sort -rh | head -n 10
 ```
 
 ## Get Telegraf config
