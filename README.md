@@ -482,6 +482,14 @@ And add this line (e.g. this would run the script every monday at 3am)
 0 3 * * mon ~/docker-ip2tor-shop/scripts/renew-cert.sh
 ```
 
+## Crontab
+
+To avoid an ever-growing  ```dump.rdb``` file from Redis to cause trouble, you can create a cronjob that deletes such file every day (or with the frequency you want).
+
+For instance, this line will remove the dump.rdb file every day at 23:07.
+```
+07 23 * * * sudo rm /home/ip2tor/docker-ip2tor-shop/redis-data/dump.rdb
+```
 
 ## Get Telegraf config
 
