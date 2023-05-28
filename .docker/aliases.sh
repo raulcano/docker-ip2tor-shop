@@ -45,3 +45,4 @@ alias hostids='sudo docker exec -it ip2tor-shop-django-http python3 /home/ip2tor
 
 alias fstatus='sudo ufw status'
 alias psql='sudo docker exec -it ip2tor-shop-postgres psql --username=shopolite --dbname=ip2tor_shop'
+alias sizes='sudo find . -type f -exec du -Sh {} + | sort -rh | head -n 20'
