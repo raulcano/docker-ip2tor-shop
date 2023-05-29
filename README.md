@@ -442,7 +442,54 @@ Alternatively, you can go to the admin pages and enable the corresponding proper
 __WARNING!__ If you change to test host an existing host which has active bridges within it already, those bridges won't be renewed when they are due and the user will lose them. It is advisable to warn the users somehow or just to avoid this situation altogether.
 
 ## SSL certificates for the Shop
-### Generating SSL certificates for the first time
+
+## Using Acme.sh script for SSL certs
+
+https://github.com/acmesh-official/acme.sh
+
+1. Install from git in the home directory:
+```
+cd ~
+git clone https://github.com/acmesh-official/acme.sh.git
+cd ./acme.sh
+./acme.sh --install -m my@example.com
+```
+This will install a cronjob in the crontab that runs daily to check if renewal is due. If it is, the certificates will be renewed without interaction needed 
+
+2. Issue the certificates.  While there are many ways to issue and renew your certs, I found the usage of API to be the most convenient:
+https://github.com/acmesh-official/acme.sh/wiki/dnsapi . For example, if your domains are in Namesilo.com:
+```
+export Namesilo_Key="yourAPIkey"
+./acme.sh --issue --dns dns_namesilo --dnssleep 900 -d ${SHOP_SITE_DOMAIN}  -d '*.${SHOP_SITE_DOMAIN}'
+```
+
+3. Create the destination folder for the certs. This is the folder that NGINX will check for the files.
+```
+mkdir ~/docker-ip2tor-shop/ssl/${SHOP_SITE_DOMAIN}/
+```
+3. Copy the issued certs to the destination folder with this specific command provided by the acme script.
+```
+acme.sh --install-cert -d {NOSTR_DOMAIN} -d *.{NOSTR_DOMAIN} \
+--key-file       ~/docker-ip2tor-shop/ssl/${SHOP_SITE_DOMAIN}/privkey.pem  \
+--fullchain-file ~/docker-ip2tor-shop/ssl/${SHOP_SITE_DOMAIN}/fullchain.pem \
+--reloadcmd     "sudo docker exec ip2tor-host-nginx service nginx reload"
+```
+
+4. To check the installed certificates and their validity:
+```
+acme.sh --list
+```
+You will get a list like this:
+```
+Main_Domain  KeyLength  SAN_Domains   CA           Created               Renew
+example.com   "ec-256"   *.example.com  ZeroSSL.com  2023-05-29T10:57:24Z  2023-07-27T10:57:24Z
+```
+
+5. To uninstall the script, run ```acme.sh --uninstall```
+
+
+
+### Generating SSL certificates for the first time [DEPRECATED - use acme.sh instead]
 From the machine running the Shop, we can get the SSL certificates running the ```certbot``` with this command, and following the steps.
 This will require that you have access to the domain stored in the env variable ```SHOP_SITE_DOMAIN```, and that you add some dns entries in your domain management account.
 In any case, if you run this command, it will tell you exactly what to do.
@@ -452,7 +499,12 @@ sudo certbot certonly --manual --email <your@email.com> --agree-tos --manual-pub
 
 Once the certificates have been generated, go to their location (usually ```/etc/letsencrypt/live/${SHOP_SITE_DOMAIN}```) and copy them to the folder in the Shop project ```/ssl/${SHOP_SITE_DOMAIN}```
 
-### Renewing SSL certificates
+You can always check which certificates you have installed with:
+```
+sudo certbot certificates
+```
+
+### Renewing SSL certificates [DEPRECATED - use acme.sh instead]
 The following command is the one to renew the certificates we generated in the Shop machine. Usually the renewal is performed (and allowed by ```certbot```) when the cert is close to its expiry date.
 ```
 sudo certbot renew
@@ -481,6 +533,7 @@ And add this line (e.g. this would run the script every monday at 3am)
 ```
 0 3 * * mon ~/docker-ip2tor-shop/scripts/renew-cert.sh
 ```
+
 
 ## Crontab
 
