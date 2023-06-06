@@ -344,8 +344,11 @@ class LndGRpcNode(LndNode):
             os.environ["GRPC_SSL_CIPHER_SUITES"] = 'HIGH+ECDSA'
 
             # build ssl credentials using the cert the same as before
-            cert_creds = grpc.ssl_channel_credentials(self.tls_cert)
-            # cert_creds = grpc.ssl_channel_credentials()
+            # Uncomment this line for regular LND nodes
+            # cert_creds = grpc.ssl_channel_credentials(self.tls_cert)
+
+            # Uncomment this line for LND nodes @ Voltage.cloud
+            cert_creds = grpc.ssl_channel_credentials()
 
             # build meta data credentials
             auth_creds = grpc.metadata_call_credentials(metadata_callback)
