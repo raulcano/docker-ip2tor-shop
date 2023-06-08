@@ -222,6 +222,13 @@ class Host(models.Model):
                                            help_text=_('Link to a Terms of Service site.'),
                                            null=False, blank=True)
 
+    # Max traffic allowed (bandwidth in bytes) during the duration of this bridge (SHOP_HOSTX_TOR_BRIDGE_DURATION). 
+    # After this limit is reached, the user can either extend the duration of the bridge (which will add this amount to the remaining)
+    # or to purchase more bandwith for the bridge (which will directly increase the bandwith remaining, but not the duration)
+    bridge_bandwidth_initial = models.BigIntegerField(verbose_name=_('Bridge bandwidth allocated initially (bytes)'),
+                                                 help_text=_('Max traffic allowed (bandwidth in bytes) during the life of the bridges in this host.'),
+                                                 default=1073741824)
+
     # Host Check-In
     ci_date = models.DateTimeField(
         verbose_name=_('check-in date'),
@@ -592,6 +599,14 @@ class Bridge(Product):
 
     is_monitored = models.BooleanField(default=True,
                                        verbose_name=_('Is bridge actively monitored?'))
+                                
+    bandwidth_remaining = models.BigIntegerField(verbose_name=_('Remaining traffic allocation (bandwidth in bytes)'),
+                                                 help_text=_('Remaining amount of traffic allowed (bandwidth in bytes) during the life of this bridge. Initialized with the default bandwidth allocation of the Host'),
+                                                 default=1073741824)
+    
+    bandwidth_last_checked = models.DateTimeField(verbose_name=_('Last time bandwidth usage was checked in this bridge'),
+                                                 help_text=_('Last time bandwidth usage was checked in this bridge'),
+                                                 blank=True, null=True)
 
     objects = models.Manager()  # default
     initial = InitialTorBridgeManager()
@@ -703,7 +718,8 @@ class PurchaseOrderTorBridgeManager(models.Manager):
     def create(self, host, target, comment=None):
         tor_bridge = TorBridge.objects.create(comment=comment,
                                               host=host,
-                                              target=target)
+                                              target=target,
+                                              bandwidth_remaining=host.bridge_bandwidth_initial)
 
         po = PurchaseOrder.objects.create()
         po_item = PurchaseOrderItemDetail(price=host.tor_bridge_price_initial,

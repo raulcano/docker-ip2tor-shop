@@ -37,6 +37,15 @@ def validate_nostr_alias_blacklist(value):
             _('The selected alias is taken. Try another one...')
         )
 
+def validate_alias_unique_in_ip(value):
+    # ToDo
+    
+    # for nostr_alias in NostrAlias.objects.filter(alias__iexact=clean_alias):
+    #                     if nostr_alias.host.ip == host.ip:
+    #                         host_id = request.POST.get(submitted_product_type + 'Host_id')
+    #                         errors.append('This alias is already taken. Please try another one...')
+    #                         break
+    pass
 
 
 def validate_nostr_pubkey(value):

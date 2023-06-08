@@ -10,7 +10,7 @@ class Command(BaseCommand):
         manage.py create_host --owner=operator --sitedomain="ip2tor.com" --name="host1" --description="A cool host" --ip=10.11.42.3 --portranges=10000,11000:20000,21000 --rangetype=T --isenabled=True --isalive=True 
         --istestnet=False --offerstorbridges=True --torbridgeduration=86400 --torbridgepriceinitial=25000 --torbridgepriceextension=20000
         --offersnostraliases=True --nostraliasport=80 --nostraliasduration=2592000 --nostraliaspriceinitial=25000000 --nostraliaspriceextension=20000000
-        --offersrsshtunnels=False --rsshtunnelprice=1000 --tos="" --tosurl="" --cistatus=0 --cidate="2022-12-19 00:00" --cimessage=""
+        --offersrsshtunnels=False --rsshtunnelprice=1000 --tos="" --tosurl="" --cistatus=0 --cidate="2022-12-19 00:00" --cimessage="" --bridge_bandwidth_initial=1073741824
     """
 
     def add_arguments(self, parser):
@@ -41,6 +41,7 @@ class Command(BaseCommand):
         parser.add_argument("--cistatus", required=False, default=0)
         parser.add_argument("--cidate", required=False)
         parser.add_argument("--cimessage", required=False)
+        parser.add_argument("--bridge_bandwidth_initial", required=False, default=1073741824)
     
     def handle(self, *args, **options):
         owner = options["owner"]
@@ -70,6 +71,7 @@ class Command(BaseCommand):
         cistatus = options["cistatus"]
         cidate = options["cidate"]
         cimessage = options["cimessage"]
+        bridge_bandwidth_initial = options["bridge_bandwidth_initial"]
 
         User = get_user_model()
         if not User.objects.exists():
@@ -126,7 +128,7 @@ class Command(BaseCommand):
             site=site_object, is_test_host=istesthost, is_testnet=istestnet, offers_tor_bridges=offerstorbridges, tor_bridge_duration=torbridgeduration,
             tor_bridge_price_initial=torbridgepriceinitial, tor_bridge_price_extension=torbridgepriceextension, offers_nostr_aliases=offersnostraliases, nostr_alias_port=nostraliasport, nostr_alias_duration=nostraliasduration, nostr_alias_price_initial=nostraliaspriceinitial, nostr_alias_price_extension=nostraliaspriceextension, 
             offers_rssh_tunnels=offersrsshtunnels, rssh_tunnel_price=rsshtunnelprice,terms_of_service=tos,
-            terms_of_service_url=tosurl, ci_date=cidate, ci_message=cimessage, ci_status=cistatus
+            terms_of_service_url=tosurl, ci_date=cidate, ci_message=cimessage, ci_status=cistatus, bridge_bandwidth_initial=bridge_bandwidth_initial
         )
         
         # If we pass the token_user , it won't create the Host if that has been used already

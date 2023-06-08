@@ -84,6 +84,7 @@ def lninvoice_paid_handler(sender, instance, **kwargs):
             shop_item.suspend_after = timezone.now() + timedelta(seconds=item_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME', 600))
         else:
             shop_item.suspend_after = shop_item.suspend_after + timedelta(seconds=item_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME', 600))
+            shop_item.bandwidth_remaining = shop_item.bandwidth_remaining + shop_item.host.bridge_bandwidth_initial
 
     elif shop_item.status == Bridge.SUSPENDED or shop_item.status == Bridge.NEEDS_SUSPEND:
         print(f"is reactivate")

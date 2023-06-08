@@ -16,7 +16,7 @@ class HostSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Host
-        fields = ('url', 'ip', 'name', 'site', 'is_testnet', 'ci_date', 'ci_status', 'ci_message')
+        fields = ('url', 'ip', 'name', 'site', 'is_testnet', 'ci_date', 'ci_status', 'ci_message', 'bridge_bandwidth_initial')
 
 
 class HostCheckInSerializer(serializers.HyperlinkedModelSerializer):
@@ -33,7 +33,7 @@ class TorBridgeSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = TorBridge
-        fields = ('url', 'id', 'comment', 'status', 'host', 'port', 'target', 'suspend_after')
+        fields = ('url', 'id', 'comment', 'status', 'host', 'port', 'target', 'suspend_after', 'bandwidth_remaining', 'bandwidth_last_checked')
 
 class NostrAliasSerializer(serializers.HyperlinkedModelSerializer):
     host = HostSerializer()
