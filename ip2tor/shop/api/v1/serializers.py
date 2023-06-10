@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from rest_framework import serializers
 
-from shop.models import TorBridge, Host, NostrAlias, BandwidthExtension
+from shop.models import TorBridge, Host, NostrAlias, BandwidthExtension, BandwidthExtensionOption
 
 
 class SiteSerializer(serializers.HyperlinkedModelSerializer):
@@ -10,13 +10,18 @@ class SiteSerializer(serializers.HyperlinkedModelSerializer):
         model = Site
         fields = ('domain', 'name')
 
+class BandwidthExtensionOptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BandwidthExtensionOption
+        fields = ('id', 'duration', 'bandwidth', 'price')
 
 class HostSerializer(serializers.HyperlinkedModelSerializer):
     site = SiteSerializer()
+    bandwidth_extension_options = BandwidthExtensionOptionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Host
-        fields = ('url', 'ip', 'name', 'site', 'is_testnet', 'ci_date', 'ci_status', 'ci_message', 'bridge_bandwidth_initial')
+        fields = ('url', 'ip', 'name', 'site', 'is_testnet', 'ci_date', 'ci_status', 'ci_message', 'bridge_bandwidth_initial', 'bandwidth_extension_options')
 
 
 class HostCheckInSerializer(serializers.HyperlinkedModelSerializer):
@@ -29,10 +34,10 @@ class HostCheckInSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class BandwidthExtensionSerializer(serializers.HyperlinkedModelSerializer):
-
+    tor_bridge = serializers.StringRelatedField()
     class Meta:
         model = BandwidthExtension
-        fields = ('id', 'total', 'remaining', 'created_at', 'updated_at', 'expires_at')
+        fields = ('id', 'total', 'remaining', 'created_at', 'updated_at', 'expires_at', 'tor_bridge')
 
 class TorBridgeSerializer(serializers.HyperlinkedModelSerializer):
     host = HostSerializer()

@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from charged.lnnode.models import LndRestNode, CLightningNode, FakeNode
 from shop.forms import TorBridgeAdminForm, NostrAliasAdminForm, RSshTunnelAdminForm
-from shop.models import Host, PortRange, TorBridge, NostrAlias, RSshTunnel, Bridge, TorDenyList, IpDenyList, BandwidthExtension
+from shop.models import Host, PortRange, TorBridge, NostrAlias, RSshTunnel, Bridge, TorDenyList, IpDenyList, BandwidthExtension, BandwidthExtensionOption
 
 
 class TorBridgeInline(admin.TabularInline):
@@ -30,6 +30,10 @@ class PortRangeInline(admin.TabularInline):
 
 class BandwidthExtensionInline(admin.TabularInline):
     model = BandwidthExtension
+    extra = 0
+
+class BandwidthExtensionOptionInline(admin.TabularInline):
+    model = BandwidthExtensionOption
     extra = 0
 
 class BridgeTunnelAdmin(admin.ModelAdmin):
@@ -163,7 +167,7 @@ class HostAdmin(admin.ModelAdmin):
                    'owner', 'ip', 'offers_tor_bridges', 'offers_rssh_tunnels')
 
     readonly_fields = ('id', 'auth_token', 'is_alive', 'ci_status', 'ci_date', 'ci_message')
-    inlines = (PortRangeInline, )
+    inlines = (PortRangeInline, BandwidthExtensionOptionInline)
     # inlines = (PortRangeInline, TorBridgeInline)  # Bridges are too many to be useful
 
     def get_queryset(self, request):
@@ -191,6 +195,9 @@ class BandwidthExtensionAdmin(admin.ModelAdmin):
     list_filter = ('tor_bridge', 'expires_at')
     search_fields = ('tor_bridge__name',)
 
+class BandwidthExtensionOptionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'host', 'duration', 'bandwidth', 'price')
+    list_filter = ('host',)
 
 # unregister the charged.models.Backend. Make sure to place
 # charged.apps.ChargedConfig before the App Config of this App in INSTALLED_APPS.
@@ -208,3 +215,4 @@ admin.site.register(Host, HostAdmin)
 admin.site.register(IpDenyList, IpDenyListAdmin)
 admin.site.register(TorDenyList, TorDenyListAdmin)
 admin.site.register(BandwidthExtension, BandwidthExtensionAdmin)
+admin.site.register(BandwidthExtensionOption, BandwidthExtensionOptionAdmin)

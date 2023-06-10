@@ -390,6 +390,21 @@ class Host(models.Model):
             self.save()
 
 
+class BandwidthExtensionOption(models.Model):
+    host = models.ForeignKey(
+        Host, on_delete=models.CASCADE, related_name='bandwidth_extension_options'
+    )
+
+    duration = models.BigIntegerField(verbose_name=_('Extension duration (seconds)'),
+                                                 help_text=_('Lifetime of this extension in seconds, from the moment of its purchase. Any unused bandwidth after the expiry date will be lost.'),
+                                                 default=60 * 60 * 24 * 30)
+    bandwidth = models.BigIntegerField(verbose_name=_('Offered traffic allocation (bandwidth in bytes)'),
+                                                 help_text=_('Amount of traffic purchased. That is, bandwidth in bytes that can be used during the life of this extension.'),
+                                                 default=1073741824)
+    price = models.BigIntegerField(verbose_name=_('Bandwidth extension price (mSAT)'),
+                                                      help_text=_('Price in milli-satoshi of this extension.'),
+                                                      default=20000000)
+
 class PortRange(models.Model):
     INITIAL = 'I'
     TOR_BRIDGE = 'T'
@@ -747,6 +762,7 @@ class BandwidthExtension(models.Model):
     expires_at = models.DateTimeField(verbose_name=_('Expiry date'),
                                                  help_text=_('The extension will only be valid before the expiry date'),
                                                  blank=True, null=True)
+
 
 class PurchaseOrderTorBridgeManager(models.Manager):
     """creates a purchase order for a new tor bridge"""
