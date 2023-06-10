@@ -7,7 +7,7 @@ from rest_framework import renderers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from shop.models import TorBridge, Host, NostrAlias
+from shop.models import TorBridge, Host, NostrAlias, BandwidthExtension
 from . import serializers
 from .serializers import HostCheckInSerializer
 
@@ -54,7 +54,7 @@ class TorBridgeViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['host', 'status']
-
+  
     def get_queryset(self):
         """
         This view returns a list of all the tor bridges for the currently authenticated user.
@@ -174,3 +174,17 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = serializers.UserSerializer
     permission_classes = [permissions.IsAdminUser]
+
+class BandwidthExtensionViewSet(viewsets.ModelViewSet):
+    queryset = BandwidthExtension.objects.all().order_by('created_at')
+    serializer_class = serializers.BandwidthExtensionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        """
+        This view returns a list of all the extensions for the currently authenticated user.
+        """
+        user = self.request.user
+        if user.is_superuser:
+            return BandwidthExtension.objects.all()
+        return BandwidthExtension.objects.filter(tor_bridge__host__token_user=user)

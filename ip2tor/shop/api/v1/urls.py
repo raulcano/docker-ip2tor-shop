@@ -25,5 +25,6 @@ router.register(r'tor_bridges', views.TorBridgeViewSet)
 router.register(r'nostr_aliases', views.NostrAliasViewSet)
 # router.register(r'rssh_tunnels', views.TorBridgeViewSet)
 router.register(r'hosts', views.HostViewSet)
+router.register(r'bandwidth_extensions', views.BandwidthExtensionViewSet, basename='bandwidthextension')
 
 urlpatterns = router.urls

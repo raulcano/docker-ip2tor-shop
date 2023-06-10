@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from charged.lnnode.models import LndRestNode, CLightningNode, FakeNode
 from shop.forms import TorBridgeAdminForm, NostrAliasAdminForm, RSshTunnelAdminForm
-from shop.models import Host, PortRange, TorBridge, NostrAlias, RSshTunnel, Bridge, TorDenyList, IpDenyList
+from shop.models import Host, PortRange, TorBridge, NostrAlias, RSshTunnel, Bridge, TorDenyList, IpDenyList, BandwidthExtension
 
 
 class TorBridgeInline(admin.TabularInline):
@@ -28,6 +28,9 @@ class PortRangeInline(admin.TabularInline):
     model = PortRange
     extra = 0
 
+class BandwidthExtensionInline(admin.TabularInline):
+    model = BandwidthExtension
+    extra = 0
 
 class BridgeTunnelAdmin(admin.ModelAdmin):
     form = TorBridgeAdminForm
@@ -37,6 +40,7 @@ class BridgeTunnelAdmin(admin.ModelAdmin):
     list_filter = ('status', 'created_at', 'host')
 
     readonly_fields = ('host', 'port', 'created_at', 'po_count')
+    
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         form = super().get_form(request, obj, change, **kwargs)
@@ -107,6 +111,7 @@ class IpDenyListAdmin(admin.ModelAdmin):
 
 class TorBridgeAdmin(BridgeTunnelAdmin):
     form = TorBridgeAdminForm
+    inlines = [BandwidthExtensionInline]
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super().get_readonly_fields(request, obj)
@@ -181,6 +186,11 @@ class HostAdmin(admin.ModelAdmin):
 
         return form
 
+class BandwidthExtensionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'tor_bridge', 'total', 'remaining', 'created_at', 'updated_at', 'expires_at')
+    list_filter = ('tor_bridge', 'expires_at')
+    search_fields = ('tor_bridge__name',)
+
 
 # unregister the charged.models.Backend. Make sure to place
 # charged.apps.ChargedConfig before the App Config of this App in INSTALLED_APPS.
@@ -197,3 +207,4 @@ admin.site.register(NostrAlias, NostrAliasAdmin)
 admin.site.register(Host, HostAdmin)
 admin.site.register(IpDenyList, IpDenyListAdmin)
 admin.site.register(TorDenyList, TorDenyListAdmin)
+admin.site.register(BandwidthExtension, BandwidthExtensionAdmin)

@@ -676,6 +676,22 @@ class Bridge(Product):
         for item in ret_dict:
             con.delete(f'{key}.{item}')
             con.hmset(f'{key}.{item}', ret_dict[item])
+    
+    # This method takes a bandwidth amount of bytes (int) and removes that quantity of the remaining amount.
+    # It needs to check first in the Bridge allocation
+    # Then it goes to extensions of bandwidth, prioritizing the ones that expire earliest
+    def substract_consumed_bandwidth(self, consumed_bytes):
+        # substract from the Bridge allocation
+        self.bandwidth_remaining = self.bandwidth_remaining - consumed_bytes
+
+        if self.bandwidth_remaining < 0:
+            # substract from the extensions (if they exist), sorted by expiry date asc (starting with the earliest one)
+            # ToDo
+            pass
+            
+        # update the datetime of this
+        # self.bandwidth_last_checked = now()
+
 
 
 class NostrAlias(Bridge):
@@ -711,6 +727,26 @@ class TorBridge(Bridge):
                               validators=[validate_target_is_onion,
                                           validate_target_has_port])
 
+class BandwidthExtension(models.Model):
+    tor_bridge = models.ForeignKey(
+        TorBridge, on_delete=models.CASCADE, related_name='bandwidth_extensions'
+    )
+
+    total = models.BigIntegerField(verbose_name=_('Initial purchased extension (bandwidth in bytes)'),
+                                                 help_text=_('Total amount of traffic allowed (bandwidth in bytes) during the life of this extension, that is, before its expiry date.'),
+                                                 default=1073741824)
+    remaining = models.BigIntegerField(verbose_name=_('Remaining traffic allocation (bandwidth in bytes)'),
+                                                 help_text=_('Remaining amount of traffic allowed (bandwidth in bytes) during the life of this extension.'),
+                                                 default=1073741824)
+    created_at = models.DateTimeField(verbose_name=_('Date of purchase'),
+                                                 help_text=_('When this extension was purchased (after successful payment)'),
+                                                 auto_now_add=True)
+    updated_at = models.DateTimeField(verbose_name=_('Date of last update'),
+                                                 help_text=_('When this extension was last updated (usually to modify the remaining bandwidth)'),
+                                                 auto_now=True)
+    expires_at = models.DateTimeField(verbose_name=_('Expiry date'),
+                                                 help_text=_('The extension will only be valid before the expiry date'),
+                                                 blank=True, null=True)
 
 class PurchaseOrderTorBridgeManager(models.Manager):
     """creates a purchase order for a new tor bridge"""
