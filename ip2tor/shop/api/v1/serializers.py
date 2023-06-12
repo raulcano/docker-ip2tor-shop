@@ -37,7 +37,7 @@ class BandwidthExtensionSerializer(serializers.HyperlinkedModelSerializer):
     tor_bridge = serializers.StringRelatedField()
     class Meta:
         model = BandwidthExtension
-        fields = ('id', 'total', 'remaining', 'created_at', 'updated_at', 'expires_at', 'tor_bridge')
+        fields = ('id', 'total', 'remaining', 'created_at', 'updated_at', 'expires_at', 'tor_bridge', 'is_expired', 'remaining_valid_bandwidth')
 
 class TorBridgeSerializer(serializers.HyperlinkedModelSerializer):
     host = HostSerializer()
@@ -45,7 +45,7 @@ class TorBridgeSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = TorBridge
-        fields = ('url', 'id', 'comment', 'status', 'host', 'port', 'target', 'suspend_after', 'bandwidth_remaining', 'bandwidth_last_checked', 'bandwidth_extensions')
+        fields = ('url', 'id', 'comment', 'status', 'host', 'port', 'target', 'suspend_after', 'bandwidth_remaining', 'bandwidth_last_checked', 'bandwidth_extensions', 'total_remaining_valid_bandwidth')
 
 
 class NostrAliasSerializer(serializers.HyperlinkedModelSerializer):

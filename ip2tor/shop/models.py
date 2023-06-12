@@ -692,20 +692,7 @@ class Bridge(Product):
             con.delete(f'{key}.{item}')
             con.hmset(f'{key}.{item}', ret_dict[item])
     
-    # This method takes a bandwidth amount of bytes (int) and removes that quantity of the remaining amount.
-    # It needs to check first in the Bridge allocation
-    # Then it goes to extensions of bandwidth, prioritizing the ones that expire earliest
-    def substract_consumed_bandwidth(self, consumed_bytes):
-        # substract from the Bridge allocation
-        self.bandwidth_remaining = self.bandwidth_remaining - consumed_bytes
 
-        if self.bandwidth_remaining < 0:
-            # substract from the extensions (if they exist), sorted by expiry date asc (starting with the earliest one)
-            # ToDo
-            pass
-            
-        # update the datetime of this
-        # self.bandwidth_last_checked = now()
 
 
 
@@ -741,6 +728,52 @@ class TorBridge(Bridge):
                                           'the port. Example: "ruv6ue7d3t22el2a.onion:80"'),
                               validators=[validate_target_is_onion,
                                           validate_target_has_port])
+    @property
+    def total_remaining_valid_bandwidth(self):
+        total = self.bandwidth_remaining
+        for ext in self.bandwidth_extensions.all():
+            total = total + ext.remaining_valid_bandwidth
+        return total
+
+    # This method takes a bandwidth amount of bytes (int) and removes that quantity of the remaining amount.
+    # It needs to check first in the initial Bridge allocation
+    # Then it goes to extensions of bandwidth, prioritizing the ones that expire earliest
+    def substract_consumed_bandwidth(self, consumed_bytes):
+        if consumed_bytes < 0:
+            return 'error: consumed_bytes needs to be a positive integer'
+        else:
+            if consumed_bytes >= self.total_remaining_valid_bandwidth:
+                # set everything to 0
+                self.bandwidth_remaining = 0
+                for ext in self.bandwidth_extensions.all():
+                    if not ext.is_expired:
+                        ext.remaining = 0
+                        ext.save()
+            else:
+                if self.bandwidth_remaining > consumed_bytes:
+                    self.bandwidth_remaining = self.bandwidth_remaining - consumed_bytes
+                    consumed_bytes = 0
+                else:
+                    consumed_bytes = consumed_bytes - self.bandwidth_remaining
+                    self.bandwidth_remaining = 0
+
+                    # After this, we need to substract from the extensions (if they exist), sorted by expiry date asc (starting with the earliest one)
+                    extensions = list(self.bandwidth_extensions.all().order_by('expires_at'))
+                    index = 0
+                    while consumed_bytes > 0 and index < len(extensions):
+                        ext = extensions[index]
+                        if not ext.is_expired:
+                            if ext.remaining_valid_bandwidth > consumed_bytes:
+                                ext.remaining = ext.remaining_valid_bandwidth - consumed_bytes
+                                consumed_bytes = 0
+                            else:
+                                consumed_bytes = consumed_bytes - ext.remaining_valid_bandwidth
+                                ext.remaining = 0
+                            ext.save()
+                        index = index + 1
+            # update the datetime of this
+            self.save()
+            self.bandwidth_last_checked = timezone.now()
 
 class BandwidthExtension(models.Model):
     tor_bridge = models.ForeignKey(
@@ -762,6 +795,18 @@ class BandwidthExtension(models.Model):
     expires_at = models.DateTimeField(verbose_name=_('Expiry date'),
                                                  help_text=_('The extension will only be valid before the expiry date'),
                                                  blank=True, null=True)
+    @property
+    def is_expired(self):
+        if self.expires_at and self.expires_at > timezone.now():
+            return False
+        else:
+            return True
+    @property
+    def remaining_valid_bandwidth(self):
+        if self.is_expired:
+            return 0
+        else:
+            return self.remaining
 
 
 class PurchaseOrderTorBridgeManager(models.Manager):

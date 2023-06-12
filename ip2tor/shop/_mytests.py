@@ -1,8 +1,10 @@
 ##########################
 # Open a shell environment in the django container
 # Open a python shell for the django project:
+#   cd /home/ip2tor/ip2tor
 #   python3 manage.py shell
 # Inside there, import the function to test e.g.:
+#   import shop
 #   from shop._mytests.py import testmail
 # After that, you can call the function directly to check the result
 #   testmail()
@@ -13,6 +15,7 @@ from charged.utils import create_email_message, is_onion
 from django.conf import settings
 import os
 import grpc
+from shop.models import TorBridge
 
 
 def hello():
@@ -73,3 +76,12 @@ def grpctor():
     proxy_address = getattr(settings, 'CHARGED_LND_HTTP_PROXY')
     options = (('grpc.ssl_target_name_override', cert_cn,),('grpc.http_proxy', proxy_address),)
     return grpc.secure_channel('{}:{}'.format(host, port), combined_creds, options)
+
+# test substraction of bandwidth
+def substract_bw(bw):
+    tor_bridge = TorBridge.objects.first()
+    print(tor_bridge.total_remaining_valid_bandwidth)
+
+    tor_bridge.substract_consumed_bandwidth(bw)
+    
+    print(tor_bridge.total_remaining_valid_bandwidth)
