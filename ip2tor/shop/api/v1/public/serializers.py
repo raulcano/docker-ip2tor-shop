@@ -4,8 +4,8 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from charged.lnpurchase.serializers import PurchaseOrderItemDetailSerializer, PurchaseOrderSerializer
-from shop.api.v1.serializers import TorBridgeSerializer, NostrAliasSerializer, BandwidthExtensionOptionSerializer
-from shop.models import Host, TorBridge, ShopPurchaseOrder, RSshTunnel, NostrAlias
+from shop.api.v1.serializers import TorBridgeSerializer, NostrAliasSerializer, BandwidthExtensionOptionSerializer, BandwidthExtensionSerializer
+from shop.models import Host, TorBridge, ShopPurchaseOrder, RSshTunnel, NostrAlias, BandwidthExtension
 from shop.validators import validate_target_is_onion, validate_target_has_port
 
 
@@ -190,6 +190,9 @@ class ProductRelatedField(serializers.RelatedField):
 
         elif isinstance(value, NostrAlias):
             serializer = NostrAliasSerializer(value, context={'request': self.context.get('request')})
+
+        elif isinstance(value, BandwidthExtension):
+            serializer = BandwidthExtensionSerializer(value, context={'request': self.context.get('request')})
         
         # elif isinstance(value, RSshTunnel):
         #     # ToDo(frennkie) replace with RSshTunnel
@@ -217,10 +220,18 @@ class PublicShopPurchaseOrderSerializer(PurchaseOrderSerializer):
 
 class PublicTorBridgeSerializer(serializers.HyperlinkedModelSerializer):
 
+    available_bandwidth_extension_options = serializers.SerializerMethodField()
+    bandwidth_extensions = BandwidthExtensionSerializer(many=True, read_only=True)
+    
+    def get_available_bandwidth_extension_options(self, instance):
+        host = instance.host
+        beos = host.bandwidth_extension_options.all()
+        return BandwidthExtensionOptionSerializer(beos, many=True).data
+
     class Meta:
         model = TorBridge
         fields = ('id', 'status', 'host_id', 'port', 'suspend_after',
-                  'comment', 'target')
+                  'comment', 'target', 'bandwidth_extensions', 'total_remaining_valid_bandwidth', 'available_bandwidth_extension_options')
         read_only_fields = ['id', 'status', 'port', 'suspend_after']
 
 class PublicNostrAliasSerializer(serializers.HyperlinkedModelSerializer):

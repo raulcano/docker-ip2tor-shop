@@ -2,6 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
+import uuid
 
 
 class Migration(migrations.Migration):
@@ -14,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='BandwidthExtension',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('total', models.BigIntegerField(default=1073741824, help_text='Total amount of traffic allowed (bandwidth in bytes) during the life of this extension, that is, before its expiry date.', verbose_name='Initial purchased extension (bandwidth in bytes)')),
                 ('remaining', models.BigIntegerField(default=1073741824, help_text='Remaining amount of traffic allowed (bandwidth in bytes) during the life of this extension.', verbose_name='Remaining traffic allocation (bandwidth in bytes)')),
                 ('created_at', models.DateTimeField(auto_now_add=True, help_text='When this extension was purchased (after successful payment)', verbose_name='Date of purchase')),

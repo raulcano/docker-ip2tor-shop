@@ -11,10 +11,12 @@ from charged.lnnode.models import LndGRpcNode
 from charged.lnnode.serializers import LndGRpcNodeSerializer
 from charged.lnpurchase.models import PurchaseOrder, PurchaseOrderItemDetail
 from charged.utils import add_change_log_entry
-from shop.models import TorBridge, Host, NostrAlias, BandwidthExtensionOption
+from shop.models import TorBridge, Host, NostrAlias, BandwidthExtensionOption, BandwidthExtension
 from . import serializers
 import uuid
 from rest_framework import status
+from django.utils import timezone
+from datetime import timedelta
 
 class PublicHostViewSet(mixins.RetrieveModelMixin,
                         mixins.ListModelMixin,
@@ -107,7 +109,7 @@ class PublicTorBridgeViewSet(mixins.RetrieveModelMixin,
     """
     API endpoint that allows **anybody** to `retrieve` tor bridges.
     Additional action `extend` allows **anybody** to extend an existing tor bridge.
-    Additional action `extend_bandwidth` allows **anybody** to extend the bandwidthan existing tor bridge.
+    Additional action `extend_bandwidth` allows **anybody** to extend the bandwidth in an existing tor bridge.
     `Create`, `edit`, `list` and `delete` is **not possible**.
     """
     queryset = TorBridge.objects.all().order_by('host__ip', 'port')
@@ -145,7 +147,7 @@ class PublicTorBridgeViewSet(mixins.RetrieveModelMixin,
 
         return Response(res)
 
-    @action(detail=True, methods=['get'], url_path='extend_bandwidth/(?P<bandwidth_extension_option_pk>[^/.]+)')
+    @action(detail=True, methods=['post'], url_path='extend_bandwidth/(?P<bandwidth_extension_option_pk>[^/.]+)')
     def extend_bandwidth(self, request, pk=None, bandwidth_extension_option_pk=None):
 
         try:
@@ -160,39 +162,39 @@ class PublicTorBridgeViewSet(mixins.RetrieveModelMixin,
         
         # Need to check that this option ID is available in the Host in which the TorBridge is hosted 
         # Otherwise the user could add other ids from different Hosts
-        if not tor_bridge.host == beo.host:
+        if tor_bridge.host not in list(beo.hosts.all()):
             return Response({'status': 'error', 'detail': 'This bandwidth extension is not offered by the host selected'}, status=status.HTTP_400_BAD_REQUEST)
-
-        res = {
-            'status': 'ok',
-        }
 
         if(tor_bridge.host.is_test_host):
             return Response({'status': 'error', 'detail': 'This bridge is in a test host and therefore cannot be extended. Try creating a completely new one from scratch.'}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            pass
-            # # create a new PO
-            # # get the price from the request. It will depend on the extension option chosen
+            # create a new PO
             
-            # # ToDo calculate the price based on the selected extension option
-            # price=tor_bridge.host.tor_bridge_price_extension
-            # # ###
+            # Create a new BandwidthExtension object attached to the TorBridge
+            bandwidth_extension = BandwidthExtension.objects.create(
+                tor_bridge=tor_bridge,
+                total=beo.bandwidth,
+                remaining=0, # will be updated when the invoice is paid
+                created_at=timezone.now(),
+                updated_at=timezone.now(),
+                expires_at=timezone.now() + timedelta(seconds=beo.duration) 
+            )
+            
+            po = PurchaseOrder.objects.create()
+            po_item = PurchaseOrderItemDetail(price=beo.price,
+                                            product=bandwidth_extension,
+                                            quantity=1)
+            po.item_details.add(po_item, bulk=False)
+            po_item.save()
+            add_change_log_entry(po_item, "set created")
+            po.save()
+            add_change_log_entry(po, "added item_details")
 
-            # po = PurchaseOrder.objects.create()
-            # po_item = PurchaseOrderItemDetail(price=price,
-            #                                 product=tor_bridge,
-            #                                 quantity=1)
-            # po.item_details.add(po_item, bulk=False)
-            # po_item.save()
-            # add_change_log_entry(po_item, "set created")
-            # po.save()
-            # add_change_log_entry(po, "added item_details")
-
-            # res = {
-            #     'status': 'ok',
-            #     'po_id': po.id,
-            #     'po': reverse('v1:purchaseorder-detail', args=(po.id,), request=request)
-            # }
+            res = {
+                'status': 'ok',
+                'po_id': po.id,
+                'po': reverse('v1:purchaseorder-detail', args=(po.id,), request=request)
+            }
 
         return Response(res)
 

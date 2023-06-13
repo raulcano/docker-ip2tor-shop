@@ -391,6 +391,7 @@ class Host(models.Model):
 
 
 class BandwidthExtensionOption(models.Model):
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     hosts = models.ManyToManyField(Host, related_name='bandwidth_extension_options')
@@ -780,6 +781,10 @@ class TorBridge(Bridge):
             self.save()
 
 class BandwidthExtension(models.Model):
+    PRODUCT = 'bandwidth_extension'
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     tor_bridge = models.ForeignKey(
         TorBridge, on_delete=models.CASCADE, related_name='bandwidth_extensions'
     )
@@ -799,6 +804,10 @@ class BandwidthExtension(models.Model):
     expires_at = models.DateTimeField(verbose_name=_('Expiry date'),
                                                  help_text=_('The extension will only be valid before the expiry date'),
                                                  blank=True, null=True)
+    @property
+    def host(self):
+        return self.tor_bridge.host
+
     @property
     def is_expired(self):
         if self.expires_at and self.expires_at > timezone.now():

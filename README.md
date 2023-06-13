@@ -95,6 +95,27 @@ docker compose build
 docker compose up
 ```
 
+# Bandwidth extensions
+The shop is equipped to offer extensions of bandwith usage for Tor Bridges. That is, if the owner of a tor bridge foresees a high traffic in their bridge, they can purchase bandwith to prevent that the service consumes all initially allocated bandwith.
+
+Firstly, the configuration starts by deciding on each Host, how much bandwidth will be allocated by default with the purchase of a bridge. The variable ```bridge_bandwidth_initial``` in the Host is the one specifying such value, in __Bytes__. 
+This allocation doesn't expire per se, but of course is only useful while the the bridge is active . 
+When the user extends the duration of a tor bridge, an additional amount of bandwidth (specified by ```bridge_bandwidth_initial```) is added to the remaining allocation. Even if a bridge is suspended (not renewed), the remaining unused bytes will still be latent until the bridge is reactivated, so the reactivated bridge will have an allocation of the remaining at suspension time plus ```bridge_bandwidth_initial```.
+
+Second, to offer bandwith extensions, the shop admin must configure them within the shop administration pages. There is a section of "Bandwidth Extension Options" where those options can be created. One needs only to specify 3 parameters for each extention to be offered:
+- ```duration```: the period in seconds in which the extension will be valid. After this time, the extension will expire and will not be useful anymore. For example, if we want to offer a bandwith extension that will be valid for 30 days after the purchase, then, we need to add the value ```2592000``` (30 days in seconds).
+- ```bandwidth```: the amount of extra bytes that will be allowed to be transferred through the bridge in the period set by this extension (that is, from the moment of purchase until the date set by ```duration```).
+- ```price```: the price in mili-satoshi of this extension.
+
+Third, the extensions must be associated to one or many Hosts. 
+
+After all that has been configured properly, the owner of a Tor Bridge can visit this API endpoint and check the remaining bandwidth in the bridge (```total_remaining_valid_bandwidth```) and what extension options are there to purchase (```available_bandwidth_extension_options```):
+http://ip2tor.com/api/v1/public/tor_bridges/cc21d6b5-68fd-4e09-8a81-21bc67232cde/
+
+## Bandwith usage monitoring from the Host
+
+Each configured Host will have a service that checks periodically the traffic on each tor bridge and update each entry accordingly.
+
 # Shop class diagram
 This is a complex system that has plenty of classes and elements carefully working together. In order to help me understand the role and relationships of all moving parts, I created the following class diagram. It is not exact or perfectly complete, as I have reverse engineered it as needed, but it has the most relevant aspects.
 
@@ -253,25 +274,49 @@ https://github.com/rootzoll/raspiblitz/issues/1194#issuecomment-632075264
 
 To place the order and issue the first payment:
 
-- Retrieve Host list: GET https://shop.ip2t.org/api/v1/public/hosts/
-- Place Purchase Order: POST https://shop.ip2t.org/api/v1/public/order/ (store the resulting ID/URL)
+- Retrieve Host list: GET https://ip2tor.com/api/v1/public/hosts/
+- Place Purchase Order: POST https://ip2tor.com/api/v1/public/order/ (store the resulting ID/URL)
 - wait a few ms
-- Retrieve Purchase Order: GET https://shop.ip2t.org/api/v1/public/pos/22a942b3-89de-48e4-841c-f15d4d21e69f/ (store both item_details[0] (e.g. in order to extend life time of bridge later) and ln_invoices[0] <- if empty repeat until a value shows up)
+- Retrieve Purchase Order: GET https://ip2tor.com/api/v1/public/pos/22a942b3-89de-48e4-841c-f15d4d21e69f/ (store both item_details[0] (e.g. in order to extend life time of bridge later) and ln_invoices[0] <- if empty repeat until a value shows up)
 - wait a few seconds (this is a looping script running every 5-30 seconds)
-- Retrieve LN Invoice : GET https://shop.ip2t.org/api/v1/public/po_invoices/1b7fe1ce-0ba6-4c74-81de-bbd304261fb4/
+- Retrieve LN Invoice : GET https://ip2tor.com/api/v1/public/po_invoices/1b7fe1ce-0ba6-4c74-81de-bbd304261fb4/
 - Pay to payment_request
 - Status of LN Invoice should change to 2.
-- Check implementation status (PO: item_details[0].object_id (ToDo: flatten this ..!): GET https://shop.ip2t.org/api/v1/public/tor_bridges/0f25a0b7-e261-44eb-a01b-0b2b25981c68/ status should change to "A".
+- Check implementation status (PO: item_details[0].object_id (ToDo: flatten this ..!): GET https://ip2tor.com/api/v1/public/tor_bridges/0f25a0b7-e261-44eb-a01b-0b2b25981c68/ status should change to "A".
 
 
 To extend an existing subscription:
 
-- empty POST to https://shop.ip2t.org/api/v1/public/tor_bridges/0f25a0b7-e261-44eb-a01b-0b2b25981c68/extend/ (store po)
-- Retrieve Purchase Order: GET https://shop.ip2t.org/api/v1/public/pos/a22843b6-a2dd-4742-a97e-15fcb395847a/
+- empty POST to https://ip2tor.com/api/v1/public/tor_bridges/0f25a0b7-e261-44eb-a01b-0b2b25981c68/extend/ (store po)
+- Retrieve Purchase Order: GET https://ip2tor.com/api/v1/public/pos/a22843b6-a2dd-4742-a97e-15fcb395847a/
 - wait a few seconds (this is a looping script running every 5-30 seconds)
-- Retrieve LN Invoice : GET https://shop.ip2t.org/api/v1/public/pos/a22843b6-a2dd-4742-a97e-15fcb395847a/
+- Retrieve LN Invoice : GET https://ip2tor.com/api/v1/public/pos/a22843b6-a2dd-4742-a97e-15fcb395847a/
 - Pay to payment_request
 - status of LN Invoice should change to 2.
+
+## What is the workflow to extend the bandwidth of a Tor bridge?
+
+- List available extension options for the particular tor bridge.  
+https://ip2tor.com/api/v1/public/tor_bridges/<tor_bridge_id>  
+E.g.:  
+https://ip2tor.com/api/v1/public/tor_bridges/cc21d6b5-68fd-4e09-8a81-21bc67232cdb/
+
+- Perform an empty POST to this endpoint, using the ID of the desired extension option:
+https://ip2tor.com/api/v1/public/tor_bridges/<tor_bridge_id>/extend_bandwidth/<bandwidth_extension_option_id>  
+E.g.:  
+https://ip2tor.com/api/v1/public/tor_bridges/cc21d6b5-68fd-4e09-8a81-21bc67232cdb/extend_bandwidth/782008df-e4a6-423c-92d9-d3d4a8da1034/ 
+
+- Store PurchaseOrder ID
+
+- Retrieve Purchase Order: GET https://ip2tor.com/api/v1/public/pos/<PO_ID>/
+- wait a few seconds (this is a looping script running every 5-30 seconds)
+- Retrieve LN Invoice : GET https://ip2tor.com/api/v1/public/pos/a22843b6-a2dd-4742-a97e-15fcb395847a/
+- Pay to payment_request
+- status of LN Invoice should change to 2.
+- To check everything went fine, retrieve the Tor Bridge and check that the extension is there available with the remaining bandwidth just purchased:  
+E.g.:  
+https://ip2tor.com/api/v1/public/tor_bridges/cc21d6b5-68fd-4e09-8a81-21bc67232cdb/
+
 
 ## Update nginx configuration and restart nginx container
 
