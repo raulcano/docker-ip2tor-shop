@@ -5,7 +5,7 @@
 #   python3 manage.py shell
 # Inside there, import the function to test e.g.:
 #   import shop
-#   from shop._mytests.py import testmail
+#   from shop._mytests import testmail
 # After that, you can call the function directly to check the result
 #   testmail()
 #
@@ -15,7 +15,7 @@ from charged.utils import create_email_message, is_onion
 from django.conf import settings
 import os
 import grpc
-from shop.models import TorBridge
+from shop.models import TorBridge, BandwidthExtensionOption
 
 
 def hello():
@@ -85,3 +85,6 @@ def substract_bw(bw):
     tor_bridge.substract_consumed_bandwidth(bw)
     
     print(tor_bridge.total_remaining_valid_bandwidth)
+
+def delete_beo(id):
+    BandwidthExtensionOption.objects.filter(id=id).delete()

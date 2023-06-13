@@ -33,7 +33,7 @@ class BandwidthExtensionInline(admin.TabularInline):
     extra = 0
 
 class BandwidthExtensionOptionInline(admin.TabularInline):
-    model = BandwidthExtensionOption
+    model = BandwidthExtensionOption.hosts.through
     extra = 0
 
 class BridgeTunnelAdmin(admin.ModelAdmin):
@@ -196,8 +196,22 @@ class BandwidthExtensionAdmin(admin.ModelAdmin):
     search_fields = ('tor_bridge__name',)
 
 class BandwidthExtensionOptionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'host', 'duration', 'bandwidth', 'price')
-    list_filter = ('host',)
+    list_display = ('option', 'id', 'duration', 'bandwidth', 'price', 'get_related_hosts')
+    # list_filter = ('host',)
+    
+    def get_related_hosts(self, obj):
+        # Retrieve the related hosts for the current BEO object
+        related_hosts = obj.hosts.all()
+        
+        # Create a comma-separated string of host names
+        host_names = ", ".join([host.name for host in related_hosts])
+
+        return host_names
+    
+    def option(self, obj):
+        return str(obj)
+    
+    get_related_hosts.short_description = 'Related Hosts'
 
 # unregister the charged.models.Backend. Make sure to place
 # charged.apps.ChargedConfig before the App Config of this App in INSTALLED_APPS.

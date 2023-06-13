@@ -4,7 +4,7 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from charged.lnpurchase.serializers import PurchaseOrderItemDetailSerializer, PurchaseOrderSerializer
-from shop.api.v1.serializers import TorBridgeSerializer, NostrAliasSerializer
+from shop.api.v1.serializers import TorBridgeSerializer, NostrAliasSerializer, BandwidthExtensionOptionSerializer
 from shop.models import Host, TorBridge, ShopPurchaseOrder, RSshTunnel, NostrAlias
 from shop.validators import validate_target_is_onion, validate_target_has_port
 
@@ -14,6 +14,7 @@ class PublicHostSerializer(serializers.ModelSerializer):
     
     are_there_tor_bridge_ports_available = serializers.SerializerMethodField('are_there_tor_bridge_ports_available')
     are_there_rssh_tunnels_ports_available = serializers.SerializerMethodField('are_there_rssh_tunnels_ports_available')
+    bandwidth_extension_options = BandwidthExtensionOptionSerializer(many=True, read_only=True)
     
     def are_there_tor_bridge_ports_available(self):
         return self.tor_bridge_ports_available(consider_safety_margin=True)
@@ -54,6 +55,7 @@ class PublicHostSerializer(serializers.ModelSerializer):
             'owner',
             'are_there_tor_bridge_ports_available',
             'are_there_rssh_tunnels_ports_available',
+            'bandwidth_extension_options'
         )
         # exclude = ('token_user',)
 

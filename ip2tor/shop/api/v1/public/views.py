@@ -11,9 +11,10 @@ from charged.lnnode.models import LndGRpcNode
 from charged.lnnode.serializers import LndGRpcNodeSerializer
 from charged.lnpurchase.models import PurchaseOrder, PurchaseOrderItemDetail
 from charged.utils import add_change_log_entry
-from shop.models import TorBridge, Host, NostrAlias
+from shop.models import TorBridge, Host, NostrAlias, BandwidthExtensionOption
 from . import serializers
-
+import uuid
+from rest_framework import status
 
 class PublicHostViewSet(mixins.RetrieveModelMixin,
                         mixins.ListModelMixin,
@@ -106,6 +107,7 @@ class PublicTorBridgeViewSet(mixins.RetrieveModelMixin,
     """
     API endpoint that allows **anybody** to `retrieve` tor bridges.
     Additional action `extend` allows **anybody** to extend an existing tor bridge.
+    Additional action `extend_bandwidth` allows **anybody** to extend the bandwidthan existing tor bridge.
     `Create`, `edit`, `list` and `delete` is **not possible**.
     """
     queryset = TorBridge.objects.all().order_by('host__ip', 'port')
@@ -140,6 +142,57 @@ class PublicTorBridgeViewSet(mixins.RetrieveModelMixin,
                 'po_id': po.id,
                 'po': reverse('v1:purchaseorder-detail', args=(po.id,), request=request)
             }
+
+        return Response(res)
+
+    @action(detail=True, methods=['get'], url_path='extend_bandwidth/(?P<bandwidth_extension_option_pk>[^/.]+)')
+    def extend_bandwidth(self, request, pk=None, bandwidth_extension_option_pk=None):
+
+        try:
+            uuid_bandwidth_extension_option_pk = uuid.UUID(bandwidth_extension_option_pk)
+            tor_bridge = self.get_object()
+            beo = BandwidthExtensionOption.objects.get(pk=uuid_bandwidth_extension_option_pk)
+        except ValueError:
+            return Response({'status': 'error', 'detail': 'Invalid UUID format for the extension option ID'}, status=status.HTTP_400_BAD_REQUEST)
+        except BandwidthExtensionOption.DoesNotExist:
+            return Response({'status': 'error', 'detail': 'Extension option does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+
+        
+        # Need to check that this option ID is available in the Host in which the TorBridge is hosted 
+        # Otherwise the user could add other ids from different Hosts
+        if not tor_bridge.host == beo.host:
+            return Response({'status': 'error', 'detail': 'This bandwidth extension is not offered by the host selected'}, status=status.HTTP_400_BAD_REQUEST)
+
+        res = {
+            'status': 'ok',
+        }
+
+        if(tor_bridge.host.is_test_host):
+            return Response({'status': 'error', 'detail': 'This bridge is in a test host and therefore cannot be extended. Try creating a completely new one from scratch.'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            pass
+            # # create a new PO
+            # # get the price from the request. It will depend on the extension option chosen
+            
+            # # ToDo calculate the price based on the selected extension option
+            # price=tor_bridge.host.tor_bridge_price_extension
+            # # ###
+
+            # po = PurchaseOrder.objects.create()
+            # po_item = PurchaseOrderItemDetail(price=price,
+            #                                 product=tor_bridge,
+            #                                 quantity=1)
+            # po.item_details.add(po_item, bulk=False)
+            # po_item.save()
+            # add_change_log_entry(po_item, "set created")
+            # po.save()
+            # add_change_log_entry(po, "added item_details")
+
+            # res = {
+            #     'status': 'ok',
+            #     'po_id': po.id,
+            #     'po': reverse('v1:purchaseorder-detail', args=(po.id,), request=request)
+            # }
 
         return Response(res)
 

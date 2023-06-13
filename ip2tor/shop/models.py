@@ -391,9 +391,9 @@ class Host(models.Model):
 
 
 class BandwidthExtensionOption(models.Model):
-    host = models.ForeignKey(
-        Host, on_delete=models.CASCADE, related_name='bandwidth_extension_options'
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    hosts = models.ManyToManyField(Host, related_name='bandwidth_extension_options')
 
     duration = models.BigIntegerField(verbose_name=_('Extension duration (seconds)'),
                                                  help_text=_('Lifetime of this extension in seconds, from the moment of its purchase. Any unused bandwidth after the expiry date will be lost.'),
@@ -404,6 +404,10 @@ class BandwidthExtensionOption(models.Model):
     price = models.BigIntegerField(verbose_name=_('Bandwidth extension price (mSAT)'),
                                                       help_text=_('Price in milli-satoshi of this extension.'),
                                                       default=20000000)
+    def __str__(self):
+        return '{} days | {} MB ({} GB)| {} sats'.format(round(self.duration / 60 / 60 / 24),
+                                          round(self.bandwidth / 1024), round(self.bandwidth / 1024 / 1024),
+                                          round(self.price / 1000))
 
 class PortRange(models.Model):
     INITIAL = 'I'
@@ -772,8 +776,8 @@ class TorBridge(Bridge):
                             ext.save()
                         index = index + 1
             # update the datetime of this
-            self.save()
             self.bandwidth_last_checked = timezone.now()
+            self.save()
 
 class BandwidthExtension(models.Model):
     tor_bridge = models.ForeignKey(
