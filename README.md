@@ -116,10 +116,19 @@ http://ip2tor.com/api/v1/public/tor_bridges/cc21d6b5-68fd-4e09-8a81-21bc67232cde
 
 Each configured Host will have a service that checks periodically the traffic on each tor bridge and update each entry accordingly.
 
+## Tor Bridges that run out of bandwidth
+If a Tor Bridge has used all its allocated bandwidth before the end of the bridge's validity period, the system will redirect such bridge to a page to purchase a bandwidth extension.
+
 # Shop class diagram
 This is a complex system that has plenty of classes and elements carefully working together. In order to help me understand the role and relationships of all moving parts, I created the following class diagram. It is not exact or perfectly complete, as I have reverse engineered it as needed, but it has the most relevant aspects.
 
 ![IP2Tor class diagram](images/ip2tor_shop_class_diagram.png)
+
+# Bridge status flow
+
+An instance of the Bridge class will be in any of these statuses at any point in time and can change based on the conditions given in the chart below.
+
+![Flower screenshot](images/BridgeStatusFlow.png)
 
 # Docker bind mounts
 The root folder of the project (where the ```docker-compose.yml``` lives) is mounted in some containers as ```/home/ip2tor```. You'll identify that by the following line in the ```docker-compose.yml``` file.

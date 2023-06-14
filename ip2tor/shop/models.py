@@ -583,6 +583,8 @@ class Bridge(Product):
     ARCHIVED = 'Z'
     NEEDS_DELETE = 'D'
     FAILED = 'F'
+    NEEDS_BW_REDIRECT = 'B'
+    OUT_OF_BANDWIDTH = 'O'
     BRIDGE_STATUS_CHOICES = (
         (INITIAL, _('initial')),
         (NEEDS_ACTIVATE, _('needs activate (pending)')),
@@ -592,6 +594,8 @@ class Bridge(Product):
         (ARCHIVED, _('archived')),
         (NEEDS_DELETE, _('needs delete')),
         (FAILED, _('failed')),
+        (NEEDS_BW_REDIRECT, _('needs bandwidth redirect')),
+        (OUT_OF_BANDWIDTH, _('out of bandwidth')),
     )
 
     status = models.CharField(
