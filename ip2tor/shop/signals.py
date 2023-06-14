@@ -63,6 +63,11 @@ def lninvoice_paid_handler(sender, instance, **kwargs):
     if shop_item_content_type == ContentType.objects.get_for_model(BandwidthExtension):
         shop_item = BandwidthExtension.objects.get(id=shop_item_id)
         shop_item.remaining = shop_item.total
+
+        if shop_item.tor_bridge.status == Bridge.OUT_OF_BANDWIDTH or shop_item.tor_bridge.status == Bridge.NEEDS_BW_REDIRECT:
+            print(f"added more bandwidth")
+            shop_item.tor_bridge.status = Bridge.NEEDS_ACTIVATE
+            shop_item.tor_bridge.save()
     else:
         if shop_item_content_type == ContentType.objects.get_for_model(TorBridge):
             shop_item = TorBridge.objects.get(id=shop_item_id)
@@ -99,6 +104,11 @@ def lninvoice_paid_handler(sender, instance, **kwargs):
             else:
                 # rare cases where it's SUSPENDED/NEEDS_SUSPEND but it hasn't expired yet (not sure if we'll reach this state ever)
                 shop_item.suspend_after = shop_item.suspend_after + timedelta(seconds=item_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME', 600))
+        
+        elif shop_item.status == Bridge.OUT_OF_BANDWIDTH or shop_item.status == Bridge.NEEDS_BW_REDIRECT:
+            # The bridge was out of bandwidth and the user purchased an time extension, which comes with more bandwidth
+            print(f"reactivate with more bandwidth")
+            shop_item.status = Bridge.NEEDS_ACTIVATE
 
     shop_item.save()
     add_change_log_entry(shop_item, "ran lninvoice_paid_handler")

@@ -39,6 +39,7 @@ s_host_alive = env.str("SCHEDULE_HOST_ALIVE_CHECK").split()
 s_needs_delete_on_suspended = env.str("SCHEDULE_SET_NEEDS_DELETE_ON_SUSPENDED_TOR_BRIDGES").split()
 s_needs_delete_on_initial = env.str("SCHEDULE_SET_NEEDS_DELETE_ON_INITIAL_TOR_BRIDGES").split()
 s_needs_suspend_on_expired = env.str("SCHEDULE_SET_NEEDS_SUSPEND_ON_EXPIRED_TOR_BRIDGES").split()
+s_needs_bw_redirect_on_no_bandwidth = env.str("SCHEDULE_SET_NEEDS_BW_REDIRECT_ON_TOR_BRIDGES_WITH_NO_BANDWIDTH").split()
 s_delete_due = env.str("SCHEDULE_DELETE_DUE_TOR_BRIDGES").split()
 s_backup_files = env.str("SCHEDULE_BACKUP_FILES").split()
 s_delete_old_backups = env.str("SCHEDULE_DELETE_OLD_BACKUPS").split()
@@ -66,6 +67,10 @@ CELERY_BEAT_SCHEDULE = {
     'set_needs_suspend_on_expired_tor_bridges': {
         'task': 'shop.tasks.set_needs_suspend_on_expired_tor_bridges',
         'schedule': crontab(minute=s_needs_suspend_on_expired[0], hour=s_needs_suspend_on_expired[1], day_of_week=s_needs_suspend_on_expired[2], day_of_month=s_needs_suspend_on_expired[3], month_of_year=s_needs_suspend_on_expired[4]),
+    },
+    'set_needs_bw_redirect_on_tor_bridges_with_no_bandwidth': {
+        'task': 'shop.tasks.set_needs_bw_redirect_on_tor_bridges_with_no_bandwidth',
+        'schedule': crontab(minute=s_needs_bw_redirect_on_no_bandwidth[0], hour=s_needs_bw_redirect_on_no_bandwidth[1], day_of_week=s_needs_bw_redirect_on_no_bandwidth[2], day_of_month=s_needs_bw_redirect_on_no_bandwidth[3], month_of_year=s_needs_bw_redirect_on_no_bandwidth[4]),
     },
     'delete_due_tor_bridges': {
         'task': 'shop.tasks.delete_due_tor_bridges',

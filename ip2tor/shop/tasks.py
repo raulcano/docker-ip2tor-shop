@@ -119,6 +119,24 @@ def set_needs_suspend_on_expired_tor_bridges():
 
 
 @shared_task()
+def set_needs_bw_redirect_on_tor_bridges_with_no_bandwidth():
+    counter = 0
+    actives = TorBridge.objects.filter(status=TorBridge.ACTIVE)
+    if actives:
+        for item in actives:
+            logger.info('Running on: %s' % item)
+
+            if item.total_remaining_valid_bandwidth <= 0:
+                logger.info('Needs to be redirected. Out of bandwidth.')
+                item.status = TorBridge.NEEDS_BW_REDIRECT
+                item.save()
+                add_change_log_entry(item, "set to NEEDS_BW_REDIRECT")
+                counter += 1
+
+    return f'Set NEEDS_BW_REDIRECT on {counter}/{len(actives)} Tor Bridge(s) (previous state: ACTIVE).'
+
+
+@shared_task()
 def backup_files():
     subprocess.call(['sh',  settings.BASE_DIR + '/../scripts/backup-files.sh'])
     
