@@ -231,7 +231,7 @@ class PublicTorBridgeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = TorBridge
         fields = ('id', 'status', 'host_id', 'port', 'suspend_after',
-                  'comment', 'target', 'bandwidth_extensions', 'total_remaining_valid_bandwidth', 'available_bandwidth_extension_options')
+                  'comment', 'target', 'bandwidth_extensions', 'total_remaining_valid_bandwidth','bandwidth_last_checked', 'available_bandwidth_extension_options')
         read_only_fields = ['id', 'status', 'port', 'suspend_after']
 
 class PublicNostrAliasSerializer(serializers.HyperlinkedModelSerializer):

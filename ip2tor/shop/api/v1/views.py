@@ -6,6 +6,7 @@ from rest_framework import permissions, viewsets
 from rest_framework import renderers
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework import status
 
 from shop.models import TorBridge, Host, NostrAlias, BandwidthExtension
 from . import serializers
@@ -47,7 +48,8 @@ class NostrAliasViewSet(viewsets.ModelViewSet):
 class TorBridgeViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows **admins** and **authenticated users** to `create`, `retrieve`,
-    `update`, `delete` and `list` tor bridges.
+    `update`, `delete` and `list` tor bridges. Also, there is an additional action 'consume_bandwidth', to 
+    substract a certain amount of bytes from the bridge remaining bandwidth.
     """
     queryset = TorBridge.objects.all().order_by('host__ip', 'port')
     serializer_class = serializers.TorBridgeSerializer
@@ -64,6 +66,35 @@ class TorBridgeViewSet(viewsets.ModelViewSet):
             return TorBridge.objects.all()
 
         return TorBridge.objects.filter(host__token_user=user)
+
+    # Allows to post an amount in bytes to substract from the Tor Bridge
+    # { amount: <amount_in_bytes> }
+    # This method:
+    # - Substracts bandwidth from TorBridge (it also updates date of last check of bandwidth of TorBridge)
+    @action(detail=True, methods=['post'])
+    def consume_bandwidth(self, request, pk=None):
+        tor_bridge = self.get_object()
+
+        amount = request.data.get('amount')
+
+        # Make sure the 'amount' is a valid value
+        if amount is None:
+            return Response({'status': 'error', 'detail': 'Invalid payload. "amount" field is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Convert the 'amount' to integer if needed
+        try:
+            amount = int(amount)
+        except ValueError:
+            return Response({'status': 'error', 'detail': 'Invalid value for "amount" field. Must be an integer.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        previous_bw = tor_bridge.total_remaining_valid_bandwidth
+        tor_bridge.substract_consumed_bandwidth(amount)
+        current_bw = tor_bridge.total_remaining_valid_bandwidth
+        res = {
+                'status': 'ok',
+                'detail': 'The remaining bandwidth of the tor bridge was updated. Previous remaining bandwidth: {} MB ({} GB). Current remaining bandwidth: {} MB ({} GB)'.format(str(round(previous_bw/1024)), str(round(previous_bw/1024/1024)), str(round(current_bw/1024)),str(round(current_bw/1024/1024)))
+            }
+        return Response(res)
 
     @action(detail=False, methods=['get'], renderer_classes=[PlainTextRenderer])
     def get_telegraf_config(self, request, **kwargs):
