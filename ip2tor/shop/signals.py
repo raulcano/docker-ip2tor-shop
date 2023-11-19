@@ -91,6 +91,7 @@ def lninvoice_paid_handler(sender, instance, **kwargs):
             if shop_item.suspend_after <= timezone.now():
                 # rare cases where it's ACTIVE but expired (the scheduled task didn't update it yet)
                 shop_item.suspend_after = timezone.now() + timedelta(seconds=item_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME', 600))
+                shop_item.bandwidth_remaining = shop_item.host.bridge_bandwidth_initial
             else:
                 shop_item.suspend_after = shop_item.suspend_after + timedelta(seconds=item_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME', 600))
                 shop_item.bandwidth_remaining = shop_item.bandwidth_remaining + shop_item.host.bridge_bandwidth_initial
@@ -98,6 +99,7 @@ def lninvoice_paid_handler(sender, instance, **kwargs):
         elif shop_item.status == Bridge.SUSPENDED or shop_item.status == Bridge.NEEDS_SUSPEND:
             print(f"is reactivate")
             shop_item.status = Bridge.NEEDS_ACTIVATE
+            shop_item.bandwidth_remaining = shop_item.host.bridge_bandwidth_initial
 
             if shop_item.suspend_after <= timezone.now():
                 shop_item.suspend_after = timezone.now() + timedelta(seconds=item_duration) + timedelta(seconds=getattr(settings, 'SHOP_BRIDGE_DURATION_GRACE_TIME', 600))
@@ -109,6 +111,7 @@ def lninvoice_paid_handler(sender, instance, **kwargs):
             # The bridge was out of bandwidth and the user purchased an time extension, which comes with more bandwidth
             print(f"reactivate with more bandwidth")
             shop_item.status = Bridge.NEEDS_ACTIVATE
+            shop_item.bandwidth_remaining = shop_item.bandwidth_remaining + shop_item.host.bridge_bandwidth_initial
 
     shop_item.save()
     add_change_log_entry(shop_item, "ran lninvoice_paid_handler")

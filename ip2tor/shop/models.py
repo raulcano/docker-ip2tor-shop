@@ -630,6 +630,7 @@ class Bridge(Product):
     
     bandwidth_last_checked = models.DateTimeField(verbose_name=_('Last time bandwidth usage was checked in this bridge'),
                                                  help_text=_('Last time bandwidth usage was checked in this bridge'),
+                                                 default=timezone.now(),
                                                  blank=True, null=True)
 
     objects = models.Manager()  # default

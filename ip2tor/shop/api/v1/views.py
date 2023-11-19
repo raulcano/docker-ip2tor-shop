@@ -71,7 +71,7 @@ class TorBridgeViewSet(viewsets.ModelViewSet):
     # { amount: <amount_in_bytes> }
     # This method:
     # - Substracts bandwidth from TorBridge (it also updates date of last check of bandwidth of TorBridge)
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['patch'])
     def consume_bandwidth(self, request, pk=None):
         tor_bridge = self.get_object()
 

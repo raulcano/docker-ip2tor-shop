@@ -214,45 +214,45 @@ services:
       
   # To get the Onion address
   # docker exec -it ip2tor-shop-sample-hidden-service cat /var/lib/tor/sample_hidden_service/hostname
-  # sample-hidden-service:
-  #   build:
-  #     context: .
-  #     dockerfile: .docker/sample-hidden-service/sample-hidden-service.Dockerfile
-  #     args:
-  #       ONION_PORT: ${SAMPLE_HIDDEN_SERVICE_ONION_PORT}
-  #       HTTP_PORT: ${SAMPLE_HTTP_SERVICE_PORT}
-  #   container_name: ip2tor-shop-sample-hidden-service
-  #   deploy:
-  #     restart_policy:
-  #       condition: on-failure
-  #       delay: 5s
-  #       max_attempts: 3
-  #       window: 120s
-  #   volumes:
-  #         - .docker/sample-hidden-service/.tor/sample_hidden_service:/var/lib/tor/sample_hidden_service/
-  #   ports:
-  #     - ${SAMPLE_HIDDEN_SERVICE_ONION_PORT}:${SAMPLE_HIDDEN_SERVICE_ONION_PORT}
-  #   networks:
-  #     - shopnet
+  sample-hidden-service:
+    build:
+      context: .
+      dockerfile: .docker/sample-hidden-service/sample-hidden-service.Dockerfile
+      args:
+        ONION_PORT: ${SAMPLE_HIDDEN_SERVICE_ONION_PORT}
+        HTTP_PORT: ${SAMPLE_HTTP_SERVICE_PORT}
+    container_name: ip2tor-shop-sample-hidden-service
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    volumes:
+          - .docker/sample-hidden-service/.tor/sample_hidden_service:/var/lib/tor/sample_hidden_service/
+    ports:
+      - ${SAMPLE_HIDDEN_SERVICE_ONION_PORT}:${SAMPLE_HIDDEN_SERVICE_ONION_PORT}
+    networks:
+      - shopnet
   
-  # sample-http:
-  #   build:
-  #     context: .
-  #     dockerfile: .docker/sample-hidden-service/sample-http.Dockerfile
-  #   container_name: ip2tor-shop-sample-http
-  #   hostname: sample-http
-  #   # This http service is aimed at offering some response from a tests onion address (see sample-hidden-service container). 
-  #   # We don't really want to expose this ports unless we intend to test the service via clearnet.
-  #   # ports:
-  #   #   - ${SAMPLE_HTTP_SERVICE_PORT}:${SAMPLE_HTTP_SERVICE_PORT}
-  #   deploy:
-  #     restart_policy:
-  #       condition: on-failure
-  #       delay: 5s
-  #       max_attempts: 3
-  #       window: 120s
-  #   networks:
-  #     - shopnet
+  sample-http:
+    build:
+      context: .
+      dockerfile: .docker/sample-hidden-service/sample-http.Dockerfile
+    container_name: ip2tor-shop-sample-http
+    hostname: sample-http
+    # This http service is aimed at offering some response from a tests onion address (see sample-hidden-service container). 
+    # We don't really want to expose this ports unless we intend to test the service via clearnet.
+    ports:
+      - ${SAMPLE_HTTP_SERVICE_PORT}:${SAMPLE_HTTP_SERVICE_PORT}
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    networks:
+      - shopnet
 
 networks:
     shopnet:
