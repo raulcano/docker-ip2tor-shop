@@ -469,10 +469,10 @@ mkdir ~/docker-ip2tor-shop/ssl/${SHOP_SITE_DOMAIN}/
 ```
 3. Copy the issued certs to the destination folder with this specific command provided by the acme script.
 ```
-acme.sh --install-cert -d {NOSTR_DOMAIN} -d *.{NOSTR_DOMAIN} \
+acme.sh --install-cert -d ${SHOP_SITE_DOMAIN} -d *.${SHOP_SITE_DOMAIN} \
 --key-file       ~/docker-ip2tor-shop/ssl/${SHOP_SITE_DOMAIN}/privkey.pem  \
 --fullchain-file ~/docker-ip2tor-shop/ssl/${SHOP_SITE_DOMAIN}/fullchain.pem \
---reloadcmd     "sudo docker exec ip2tor-host-nginx service nginx reload"
+--reloadcmd     "sudo docker exec ip2tor-shop-nginx service nginx reload"
 ```
 
 4. To check the installed certificates and their validity:
