@@ -13,4 +13,5 @@ urlpatterns = [
 
     # path('invoice/<label>/', InvoiceView.as_view(), name='invoice_get'),
     # path('invoice/', csrf_exempt(InvoiceView.as_view()), name='invoice_create'),
+    path('buy_bandwidth/', views.buy_bandwidth, name='buy_bandwidth'),
 ]

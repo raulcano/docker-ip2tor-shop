@@ -9,6 +9,7 @@ from shop.models import Host
 from charged.lnpurchase.models import PurchaseOrder, PurchaseOrderItemDetail
 from django.db.models import Value
 from django.core.exceptions import ValidationError
+from django.http import HttpResponse
 
 class HostListView(generic.ListView):
     model = Host
@@ -215,3 +216,12 @@ def index(request):
             'errors': errors,
             'productID': productID,
         })
+
+def buy_bandwidth(request):
+    ip = request.GET.get('ip')
+    port = request.GET.get('port')
+
+    # Now you have the 'ip' and 'port' values, and you can use them as needed.
+    
+    # For example, you can render a template or return a response with the values.
+    return HttpResponse(f"IP: {ip}, Port: {port}")
